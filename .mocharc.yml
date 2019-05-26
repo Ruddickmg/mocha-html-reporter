@@ -1,0 +1,9 @@
+require:
+ - '@babel/register'
+ - '@babel/polyfill'
+extensions: '.ts'
+presets:
+ - '@babel/preset-env'
+ - '@babel/preset-typescript'
+spec: test/unit/**/*.spec.ts
+

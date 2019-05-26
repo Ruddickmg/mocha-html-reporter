@@ -1,0 +1,34 @@
+env:
+  browser: true
+  es6: true
+  node: true
+  mocha: true
+parser: '@typescript-eslint/parser'
+plugins:
+  - 'import'
+  - '@typescript-eslint'
+extends:
+  - 'plugin:@typescript-eslint/recommended'
+  - 'plugin:import/errors'
+  - 'plugin:import/warnings'
+  - 'airbnb-typescript/base'
+settings:
+  'import/no-extraneous-dependencies': ['error', {'devDependencies': true}]
+  'import/extensions': ['.ts']
+  'import/parsers':
+    '@typescript-eslint/parser': ['.ts']
+  'import/resolver':
+    node:
+      extensions: ['.ts']
+globals:
+  Atomics: readonly
+  SharedArrayBuffer: readonly
+parserOptions:
+  ecmaVersion: 2018
+  sourceType: module
+rules:
+  linebreak-style:  ['error', 'windows']
+  # turn off indentation for eslint, apparently conflicts with typescript linter (which will also lint javascript)
+  indent: 'off'
+  # set indentation rules for 2 spaces to combat conflict between airbnb and typscript settings
+  '@typescript-eslint/indent': ['error', 2]

@@ -1,0 +1,53 @@
+{
+  "name": "mocha-html-reporter",
+  "main": "dist",
+  "version": "0.0.1",
+  "license": "GNU",
+  "description": "Html reporter with embedded styles, scripts and screenshots.",
+  "keywords": [
+    "mocha",
+    "html",
+    "reporter"
+  ],
+  "repository": "https://github.com/ruddickmg/mocha-html-reporter.git",
+  "homepage": "https://github.com/ruddickmg/mocha-html-reporter/",
+  "author": "Marcus Ruddick <ruddickmg@gmail.com>",
+  "dependencies": {
+    "bootstrap": "^4.3.1",
+    "@fortawesome/fontawesome-free": "^5.8.2",
+    "html2canvas": "0.5.0-beta4",
+    "jquery": "^3.4.1",
+    "popper.js": "^1.15.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/node": "^7.2.2",
+    "@babel/polyfill": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "@babel/preset-typescript": "^7.3.3",
+    "@babel/register": "^7.4.4",
+    "@types/chai": "^4.1.7",
+    "@types/html2canvas": "^0.0.35",
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^12.0.2",
+    "@types/sinon": "^7.0.11",
+    "@typescript-eslint/parser": "^1.9.0",
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "~13.1.0",
+    "eslint-config-airbnb-typescript": "~3.0.0",
+    "eslint-plugin-import": "~2.17.2",
+    "fs-extra": "^8.0.1",
+    "mocha": "^6.1.4",
+    "node-sass": "^4.12.0",
+    "nyc": "^14.1.1",
+    "sinon": "^7.3.2",
+    "typescript": "^3.4.5"
+  },
+  "scripts": {
+    "start": "mocha -O outputDir=test/reports,testDir=test/unit,fileName=testOutput --reporter ./dist",
+    "build": "babel src --extensions \".ts\"  --out-dir dist",
+    "test": "mocha -r ./test/helpers/initializeMocha.js"
+  }
+}
