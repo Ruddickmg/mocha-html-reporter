@@ -1,9 +1,11 @@
 import { Environment } from './parsers/formatting';
 import { reporters, Runner } from 'mocha';
-import reportGenerator from "./report/reportGenerator";
+import { reportGenerator } from "./report/reportGenerator";
 
-export default function MochaHtmlReporter(runner: Runner, options: Environment) {
+export function mochaHtmlReporter(runner: Runner, options: Environment): void {
   reportGenerator(runner, options)
     .catch((error: Error): void => console.log('Something went wrong with the report generator', error));
   reporters.Base.call(this, runner);
-};
+}
+
+export default mochaHtmlReporter;

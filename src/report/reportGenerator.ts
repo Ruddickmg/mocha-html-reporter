@@ -5,7 +5,7 @@ import {Runner} from "mocha";
 import {Environment, formatOutputFilePath, getCommandLineOptions} from "../parsers/formatting";
 import {getTemplates} from "../parsers/templating";
 
-export default async (
+export const reportGenerator = async (
   runner: Runner,
   environment: Environment,
 ): Promise<void> => {
@@ -35,3 +35,5 @@ export default async (
 
   setTestEventHandlers(runner, handlers);
 };
+
+export default reportGenerator;
