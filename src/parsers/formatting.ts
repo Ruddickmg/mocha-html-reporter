@@ -66,10 +66,14 @@ export const createTestResultFormatter = (
   };
 };
 
+export const formatOutputPath = (
+  outputDir: string,
+): string => `${path.resolve(process.cwd(), outputDir)}${PATH_SEPARATOR}`;
+
 export const formatOutputFilePath = (
   outputDir: string,
   fileName: string,
-): string => `${path.resolve(process.cwd(), outputDir)}${PATH_SEPARATOR}${fileName}.html`;
+): string => `${formatOutputPath(outputDir)}${fileName}.html`;
 
 export const getCommandLineOptions = (
   environment?: Environment,

@@ -40,8 +40,8 @@ export const generateTestResultsBySuite = (
   }, {});
 
 export const checkTestTreeEquality = (
-    test1: TestSuite | TestResult,
-    test2: TestSuite | TestResult,
+    test1: any,
+    test2: any,
   ): void => {
     if (!test1 || !test2 || isString(test1) || isNumber(test1)) {
       expect(test1).to.equal(test2);
@@ -51,8 +51,8 @@ export const checkTestTreeEquality = (
           directory !== UUID &&
           directory !== SUITE_UUID &&
           checkTestTreeEquality(
-            test1[directory] as TestSuite,
-            test2[directory] as TestSuite,
+            test1[directory],
+            test2[directory],
           )
         });
     }

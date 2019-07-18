@@ -33,6 +33,7 @@ export const reportGenerator = async (
     fileName,
   } = getCommandLineOptions(environment);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
+  const history = await getHistory();
   const templates = getTemplates();
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
