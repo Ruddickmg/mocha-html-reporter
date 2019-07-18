@@ -5,7 +5,7 @@ import { Templates } from '../templates';
 import { convertReportToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants';
 import { createTestResultFormatter } from '../parsers/formatting';
-import { generateTestResultsBySuite } from '../parsers/testSuite';
+import {generateTestResultsByPath, generateTestResultsBySuite} from '../parsers/testSuite';
 
 export interface Content {
   [name: string]: string;
@@ -83,7 +83,8 @@ export const createReportHandler = (
   reportData: ReportData,
   templates: Templates,
 ): TestHandler => async (): Promise<void[]> => {
-  const testSuite = generateTestResultsBySuite(tests);
+  // TODO change tests to accomodate multiple path/output options
+  const testSuite = generateTestResultsByPath(tests);
   const html = convertReportToHtml(reportData, testSuite, templates);
   return Promise.all([ writeToFile(pathToOutputFile, html) ]);
 };
