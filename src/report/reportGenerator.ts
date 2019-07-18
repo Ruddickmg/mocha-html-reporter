@@ -1,9 +1,24 @@
-import {getStyles} from "../parsers/styles";
-import {createReportHandler, createTestHandler, setTestEventHandlers, TestHandlers, TestResult} from "./eventHandlers";
-import {FAIL, FINISHED, PASS, PATH_TO_STYLE_SHEET} from "../constants/constants";
-import {Runner} from "mocha";
-import {Environment, formatOutputFilePath, getCommandLineOptions} from "../parsers/formatting";
-import { getTemplates } from "../templates";
+import { getStyles } from '../parsers/styles';
+import {
+  createReportHandler,
+  createTestHandler,
+  setTestEventHandlers,
+  TestHandlers,
+  TestResult,
+} from './eventHandlers';
+import {
+  FAIL,
+  FINISHED,
+  PASS,
+  PATH_TO_STYLE_SHEET,
+} from '../constants';
+import { Runner } from 'mocha';
+import {
+  Environment,
+  formatOutputFilePath,
+  getCommandLineOptions,
+} from '../parsers/formatting';
+import { getTemplates } from '../templates';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -18,7 +33,7 @@ export const reportGenerator = async (
     fileName,
   } = getCommandLineOptions(environment);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const templates = await getTemplates();
+  const templates = getTemplates();
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const reportData = {
