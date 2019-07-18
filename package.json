@@ -2,7 +2,7 @@
   "name": "mocha-html-reporter",
   "main": "dist",
   "version": "0.0.1",
-  "license": "GNU",
+  "license": "GPL-3.0-only",
   "description": "Html reporter with embedded styles, scripts and screenshots.",
   "keywords": [
     "mocha",
@@ -14,7 +14,7 @@
   "author": "Marcus Ruddick <ruddickmg@gmail.com>",
   "dependencies": {
     "bootstrap": "^4.3.1",
-    "@fortawesome/fontawesome-free": "^5.8.2",
+    "@fortawesome/fontawesome-free": "^5.9.0",
     "html2canvas": "0.5.0-beta4",
     "jquery": "^3.4.1",
     "popper.js": "^1.15.0"
@@ -31,19 +31,27 @@
     "@types/html2canvas": "^0.0.35",
     "@types/mocha": "^5.2.6",
     "@types/node": "^12.0.2",
+    "@types/pngjs": "^3.3.2",
     "@types/sinon": "^7.0.11",
     "@typescript-eslint/parser": "^1.9.0",
     "chai": "^4.2.0",
+    "clean-css": "^4.2.1",
     "eslint": "^5.16.0",
     "eslint-config-airbnb-base": "~13.1.0",
     "eslint-config-airbnb-typescript": "~3.0.0",
     "eslint-plugin-import": "~2.17.2",
     "fs-extra": "^8.0.1",
+    "html-minifier": "^4.0.0",
     "mocha": "^6.1.4",
     "node-sass": "^4.12.0",
     "nyc": "^14.1.1",
+    "pixelmatch": "^5.0.2",
+    "pngjs": "^3.4.0",
+    "pretty": "^2.0.0",
     "sinon": "^7.3.2",
-    "typescript": "^3.4.5"
+    "typescript": "^3.4.5",
+    "uglify-js": "^3.6.0",
+    "uuid": "^3.3.2"
   },
   "scripts": {
     "start": "mocha -O outputDir=test/reports,testDir=test/unit,fileName=testOutput --reporter ./dist",

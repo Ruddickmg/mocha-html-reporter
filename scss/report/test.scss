@@ -1,0 +1,110 @@
+@import "../utilities/colors";
+@import "../utilities/fonts";
+
+/* test result style */
+.test-result {
+  padding: 11px;
+  padding-top: 5px;
+  margin: 10px;
+  min-width: 800px;
+  border-radius: 5px;
+  min-height: 30px;
+  border: solid .5px white;
+}
+
+.test-result-button {
+  float: right;
+  background-color: transparent;
+  border-radius: 4px;
+  border: 1px solid $darkest-failed-color;
+  margin-right: 10px;
+  height: 35px;
+  width: 82px;
+  color: white;
+  font-family: $main-font;
+  font-size: 18px;
+  font-weight: normal;
+  line-height: 15px;
+  white-space: nowrap;
+  text-decoration: none;
+  padding: 5px;
+  cursor: pointer;
+}
+
+.test-result-button:focus {
+  outline: none;
+}
+
+.failed .test-result-button:hover {
+  background-color: $light-failed-color;
+}
+
+.failed .test-result-button:active {
+  background-color: $lightest-failed-color;
+}
+
+.failed .test-result-button.active {
+  background-color: $darkest-failed-color;
+}
+
+.failed .test-result-button.active:hover {
+  background-color: $light-failed-color;
+}
+
+.failed .test-result-button.active:active {
+  background-color: $lightest-failed-color;
+}
+
+.test-result-header {
+  width: 100%;
+}
+
+.test-message {
+  font-size: 20px;
+}
+
+.test-title {
+  font-family: $secondary-font;
+  font-size: 19px;
+  font-weight: normal;
+  display: inline;
+  position: relative;
+  top: 4px;
+}
+
+.test-duration {
+  float: right;
+  font-family: $main-font;
+  font-size: 16px;
+  color: black;
+  margin: 4px;
+  margin-top: 8px;
+}
+
+.test-detail {
+  background-color: $darkest-failed-color;
+  border-radius: 4px;
+  margin-top: 15px;
+  padding: 22px;
+  display: none;
+  overflow: hidden;
+}
+
+.test-detail.active {
+  display: block;
+  overflow: inherit;
+}
+
+.test-detail h1 {
+  color: white;
+  font-size: 20px;
+  font-weight: normal;
+}
+
+.test-result.failed {
+  background-color: $failed-color;
+}
+
+.test-result.passed {
+  background-color: $passed-color;
+}

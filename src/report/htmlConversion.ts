@@ -1,7 +1,7 @@
-import {addValuesToTemplate, Templates} from "../parsers/templating";
-import {ReportData, TestResult, TestSuite} from "./eventHandlers";
-import {NEW_LINE} from "../utilities/constants";
-import {isArray} from "util";
+import { addValuesToTemplate, Templates } from '../templates';
+import { ReportData, TestResult, TestSuite } from './eventHandlers';
+import { NEW_LINE } from '../constants';
+import { isArray } from '../utilities/typeChecks';
 
 export const convertReportToHtml = (
   reportData: ReportData,
@@ -46,7 +46,7 @@ export const convertTestSuiteToHtml = (
         template,
         {
           content: isArray(current)
-            ? convertTestResultsToHtml(current, testResultTemplate, imageTemplate)
+            ? convertTestResultsToHtml(current as TestResult[], testResultTemplate, imageTemplate)
             : parseSuite(current as TestSuite),
           title,
         },

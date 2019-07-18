@@ -1,19 +1,29 @@
-import { Runner, Test } from "mocha";
-import { createTestTreeGenerator } from "../parsers/testTree";
-import { handleFailedScreenShot, takeScreenShot } from "../utilities/screenshots";
-import { writeToFile } from "../utilities/fileSystem";
-import {Templates, TemplateValues} from "../parsers/templating";
-import { convertReportToHtml } from "./htmlConversion";
-import {DELAY_START_PROPERTY} from "../utilities/constants";
+import { Runner, Test } from 'mocha';
+import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
+import { writeToFile } from '../utilities/fileSystem';
+import { Templates } from '../templates';
+import { convertReportToHtml } from './htmlConversion';
+import { DELAY_START_PROPERTY } from '../constants';
+import { createTestResultFormatter } from '../parsers/formatting';
+import { generateTestResultsByPath } from '../parsers/testSuite';
 
-export interface TestSuite extends TemplateValues {
-  results?: TestResult[];
+export interface Content {
+  [name: string]: string;
 }
 
-export interface TestResult extends TemplateValues {
-  [name: string]: string;
+export interface TestSuite {
+  [directory: string]: TestSuite | TestResult[] | Content;
+}
+
+export interface TestResult {
+  [property: string]: string | string[] | number | TestResult;
+  duration: string | number;
+  id: string;
+  image?: string;
+  path: string[];
+  suite: string;
+  suiteId: string;
   title: string;
-  duration: string;
 }
 
 export interface TestHandlers {
@@ -26,6 +36,7 @@ export type TestHandler = (
 ) => void;
 
 export interface ReportData {
+  [value: string]: string;
   reportTitle: string;
   pageTitle: string;
   styles: string;
@@ -45,18 +56,18 @@ export const setTestEventHandlers = (
   ): Runner => runner.on(action, handlers[action]));
 
 export const createTestHandler = (
-  testSuite: TestSuite,
+  testResults: TestResult[],
   testDirectory: string,
   captureScreen: boolean,
 ): TestHandler => {
-  const updateTestSuite = createTestTreeGenerator(
-    testSuite,
-    testDirectory,
-  );
+  const formatTestResults = createTestResultFormatter(testDirectory);
   return (
     test: Test,
-  ): Promise<TestSuite> => new Promise((resolve) => {
-    const updateTests = (image?: string): void => resolve(updateTestSuite(test, image));
+  ): Promise<TestResult[]> => new Promise((resolve) => {
+    const updateTests = (image?: string): void => {
+      testResults.push(formatTestResults(test, image));
+      resolve(testResults);
+    };
     captureScreen
       ? takeScreenShot()
         .then(updateTests)
@@ -67,13 +78,15 @@ export const createTestHandler = (
 };
 
 export const createReportHandler = (
-  tests: TestSuite,
+  tests: TestResult[],
   pathToOutputFile: string,
   reportData: ReportData,
   templates: Templates,
-): TestHandler => (): void => {
-  const html = convertReportToHtml(reportData, tests, templates);
-  writeToFile(pathToOutputFile, html)
+): TestHandler => (): Promise<void> => {
+  const testSuite = generateTestResultsByPath(tests);
+  const html = convertReportToHtml(reportData, testSuite, templates);
+
+  return writeToFile(pathToOutputFile, html)
     .catch((error): void => {
       throw Error(`Could not create ${pathToOutputFile}, something went wrong:\n - ${error}`);
     });

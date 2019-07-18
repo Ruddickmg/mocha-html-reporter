@@ -1,48 +1,77 @@
 import { expect } from 'chai';
 import {
   buildStringOfTruthyValues,
-  Environment, ExpectedOptions, formatDuration, formatOutputFilePath, formatTestResults, getAmountOfExcess,
-  getCommandLineOptions, removeFileName
-} from "../../../src/parsers/formatting";
+  Environment,
+  ExpectedOptions,
+  formatDuration,
+  formatOutputFilePath,
+  createTestResultFormatter,
+  getAmountOfExcess,
+  getCommandLineOptions,
+  removeFileName,
+} from '../../../src/parsers/formatting';
 import {
-  HOUR_SUFFIX, MILLISECOND_SUFFIX, MINUTE_SUFFIX, ONE_HOUR, ONE_MILLISECOND, ONE_MINUTE, ONE_SECOND,
+  HOUR_SUFFIX,
+  MILLISECOND_SUFFIX,
+  MINUTE_SUFFIX,
+  ONE_HOUR,
+  ONE_MILLISECOND,
+  ONE_MINUTE,
+  ONE_SECOND,
   PATH_SEPARATOR, SECOND_SUFFIX
-} from "../../../src/utilities/constants";
-import {Test} from "mocha";
+} from '../../../src/constants';
+import { Test } from 'mocha';
+import { pathToMockTestDirectory } from '../../helpers/expectations';
+import { isString } from '../../../src/utilities/typeChecks';
 
 describe('formatting', () => {
   const outputDir = 'test/unit';
   const fileName = 'testFile';
   const firstTitle = 'hello';
   const duration = 4;
+  const mockDirectory = `${pathToMockTestDirectory}/some/other/directory`;
+  const parentTitle = 'I am a test suite';
+  const parent = { title: parentTitle };
   const mockTestValues = [{
+    duration,
+    file: mockDirectory,
+    parent,
     title: firstTitle,
-    duration,
   }, {
-    title: 'world',
     duration,
+    file: mockDirectory,
+    parent,
+    title: 'world',
   }];
 
-  describe('formatTestResults', (): void => {
+  describe('createTestResultFormatter', (): void => {
+    const expected = {
+      title: firstTitle,
+      suite: parentTitle,
+      path: [
+        'some',
+        'other',
+      ],
+      duration: formatDuration(duration),
+    };
+    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
     it ('Will format test results correctly from the raw test data', () => {
       const [firstTestResult] = mockTestValues;
+      const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
 
-      expect(formatTestResults(firstTestResult as Test))
-        .to.eql({
-          title: firstTitle,
-          duration: formatDuration(duration),
-        });
+      expect(isString(suiteId)).to.equal(true);
+      expect(isString(id)).to.equal(true);
+      expect(result).to.eql(expected);
     });
     it('Will add an image to the test results', (): void => {
       const [firstTestResult] = mockTestValues;
       const image = '12345';
+      const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test, image);
 
-      expect(formatTestResults(firstTestResult as Test, image))
-        .to.eql({
-          title: firstTitle,
-          duration: formatDuration(duration),
-          image,
-        });
+      expect(isString(suiteId)).to.equal(true);
+      expect(isString(id)).to.equal(true);
+      expect(result)
+        .to.eql({ image, ...expected });
     });
   });
   describe('formattingOutputFilePath', (): void => {
@@ -70,7 +99,7 @@ describe('formatting', () => {
     });
   });
   describe('formatDuration', (): void => {
-    it(`Will return "${MILLISECOND_SUFFIX} when the duration is zero`, (): void => {
+    it(`Will return '${MILLISECOND_SUFFIX} when the duration is zero`, (): void => {
       expect(formatDuration(0))
         .to.equal(`0 ${MILLISECOND_SUFFIX}`);
     });

@@ -1,0 +1,20 @@
+/* background theme */
+$dark-backdrop: rgb(57, 59, 63);
+$lighter-dark-backdrop: rgb(73, 74, 77);
+
+/* failed test/button colors */
+$darkest-failed-color: rgb(68, 16, 16);
+$dark-failed-color: rgb(153, 49, 49);
+$failed-color: rgb(197, 76, 76);
+$light-failed-color: rgb(209, 104, 104);
+$lightest-failed-color: rgb(224, 125, 125);
+
+/* passed test/button colors */
+$dark-passed-color: rgb(144, 209, 47);
+$passed-color: rgb(184, 252, 82);
+$light-passed-color: rgb(197, 248, 121);
+
+/* any button color */
+$dark-blue: rgb(18, 109, 189);
+$blue: rgb(30, 136, 229);
+$light-blue: rgb(63, 148, 223);

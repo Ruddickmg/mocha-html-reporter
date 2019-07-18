@@ -1,0 +1,24 @@
+@import "../utilities/fonts";
+@import "../utilities/colors";
+
+#date-time {
+  top: -43px;
+  right: 60px;
+  position: relative;
+  font-family: $main-font;
+  color: white;
+  float: right;
+  font-size: 20px;
+}
+
+.date {
+  color: white;
+  height: 30px;
+  line-height: 30px;
+  font-weight: normal;
+  font-family: $secondary-font;
+  padding: 0.25rem 0.5rem;
+  margin: 0.25rem;
+  background-color: $dark-backdrop;
+  border-radius: 5px;
+}

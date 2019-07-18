@@ -1,6 +1,8 @@
 import { expect } from 'chai';
-import { handleFailedScreenShot } from "../../../src/utilities/screenshots";
-import { base64NoImageString } from "../../../src/utilities/base64NoImageString";
+import {
+  handleFailedScreenShot,
+} from "../../../src/utilities/screenshots";
+import { base64NoImageString } from "../../../src/constants/base64NoImageString";
 
 describe('screenshots', (): void => {
   describe('handleFailedScreenShot', (): void => {

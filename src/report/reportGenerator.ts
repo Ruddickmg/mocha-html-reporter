@@ -1,6 +1,6 @@
-import {getStyles} from "./styles";
-import {createReportHandler, createTestHandler, setTestEventHandlers, TestHandlers} from "./eventHandlers";
-import {FAIL, FINISHED, PASS, PATH_TO_STYLE_SHEET} from "../utilities/constants";
+import {getStyles} from "../parsers/styles";
+import {createReportHandler, createTestHandler, setTestEventHandlers, TestHandlers, TestResult} from "./eventHandlers";
+import {FAIL, FINISHED, PASS, PATH_TO_STYLE_SHEET} from "../constants/constants";
 import {Runner} from "mocha";
 import {Environment, formatOutputFilePath, getCommandLineOptions} from "../parsers/formatting";
 import {getTemplates} from "../parsers/templating";
@@ -9,7 +9,7 @@ export const reportGenerator = async (
   runner: Runner,
   environment: Environment,
 ): Promise<void> => {
-  const testSuite = {};
+  const tests: TestResult[] = [];
   const {
     screenShotEachTest,
     screenShotOnFailure,
@@ -28,9 +28,9 @@ export const reportGenerator = async (
   };
 
   const handlers: TestHandlers = {
-    [FAIL]: createTestHandler(testSuite, testDir, takeScreenShotOnFailure),
-    [PASS]: createTestHandler(testSuite, testDir, screenShotEachTest),
-    [FINISHED]: createReportHandler(testSuite, pathToOutputFile, reportData, templates),
+    [FAIL]: createTestHandler(tests, testDir, takeScreenShotOnFailure),
+    [PASS]: createTestHandler(tests, testDir, screenShotEachTest),
+    [FINISHED]: createReportHandler(tests, pathToOutputFile, reportData, templates),
   };
 
   setTestEventHandlers(runner, handlers);

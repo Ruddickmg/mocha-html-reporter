@@ -1,10 +1,9 @@
 import html2canvas from 'html2canvas';
-import { base64NoImageString } from "./base64NoImageString";
+import { base64NoImageString } from "../constants/base64NoImageString";
 
-export const takeScreenShot = (): Promise<string> => new Promise((resolve, reject) => {
+export const takeScreenShot = async (): Promise<string> => new Promise(async (resolve, reject) => {
   try {
-    html2canvas(document.body)
-      .then((canvas: HTMLCanvasElement): any => resolve(canvas.toDataURL()));
+    resolve((await html2canvas(document.body)).toDataURL());
   } catch (error) {
     reject(error);
   }

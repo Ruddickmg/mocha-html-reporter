@@ -1,4 +1,5 @@
 import path from 'path';
+import uuid from 'uuid/v1';
 import {
   EMPTY_STRING,
   HOUR_SUFFIX,
@@ -9,11 +10,12 @@ import {
   ONE_MINUTE,
   ONE_SECOND,
   PATH_SEPARATOR, SECOND_SUFFIX,
-} from "../utilities/constants";
-import {Test} from "mocha";
-import {TestResult} from "../report/eventHandlers";
+} from '../constants';
+import { Test } from 'mocha';
+import { getFilePath, getParentPath } from './path';
+import { TestResult } from '../report/eventHandlers';
 
-const floor = Math.floor;
+const { floor } = Math;
 
 export interface ExpectedOptions {
   outputDir?: string;
@@ -27,17 +29,42 @@ export interface Environment {
   reporterOptions: ExpectedOptions;
 }
 
-export const formatTestResults = (
-  {
-    title,
-    duration,
-  }: Test,
-  image?: string,
-): TestResult =>  ({
-  title,
-  duration: formatDuration(duration),
-  ...(!!image && { image }),
-});
+interface SuiteIds {
+  [suite: string]: string;
+}
+
+export type TestResultFormatter = (test: Test, image?: string) => TestResult;
+
+export const createTestResultFormatter = (
+  pathToTestDirectory: string,
+): TestResultFormatter => {
+  const suiteIds: SuiteIds = {};
+  return (
+      test: Test,
+      image?: string,
+    ): TestResult => {
+      const {
+        title,
+        parent,
+        duration,
+        file,
+      } = test;
+      const suite = parent.title;
+      const suiteId = suiteIds[suite] || uuid();
+      suiteIds[suite] = suiteId;
+      return {
+        id: uuid(),
+        title,
+        suite,
+        suiteId,
+        duration: formatDuration(duration),
+        path: file
+          ? getFilePath(file, pathToTestDirectory)
+          : getParentPath(test),
+        ...(!!image && { image }),
+      };
+  };
+};
 
 export const formatOutputFilePath = (
   outputDir: string,

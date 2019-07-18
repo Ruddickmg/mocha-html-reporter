@@ -1,0 +1,20 @@
+@import "../utilities/colors";
+@import "../utilities/fonts";
+
+.test-suite {
+  border: solid white 1px;
+  border-radius: 4px;
+  background-color: $dark-backdrop;
+  padding: 5px;
+  margin-right: 20px;
+  margin-left: 20px;
+  margin-bottom: 20px;
+}
+
+.test-suite-title {
+  font-family: $main-font;
+  color: white;
+  font-size: 24px;
+  font-weight: normal;
+  margin: 15px;
+}

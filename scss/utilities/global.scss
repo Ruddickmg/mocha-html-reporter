@@ -1,0 +1,9 @@
+@import "colors";
+
+body {
+  background-color: $lighter-dark-backdrop;
+}
+
+button:focus {
+  outline: none;
+}

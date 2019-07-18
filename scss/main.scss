@@ -1,0 +1,30 @@
+@import "@fortawesome/fontawesome-free/scss/fontawesome";
+@import "utilities/fonts";
+@import "utilities/reset";
+@import "utilities/colors";
+@import "utilities/global";
+
+/* header styling */
+@import "header/section";
+@import "header/navigation";
+@import "header/dateAndTime";
+
+/* test result styling */
+@import "report/suite";
+@import "report/test";
+@import "report/screenShot";
+
+/* history page styles */
+@import "history/linkToTestResult";
+@import "history/table";
+
+/* shared styles */
+#test-results, #history {
+  position: relative;
+  top: 80px;
+  width: 100%;
+}
+
+.hidden {
+  display: none;
+}

@@ -1,0 +1,54 @@
+#navigation {
+  width: 100%;
+  height: 60px;
+  background: $dark-backdrop;
+  display: inline-block;
+  border-bottom: 1px solid white;
+  border-top: 1px solid white;
+}
+
+.nav-button {
+  border: none;
+  border-radius: 0.25rem;
+  background: gray;
+  height: 30px;
+  width: 100px;
+  color: white;
+  font-family: $main-font;
+  font-size: 1rem;
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  padding: 0.25rem 0.5rem;
+  margin: 14px 5px;
+  cursor: pointer;
+}
+
+#passed-button.active {
+  color: black;
+  background-color: $passed-color;
+}
+
+#passed-button.active:hover {
+  background-color: $dark-passed-color;
+}
+
+#failed-button.active {
+  background-color: $failed-color;
+}
+
+#failed-button.active:hover {
+  background-color: $dark-failed-color;
+}
+
+#history-button {
+  background-color: $blue;
+}
+
+#history-button:hover {
+  background-color: $dark-blue;
+}
+
+#history-button:active {
+  background-color: $light-blue;
+}

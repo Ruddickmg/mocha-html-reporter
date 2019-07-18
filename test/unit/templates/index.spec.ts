@@ -1,13 +1,14 @@
 import { expect } from 'chai';
+import { reportTemplate } from "../../../src/templates/report.html";
+import { imageTemplate } from "../../../src/templates/imageTemplate.html";
+import { testResultTemplate } from "../../../src/templates/testResult.html";
+import { testSuiteTemplate } from "../../../src/templates/testSuite.html";
 import {
   addValuesToTemplate,
   clearAllTemplateValues,
-  getTemplate, getTemplates,
-} from "../../../src/parsers/templating";
-import {
-  IMAGE_TEMPLATE, REPORT_TEMPLATE, TEST_RESULT_TEMPLATE,
-  TEST_SUITE_TEMPLATE
-} from "../../../src/utilities/constants";
+  getTemplate,
+  getTemplates,
+} from "../../../src/templates";
 
 describe('templating', () => {
   const firstTemplateLabel = 'test1';
@@ -15,21 +16,9 @@ describe('templating', () => {
   const value1 = 'testing123';
   const value2 = 'testing321';
   const getMockTemplate = (): string => '<h1>{{test1}}</h1><h2>{{test2}}</h2>';
-  const htmlTemplateFileContents = '<img src="data:image/png;base64, {{image}}" scale="0">';
 
-  describe('getTemplate', (): void => {
-    it('will get the correct text from an html file by it\'s name', async (): Promise<void> => {
-      const fileContents = await getTemplate('base64Image');
-      expect(fileContents).to.equal(htmlTemplateFileContents);
-    });
-  });
   describe('getTemplates', (): void => {
     it('Will get an object with each template in it', async (): Promise<void> => {
-      const imageTemplate = await getTemplate(IMAGE_TEMPLATE);
-      const reportTemplate = await getTemplate(REPORT_TEMPLATE);
-      const testSuiteTemplate = await getTemplate(TEST_SUITE_TEMPLATE);
-      const testResultTemplate = await getTemplate(TEST_RESULT_TEMPLATE);
-      
       expect(await getTemplates()).to.eql({
         imageTemplate,
         reportTemplate,
