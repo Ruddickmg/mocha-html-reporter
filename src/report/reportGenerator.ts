@@ -3,7 +3,7 @@ import {createReportHandler, createTestHandler, setTestEventHandlers, TestHandle
 import {FAIL, FINISHED, PASS, PATH_TO_STYLE_SHEET} from "../constants/constants";
 import {Runner} from "mocha";
 import {Environment, formatOutputFilePath, getCommandLineOptions} from "../parsers/formatting";
-import {getTemplates} from "../parsers/templating";
+import { getTemplates } from "../templates";
 
 export const reportGenerator = async (
   runner: Runner,
