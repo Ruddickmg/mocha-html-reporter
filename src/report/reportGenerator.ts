@@ -14,11 +14,12 @@ import {
 } from '../constants';
 import { Runner } from 'mocha';
 import {
-  Environment,
+  Environment, formatHistoryOutputPath,
   formatOutputFilePath,
   getCommandLineOptions,
 } from '../parsers/formatting';
 import { getTemplates } from '../templates';
+import {getHistory} from "./history";
 
 export const reportGenerator = async (
   runner: Runner,
@@ -32,11 +33,12 @@ export const reportGenerator = async (
     outputDir,
     fileName,
   } = getCommandLineOptions(environment);
+  const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
+  const pathToHistoryOutput = formatHistoryOutputPath(outputDir, fileName);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const history = await getHistory();
+  const history = await getHistory(pathToHistoryOutput);
   const templates = getTemplates();
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
-  const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const reportData = {
     reportTitle: 'test title',
     pageTitle: 'This is a test',

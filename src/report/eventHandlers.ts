@@ -5,7 +5,7 @@ import { Templates } from '../templates';
 import { convertReportToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants';
 import { createTestResultFormatter } from '../parsers/formatting';
-import {generateTestResultsByPath, generateTestResultsBySuite} from '../parsers/testSuite';
+import { generateTestResultsBySuite } from '../parsers/testSuite';
 
 export interface Content {
   [name: string]: string;

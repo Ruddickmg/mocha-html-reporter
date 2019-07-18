@@ -75,6 +75,11 @@ export const formatOutputFilePath = (
   fileName: string,
 ): string => `${formatOutputPath(outputDir)}${fileName}.html`;
 
+export const formatHistoryOutputPath = (
+  outputDir: string,
+  fileName: string,
+): string => `${formatOutputPath(outputDir)}${fileName}.history`;
+
 export const getCommandLineOptions = (
   environment?: Environment,
 ): ExpectedOptions => (environment && environment.reporterOptions) || {};
