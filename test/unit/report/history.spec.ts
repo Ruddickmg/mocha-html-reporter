@@ -1,19 +1,24 @@
-import { getHistory } from '../../../src/report/history';
+import { getHistory, writeHistory } from '../../../src/report/history';
 import { mkdirSync, writeFileSync } from "fs";
-import {PATH_SEPARATOR, PATH_TO_PACKAGE, TEST_DIRECTORY} from "../../../src/constants";
-import {checkTestTreeEquality} from "../../../src/parsers/testSuite";
-import {TestResult} from "../../../src/report/eventHandlers";
+import {
+  PATH_SEPARATOR,
+  PATH_TO_PACKAGE,
+  TEST_DIRECTORY,
+} from "../../../src/constants";
+import { checkTestTreeEquality} from "../../../src/parsers/testSuite";
+import { TestResult } from "../../../src/report/eventHandlers";
 const { remove } = require('fs-extra');
 
 describe('history', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/history`;
+  const firstTest = { title: 'hello world!' } as TestResult;
+  const secondTest = { title: 'hello computer!' } as TestResult;
+  const thirdTest = { title: 'hello... ?' } as TestResult;
+
   beforeEach((): void => mkdirSync(pathToMockHtml));
   afterEach(() => remove(pathToMockHtml));
 
   describe('getHistory', (): void => {
-    const firstTest = { title: 'hello world!' } as TestResult;
-    const secondTest = { title: 'hello computer!' } as TestResult;
-    const thirdTest = { title: 'hello... ?' } as TestResult;
     it('will grab file history from a file', async (): Promise<void> => {
       const testResults = [firstTest];
       writeFileSync(
@@ -34,7 +39,19 @@ describe('history', (): void => {
       checkTestTreeEquality(
         await getHistory(pathToMockHtml),
         testResults.map((([result]: TestResult[]): TestResult => result)),
-      )
+      );
+    });
+  });
+  describe('writeHistory', (): void => {
+    it('Will write a test result to a file in the specified directory', async (): Promise<void> => {
+      const singleTestResult = [firstTest];
+      await writeHistory(pathToMockHtml, singleTestResult);
+      checkTestTreeEquality(await getHistory(pathToMockHtml), singleTestResult);
+    });
+    it('Will write multiple test results to a file in a specified directory', async (): Promise<void> => {
+      const multipleTestResults = [firstTest, secondTest, thirdTest];
+      await writeHistory(pathToMockHtml, multipleTestResults);
+      checkTestTreeEquality(await getHistory(pathToMockHtml), multipleTestResults);
     });
   });
 });

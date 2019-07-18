@@ -1,5 +1,5 @@
 import { readdir } from 'fs';
-import { getFileContents } from "../utilities/fileSystem";
+import {getFileContents, writeToFile} from "../utilities/fileSystem";
 import { TestResult } from "./eventHandlers";
 import { PATH_SEPARATOR } from "../constants/index";
 
@@ -27,3 +27,11 @@ export const getHistory = (
     );
   },
 ));
+
+export const writeHistory = (
+  pathToHistoryDirectory: string,
+  history: TestResult[],
+): Promise<void> => writeToFile(
+  `${pathToHistoryDirectory}${PATH_SEPARATOR}${new Date().getMilliseconds()}.json`,
+  JSON.stringify(history),
+);
