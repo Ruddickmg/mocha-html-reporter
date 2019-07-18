@@ -1,4 +1,10 @@
-import { getHistory, writeHistory } from '../../../src/report/history';
+import { expect } from 'chai';
+import {
+  getHistory,
+  writeHistory,
+  nonHistoryError,
+  emptyHistoryError,
+} from '../../../src/report/history';
 import { mkdirSync, writeFileSync } from "fs";
 import {
   PATH_SEPARATOR,
@@ -52,6 +58,38 @@ describe('history', (): void => {
       const multipleTestResults = [firstTest, secondTest, thirdTest];
       await writeHistory(pathToMockHtml, multipleTestResults);
       checkTestTreeEquality(await getHistory(pathToMockHtml), multipleTestResults);
+    });
+    it('Will throw an error when attempting to write an empty history', async (): Promise<void> => {
+      const error = emptyHistoryError();
+      let errorThrown = false;
+      try {
+        await writeHistory(pathToMockHtml, []);
+      } catch (e) {
+        errorThrown = true;
+        expect(e.message).to.equal(error);
+      }
+      if (!errorThrown) {
+        throw new Error(`Expected "writeHistory" to throw: ${error}`);
+      }
+    });
+    ['', 1, {}].forEach((variable: any): void => {
+      const type = typeof variable;
+      it(
+          `Will throw an error when attempting to write a value of type ${type} to history`,
+          async (): Promise<any> => {
+            const error = nonHistoryError(variable);
+            let errorThrown = false;
+            try {
+              await writeHistory(pathToMockHtml, variable);
+            } catch (e) {
+              errorThrown = true;
+              expect(e.message).to.equal(error);
+            }
+            if (!errorThrown) {
+              throw new Error(`Expected "writeHistory" to throw: ${error}`);
+            }
+          }
+      );
     });
   });
 });

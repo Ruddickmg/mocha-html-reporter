@@ -1,7 +1,14 @@
 import { readdir } from 'fs';
-import {getFileContents, writeToFile} from "../utilities/fileSystem";
-import { TestResult } from "./eventHandlers";
-import { PATH_SEPARATOR } from "../constants/index";
+import {
+  getFileContents,
+  writeToFile,
+} from '../utilities/fileSystem';
+import { TestResult } from './eventHandlers';
+import { PATH_SEPARATOR } from '../constants/index';
+import { isArray } from '../utilities/typeChecks';
+
+export const emptyHistoryError = (): string => 'Expected an array containing test results while writing to history output, received an empty array';
+export const nonHistoryError = (history: any): string => `Expected an array when writing to history output, received ${typeof history}.`;
 
 export const getHistory = (
   pathToHistoryDir: string,
@@ -31,7 +38,15 @@ export const getHistory = (
 export const writeHistory = (
   pathToHistoryDirectory: string,
   history: TestResult[],
-): Promise<void> => writeToFile(
-  `${pathToHistoryDirectory}${PATH_SEPARATOR}${new Date().getMilliseconds()}.json`,
-  JSON.stringify(history),
-);
+): Promise<void> => {
+  if (isArray(history)) {
+    if (history.length) {
+      return writeToFile(
+        `${pathToHistoryDirectory}${PATH_SEPARATOR}${new Date().getMilliseconds()}.json`,
+        JSON.stringify(history),
+      );
+    }
+    throw new Error(emptyHistoryError());
+  }
+  throw new Error(nonHistoryError(history));
+};
