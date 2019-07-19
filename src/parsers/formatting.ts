@@ -144,4 +144,11 @@ export const millisecondsToHumanReadable = (totalMilliseconds: number): string =
     : humanReadable;
 };
 
+export const convertMillisecondsToDate = (milliseconds: number): Date => {
+  const date = new Date(0);
+  date.setMilliseconds(milliseconds);
+  date.setHours(date.getHours() + 1);
+  return date;
+};
+
 export const formatDuration = (duration: number): string => millisecondsToHumanReadable(duration);

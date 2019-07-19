@@ -1,34 +1,34 @@
 import { expect } from 'chai';
 import {
-  convertMillisecondsToDate,
-  getEachRunDate, getEachSuiteTitle,
+  collectTestResultsByDate,
+  getEachRunDate,
+  getEachSuiteTitle, TestResultsByDate,
 } from "../../../src/history/historyFormatting";
 import { TestResult } from "../../../src/report/eventHandlers";
 
+const convertDateStringToMilliseconds = (dateString: string): number => (new Date(dateString)).getTime();
+
 describe('historyTableFormatting', (): void => {
+  const duplicateDateString = 'August 16, 1987 23:15:30';
+  const duplicateMonthDayYear = '8/16/1987';
   const testResults = [
     'August 13, 1987 23:15:30',
     'August 14, 1987 23:15:30',
     'August 15, 1987 23:15:30',
-    'August 16, 1987 23:15:30',
-  ].map((date: string): TestResult => ({
-    title: date,
-    date: (new Date(date)).getTime(),
+    duplicateDateString,
+  ].map((dateString: string): TestResult => ({
+    title: dateString,
+    date: convertDateStringToMilliseconds(dateString),
   }) as TestResult);
-  describe('convertMillisecondsToDate', (): void => {
-    it('Will get convert and epoch back to it\'s original date', (): void => {
-      const date = new Date();
-      expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString())
-    });
-  });
+  const datesAsMonthDayYear = [
+    '8/13/1987',
+    '8/14/1987',
+    '8/15/1987',
+    duplicateMonthDayYear,
+  ];
   describe('getEachRunDate', (): void => {
     it('Will get dates from an ordered list of test results', (): void => {
-      expect(getEachRunDate(testResults)).to.eql([
-        '8/13/1987',
-        '8/14/1987',
-        '8/15/1987',
-        '8/16/1987',
-      ]);
+      expect(getEachRunDate(testResults)).to.eql(datesAsMonthDayYear);
     });
   });
   describe('getEachSuiteTitle', (): void => {
@@ -53,6 +53,40 @@ describe('historyTableFormatting', (): void => {
         'ally',
         'bob',
       ]);
+    });
+  });
+  describe('collectTestResultsByDate', (): void => {
+    it('Creates an object containing test results indexed by date', (): void => {
+      expect(collectTestResultsByDate(testResults)).to.eql(
+        datesAsMonthDayYear
+          .reduce((
+            resultsByDate: TestResultsByDate,
+            date: string,
+            index: number,
+          ): TestResultsByDate => ({
+            [date]: [testResults[index]],
+          }), {}),
+      );
+    });
+    it('Will accumulate multiple tests on the same day', (): void => {
+      const testOnSameDay = {
+        date: convertDateStringToMilliseconds(duplicateDateString),
+        title: 'Snoz!',
+      } as TestResult;
+      const results = [
+        ...testResults,
+        testOnSameDay,
+      ];
+      const expected: TestResultsByDate = datesAsMonthDayYear
+          .reduce((
+            resultsByDate: TestResultsByDate,
+            date: string,
+            index: number,
+          ): TestResultsByDate => ({
+            [date]: [testResults[index]],
+          }), {});
+      expected[duplicateMonthDayYear] = [...expected[duplicateMonthDayYear], testOnSameDay];
+      expect(collectTestResultsByDate(results)).to.eql(expected);
     });
   });
 });

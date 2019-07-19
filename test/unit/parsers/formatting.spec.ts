@@ -9,6 +9,7 @@ import {
   getAmountOfExcess,
   getCommandLineOptions,
   removeFileName,
+  convertMillisecondsToDate,
 } from '../../../src/parsers/formatting';
 import {
   HOUR_SUFFIX,
@@ -44,6 +45,12 @@ describe('formatting', () => {
     title: 'world',
   }];
 
+  describe('convertMillisecondsToDate', (): void => {
+    it('Will get convert and epoch back to it\'s original date', (): void => {
+      const date = new Date();
+      expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString())
+    });
+  });
   describe('createTestResultFormatter', (): void => {
     const expected = {
       title: firstTitle,
