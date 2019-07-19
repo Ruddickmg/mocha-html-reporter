@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import {
   convertMillisecondsToDate,
-  getEachRunDate,
+  getEachRunDate, getEachSuiteTitle,
 } from "../../../src/history/historyFormatting";
 import { TestResult } from "../../../src/report/eventHandlers";
 
@@ -31,5 +31,28 @@ describe('historyTableFormatting', (): void => {
       ]);
     });
   });
-
+  describe('getEachSuiteTitle', (): void => {
+    it('Retrieves suite names from test results in alphabetic order', (): void => {
+      expect(getEachSuiteTitle([
+        { suite: 'hello' },
+        { suite: 'dude' },
+        { suite: 'man'},
+      ] as TestResult[])).to.eql([
+        'dude',
+        'hello',
+        'man',
+      ]);
+    });
+    it('Retrieves a set array of suite names from test results', (): void => {
+      expect(getEachSuiteTitle([
+        { suite: 'ally' },
+        { suite: 'ally' },
+        { suite: 'bob' },
+        { suite: 'bob'},
+      ] as TestResult[])).to.eql([
+        'ally',
+        'bob',
+      ]);
+    });
+  });
 });
