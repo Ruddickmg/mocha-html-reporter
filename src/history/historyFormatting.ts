@@ -1,5 +1,6 @@
 import { TestResult } from "../report/eventHandlers";
 import { convertMillisecondsToDate } from "../parsers/formatting";
+import { sortTestResultsByDate } from "../utilities/sorting";
 
 export interface TestResultsByDate {
   [date: string]: TestResult[],
@@ -28,8 +29,41 @@ export const collectTestResultsByDate = (history: TestResult[]): TestResultsByDa
       };
     }, {});
 
+export const sortHistoryByDate = (historyByDate: TestResultsByDate): TestResultsByDate => Object.keys(historyByDate)
+    .reduce((
+      sorted: TestResultsByDate,
+      monthDayYear: string,
+    ): TestResultsByDate => ({
+      ...sorted,
+      [monthDayYear]: sortTestResultsByDate(historyByDate[monthDayYear]),
+    }), {});
+
+const removeDuplicateTestRuns = (testRuns: TestResult[]): TestResult[] => {
+  const seenTests: any = {};
+  return testRuns
+    .reduce((
+      mostRecentTests: TestResult[],
+      test: TestResult,
+    ): TestResult[] => {
+      const { title } = test;
+      const testHasBeenSeen = seenTests[title];
+      seenTests[title] = true;
+      return testHasBeenSeen
+        ? mostRecentTests
+        : [...mostRecentTests, test];
+    }, []);
+};
+
 export const formatHistoryTable = (history: TestResult[]): any => {
   const dates = getEachRunDate(history);
   const suites = getEachSuiteTitle(history);
   const historyByDate = collectTestResultsByDate(history);
+  const uniqueAndSortedByDate = Object.keys(historyByDate)
+    .reduce((
+      sorted: TestResultsByDate,
+      monthDayYear: string,
+    ): TestResultsByDate => ({
+      ...sorted,
+      [monthDayYear]: removeDuplicateTestRuns(sortTestResultsByDate(historyByDate[monthDayYear])),
+    }), {});
 };

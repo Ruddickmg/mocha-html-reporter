@@ -2,11 +2,12 @@ import { expect } from 'chai';
 import {
   collectTestResultsByDate,
   getEachRunDate,
-  getEachSuiteTitle, TestResultsByDate,
+  getEachSuiteTitle, sortHistoryByDate, TestResultsByDate,
 } from "../../../src/history/historyFormatting";
 import { TestResult } from "../../../src/report/eventHandlers";
 
 const convertDateStringToMilliseconds = (dateString: string): number => (new Date(dateString)).getTime();
+const createDateStringWithVariableTime = (seconds: number): string => `August 16, 1987 23:15:${seconds}0`;
 
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';
@@ -87,6 +88,17 @@ describe('historyTableFormatting', (): void => {
           }), {});
       expected[duplicateMonthDayYear] = [...expected[duplicateMonthDayYear], testOnSameDay];
       expect(collectTestResultsByDate(results)).to.eql(expected);
+    });
+  });
+  describe('sortHistoryByDate', (): void => {
+    it('Will sort an array of test results within a test results by date object', (): void => {
+      const incrementing = [1, 2, 3, 4, 5].map(createDateStringWithVariableTime);
+      const results = incrementing.map((dateString: string): TestResult => ({
+        date: convertDateStringToMilliseconds(dateString),
+      } as TestResult));
+      expect(sortHistoryByDate(collectTestResultsByDate(results))).to.eql({
+        [duplicateMonthDayYear]: results.reverse(),
+      })
     });
   });
 });
