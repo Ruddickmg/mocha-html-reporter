@@ -82,10 +82,9 @@ export const createReportHandler = (
   tests: TestResult[],
   pathToOutputFile: string,
   reportData: ReportData,
-  templates: Templates,
+  generateTestResults: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
-  // TODO change tests to accomodate multiple path/output options
-  const testSuite = generateTestResultsByPath(tests);
-  const html = convertReportToHtml(reportData, testSuite, templates);
+  const testSuite = generateTestResults(tests);
+  const html = convertReportToHtml(reportData, testSuite);
   return Promise.all([ writeToFile(pathToOutputFile, html) ]);
 };

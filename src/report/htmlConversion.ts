@@ -2,23 +2,23 @@ import { addValuesToTemplate, Templates } from '../templates';
 import { ReportData, TestResult, TestSuite } from './eventHandlers';
 import { NEW_LINE } from '../constants';
 import { isArray } from '../utilities/typeChecks';
+import {
+  reportTemplate,
+  imageTemplate,
+  testResultTemplate,
+  testSuiteTemplate,
+} from '../templates';
 
 export const convertReportToHtml = (
   reportData: ReportData,
   testSuite: TestSuite,
-  {
-    reportTemplate,
-    ...templates
-  }: Templates,
 ): string => addValuesToTemplate(reportTemplate, {
-  suites: convertTestSuiteToHtml(testSuite, templates),
+  suites: convertTestSuiteToHtml(testSuite),
   ...reportData,
 });
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],
-  testResultTemplate: string,
-  imageTemplate: string,
 ): string => testResults
   .map((
     { image, ...results }: TestResult,
@@ -32,11 +32,6 @@ export const convertTestResultsToHtml = (
 
 export const convertTestSuiteToHtml = (
   testSuite: TestSuite,
-  {
-    testSuiteTemplate,
-    testResultTemplate,
-    imageTemplate,
-  }: Templates,
 ): string => (function parseSuite(suite: TestSuite): string {
   const template = testSuiteTemplate;
   return Object.keys(suite)
@@ -46,7 +41,7 @@ export const convertTestSuiteToHtml = (
         template,
         {
           content: isArray(current)
-            ? convertTestResultsToHtml(current as TestResult[], testResultTemplate, imageTemplate)
+            ? convertTestResultsToHtml(current as TestResult[])
             : parseSuite(current as TestSuite),
           title,
         },

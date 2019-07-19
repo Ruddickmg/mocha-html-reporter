@@ -3,7 +3,12 @@ import { reportTemplate } from './report.html';
 import { testResultTemplate } from './testResult.html';
 import { testSuiteTemplate } from './testSuite.html';
 import { TEMPLATE_BRACES } from '../constants';
-import { Content, ReportData, TestResult} from "../report/eventHandlers";
+import { Content, ReportData, TestResult } from "../report/eventHandlers";
+
+export { imageTemplate } from './imageTemplate.html';
+export { reportTemplate } from './report.html';
+export { testResultTemplate } from './testResult.html';
+export { testSuiteTemplate } from './testSuite.html';
 
 export interface Templates {
   [templateName: string]: string;

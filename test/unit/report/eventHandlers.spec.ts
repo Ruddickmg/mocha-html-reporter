@@ -14,7 +14,13 @@ import {
   pathToMockTestDirectory,
   tests,
 } from '../../helpers/expectations';
-import { addValuesToTemplate, getTemplates } from '../../../src/templates';
+import {
+  addValuesToTemplate,
+  reportTemplate,
+  testSuiteTemplate,
+  testResultTemplate,
+  imageTemplate,
+} from '../../../src/templates';
 import {getFileContents} from '../../../src/utilities/fileSystem';
 import {
   PATH_TO_PACKAGE,
@@ -24,6 +30,7 @@ import { createTestResultFormatter, formatDuration } from '../../../src/parsers/
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import {mkdirSync} from 'fs';
+import {generateTestResultsByPath, generateTestResultsBySuite} from "../../../src/parsers/testSuite";
 const { remove } = require('fs-extra');
 
 describe('eventHandlers', (): void => {
@@ -86,39 +93,54 @@ describe('eventHandlers', (): void => {
     });
   });
   describe('createReportHandler', (): void => {
-    it('Will correctly parse test data into html output', async (): Promise<void> => {
-      const title = 'best test';
-      const suite = 'a suite';
-      const path = ['some', 'cool', 'directory'];
-      const duration = .4;
-      const image = 'image'; // base64NoImageString;
-      const testResults: TestResult[] = [
-        {
-          title,
-          duration,
-          image,
-          suite,
-          path,
-        },
-      ] as TestResult[];
-      const templates = await getTemplates();
-      const {
-        reportTemplate,
-        testSuiteTemplate,
-        testResultTemplate,
-        imageTemplate,
-      } = templates;
-      const reportData = {
-        reportTitle: 'hello',
-        pageTitle: 'world',
-        styles: 'styling',
-        scripts: 'scripts',
-      };
+    const title = 'best test';
+    const suite = 'a suite';
+    const path = ['some', 'cool', 'directory'];
+    const duration = .4;
+    const image = 'image'; // base64NoImageString;
+    const testResults: TestResult[] = [
+      {
+        title,
+        duration,
+        image,
+        suite,
+        path,
+      },
+    ] as TestResult[];
+    const reportData = {
+      reportTitle: 'hello',
+      pageTitle: 'world',
+      styles: 'styling',
+      scripts: 'scripts',
+    };
+    it('Parses tests correctly into html output by suite', async (): Promise<void> => {
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
         reportData as ReportData,
-        templates,
+        generateTestResultsBySuite,
+      );
+      const suites = [suite]
+        .reverse()
+        .reduce((content: string, title: string): string => addValuesToTemplate(
+          testSuiteTemplate,
+          { content, title }
+        ), addValuesToTemplate(testResultTemplate, {
+          title,
+          duration: formatDuration(duration),
+          image: addValuesToTemplate(imageTemplate, { image }),
+        }));
+      const expected = addValuesToTemplate(reportTemplate, { suites, ...reportData });
+      await reportHandler();
+
+      expect(await getFileContents(pathToMockFile)).to.equal(expected);
+    });
+    it('Parses tests correctly into html output by path', async (): Promise<void> => {
+      const reportHandler = createReportHandler(
+        testResults,
+        pathToMockFile,
+        reportData as ReportData,
+        generateTestResultsByPath,
       );
       const suites = [...path, suite]
         .reverse()
