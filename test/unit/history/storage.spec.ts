@@ -4,19 +4,19 @@ import {
   writeHistory,
   nonHistoryError,
   emptyHistoryError,
-} from '../../../src/report/history';
+} from '../../../src/history/storage';
 import { mkdirSync, writeFileSync } from "fs";
 import {
   PATH_SEPARATOR,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from "../../../src/constants";
+} from "../../../src/constants/index";
 import { checkTestTreeEquality} from "../../../src/parsers/testSuite";
 import { TestResult } from "../../../src/report/eventHandlers";
 const { remove } = require('fs-extra');
 
 describe('history', (): void => {
-  const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/history`;
+  const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/mockHistory`;
   const firstTest = { title: 'hello world!' } as TestResult;
   const secondTest = { title: 'hello computer!' } as TestResult;
   const thirdTest = { title: 'hello... ?' } as TestResult;

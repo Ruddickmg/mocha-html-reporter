@@ -19,7 +19,7 @@ import {
   getCommandLineOptions,
 } from '../parsers/formatting';
 import { getTemplates } from '../templates';
-import {getHistory} from "./history";
+import { getHistory } from "../history/storage";
 
 export const reportGenerator = async (
   runner: Runner,

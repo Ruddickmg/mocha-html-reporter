@@ -84,39 +84,39 @@ describe('checkTestTreeEquality', (): void => {
     a: { b: { d:[{ duration: 1}] } },
     e: { f: [{ title: 'hello' }, { title: 'neighbor'}] },
   };
-  it('Will not throw an assertion error when two trees are equal', (): void => {
+  it('Doesn\'t throw an assertion error when two trees are equal', (): void => {
     expect(checkTestTreeEquality.bind({}, tree, tree))
       .to.not.throw();
   });
-  it('Will throw an error when tree\'s differ by array content', () => {
+  it('Throws an error when tree\'s differ by array content', () => {
     expect(checkTestTreeEquality.bind({}, tree, differsInArray))
       .to.throw('expected 1 to equal 2');
   });
-  it('Will throw an error when tree\'s differ by array content reversed', () => {
+  it('Throws an error when tree\'s differ by array content reversed', () => {
     expect(checkTestTreeEquality.bind({}, differsInArray, tree))
       .to.throw('expected 2 to equal 1');
   });
-  it('Will throw an error when there is a difference in object structure', () => {
+  it('Throws an error when there is a difference in object structure', () => {
     expect(checkTestTreeEquality.bind({}, tree, differsInDepth))
       .to.throw('expected [ { duration: 1 } ] to equal undefined');
   });
-  it('Will throw an error when there is a difference in object structure reversed', () => {
+  it('Throws an error when there is a difference in object structure reversed', () => {
     expect(checkTestTreeEquality.bind({}, differsInDepth, tree))
       .to.throw('expected { d: [ { duration: 1 } ] } to equal undefined');
   });
-  it('Will throw an error when it\'s second argument is empty and another is not', () => {
+  it('Throws an error when it\'s second argument is empty and another is not', () => {
     expect(checkTestTreeEquality.bind({}, tree, empty))
       .to.throw('expected { d: [ { duration: 1 } ] } to equal undefined');
   });
-  it('Will throw an error when it\'s first argument is empty and another is not', () => {
+  it('Throws an error when it\'s first argument is empty and another is not', () => {
     expect(checkTestTreeEquality.bind({}, empty, tree))
       .to.throw('expected undefined to equal { d: [ { duration: 1 } ] }');
   });
-  it('Will throw an error when there is a difference in strings', () => {
+  it('Throws an error when there is a difference in strings', () => {
     expect(checkTestTreeEquality.bind({}, tree, differsByString))
       .to.throw();
   });
-  it('Will throw an error when there is a difference in strings reversed', () => {
+  it('Throws an error when there is a difference in strings reversed', () => {
     expect(checkTestTreeEquality.bind({}, differsByString, tree))
       .to.throw();
   });

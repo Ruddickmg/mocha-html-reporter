@@ -62,7 +62,7 @@ describe('eventHandlers', (): void => {
     });
   });
   describe('createTestHandler', (): void => {
-    it('Will parse a test and output a correct output', (): void => {
+    it('Parses tests into the correct output', (): void => {
       const testResults: TestResult[] = [];
       const takeScreenShot = false;
       const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);

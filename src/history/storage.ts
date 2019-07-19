@@ -3,7 +3,7 @@ import {
   getFileContents,
   writeToFile,
 } from '../utilities/fileSystem';
-import { TestResult } from './eventHandlers';
+import { TestResult } from '../report/eventHandlers';
 import { PATH_SEPARATOR } from '../constants/index';
 import { isArray } from '../utilities/typeChecks';
 
