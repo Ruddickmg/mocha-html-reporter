@@ -10,6 +10,8 @@ import {
   getCommandLineOptions,
   removeFileName,
   convertMillisecondsToDate,
+  convertDateStringToMilliseconds,
+  getMonthDayYearFromDate,
 } from '../../../src/parsers/formatting';
 import {
   HOUR_SUFFIX,
@@ -19,13 +21,15 @@ import {
   ONE_MILLISECOND,
   ONE_MINUTE,
   ONE_SECOND,
-  PATH_SEPARATOR, SECOND_SUFFIX
+  PATH_SEPARATOR,
+  SECOND_SUFFIX,
 } from '../../../src/constants';
 import { Test } from 'mocha';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { isString } from '../../../src/utilities/typeChecks';
 
 describe('formatting', () => {
+  const dateString = 'August 13, 1987 23:15:30';
   const outputDir = 'test/unit';
   const fileName = 'testFile';
   const firstTitle = 'hello';
@@ -49,6 +53,20 @@ describe('formatting', () => {
     it('Will get convert and epoch back to it\'s original date', (): void => {
       const date = new Date();
       expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString())
+    });
+  });
+  describe('convertDateStringToMilliseconds', (): void => {
+    const milliseconds = new Date(dateString).getTime();
+    it(`Will convert the date ${dateString} to it's millisecond equivalent ${milliseconds}`, (): void => {
+      expect(convertDateStringToMilliseconds(dateString))
+        .to.equal(milliseconds);
+    });
+  });
+  describe('getMonthDayYearFromDate', () => {
+    const monthDayYearString = '8/13/1987';
+    it('Will get a human readable version of the date with ', () => {
+      expect(getMonthDayYearFromDate(new Date(dateString)))
+        .to.eql(monthDayYearString);
     });
   });
   describe('createTestResultFormatter', (): void => {

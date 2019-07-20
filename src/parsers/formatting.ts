@@ -9,7 +9,8 @@ import {
   ONE_MILLISECOND,
   ONE_MINUTE,
   ONE_SECOND,
-  PATH_SEPARATOR, SECOND_SUFFIX,
+  PATH_SEPARATOR,
+  SECOND_SUFFIX,
 } from '../constants';
 import { Test } from 'mocha';
 import { getFilePath, getParentPath } from './path';
@@ -150,5 +151,9 @@ export const convertMillisecondsToDate = (milliseconds: number): Date => {
   date.setHours(date.getHours() + 1);
   return date;
 };
+
+export const convertDateStringToMilliseconds = (dateString: string): number => (new Date(dateString)).getTime();
+
+export const getMonthDayYearFromDate = (date: Date): string => `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 
 export const formatDuration = (duration: number): string => millisecondsToHumanReadable(duration);

@@ -1,12 +1,22 @@
 import { TestResult } from "../report/eventHandlers";
-import { convertMillisecondsToDate } from "../parsers/formatting";
+import {
+  convertMillisecondsToDate,
+  getMonthDayYearFromDate,
+} from "../parsers/formatting";
 import { sortTestResultsByDate } from "../utilities/sorting";
+import { EMPTY_STRING } from "../constants/index";
+import {
+  compose,
+  mapOverObject,
+} from "../utilities/functions";
 
 export interface TestResultsByDate {
   [date: string]: TestResult[],
 }
 
-export const getMonthDayYearFromDate = (date: Date): string => `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+export interface TestResultsBySuite {
+  [suite: string]: TestResult;
+}
 
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
@@ -29,41 +39,58 @@ export const collectTestResultsByDate = (history: TestResult[]): TestResultsByDa
       };
     }, {});
 
-export const sortHistoryByDate = (historyByDate: TestResultsByDate): TestResultsByDate => Object.keys(historyByDate)
-    .reduce((
-      sorted: TestResultsByDate,
-      monthDayYear: string,
-    ): TestResultsByDate => ({
-      ...sorted,
-      [monthDayYear]: sortTestResultsByDate(historyByDate[monthDayYear]),
-    }), {});
-
-const removeDuplicateTestRuns = (testRuns: TestResult[]): TestResult[] => {
+export const removeDuplicateTestResults = (testRuns: TestResult[]): TestResult[] => {
   const seenTests: any = {};
   return testRuns
     .reduce((
       mostRecentTests: TestResult[],
       test: TestResult,
     ): TestResult[] => {
-      const { title } = test;
-      const testHasBeenSeen = seenTests[title];
-      seenTests[title] = true;
+      const { suite } = test;
+      const testHasBeenSeen = seenTests[suite];
+      seenTests[suite] = true;
       return testHasBeenSeen
         ? mostRecentTests
         : [...mostRecentTests, test];
     }, []);
 };
 
+export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite => tests
+  .reduce((
+    testResultsBySuite: TestResultsBySuite,
+    test: TestResult,
+  ): TestResultsBySuite => ({
+    ...testResultsBySuite,
+    [test.suite]: test,
+  }), {});
+
+export const create
+
 export const formatHistoryTable = (history: TestResult[]): any => {
+  const emptyTest = { title: EMPTY_STRING } as TestResult;
   const dates = getEachRunDate(history);
   const suites = getEachSuiteTitle(history);
   const historyByDate = collectTestResultsByDate(history);
-  const uniqueAndSortedByDate = Object.keys(historyByDate)
-    .reduce((
-      sorted: TestResultsByDate,
-      monthDayYear: string,
-    ): TestResultsByDate => ({
-      ...sorted,
-      [monthDayYear]: removeDuplicateTestRuns(sortTestResultsByDate(historyByDate[monthDayYear])),
-    }), {});
+  const suiteAndDateMatrix = mapOverObject(
+    (results: TestResult[]): TestResultsByDate => compose([
+      sortTestResultsByDate,
+      removeDuplicateTestResults,
+      indexTestResultsBySuite,
+    ], results)
+  , historyByDate);
+
+  return dates.reduce((
+    formattedHistory,
+    dateString: string,
+  ): any => {
+    const results = suiteAndDateMatrix[dateString];
+    return suites.reduce((formattedSuite: any, suiteName: string) => {
+      const test = results[suiteName] || emptyTest;
+      const previous = formattedSuite[suiteName] || [];
+      return {
+        ...formattedSuite,
+        [suiteName]: [ ...previous, test ],
+      };
+    }, formattedHistory);
+  }, {});
 };

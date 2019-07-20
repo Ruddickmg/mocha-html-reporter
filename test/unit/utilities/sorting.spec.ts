@@ -3,8 +3,8 @@ import {
   sortNumbersDecrementing,
   sortNumbersIncrementing,
   sortTestResultsByDate,
-} from "../../../src/utilities/sorting";
-import {TestResult} from "../../../src/report/eventHandlers";
+} from '../../../src/utilities/sorting';
+import { TestResult } from '../../../src/report/eventHandlers';
 
 describe('sorting', (): void => {
   const decrementing = [5, 4, 3, 2, 1];

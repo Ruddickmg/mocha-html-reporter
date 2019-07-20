@@ -2,12 +2,13 @@ import { expect } from 'chai';
 import {
   collectTestResultsByDate,
   getEachRunDate,
-  getEachSuiteTitle, sortHistoryByDate, TestResultsByDate,
+  getEachSuiteTitle,
+  removeDuplicateTestResults,
+  indexTestResultsBySuite,
+  TestResultsByDate,
 } from "../../../src/history/historyFormatting";
 import { TestResult } from "../../../src/report/eventHandlers";
-
-const convertDateStringToMilliseconds = (dateString: string): number => (new Date(dateString)).getTime();
-const createDateStringWithVariableTime = (seconds: number): string => `August 16, 1987 23:15:${seconds}0`;
+import {convertDateStringToMilliseconds} from "../../../src/parsers/formatting";
 
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';
@@ -27,6 +28,9 @@ describe('historyTableFormatting', (): void => {
     '8/15/1987',
     duplicateMonthDayYear,
   ];
+  const firstTest = { title: 'hello', suite: 'buddy' } as TestResult;
+  const secondTest = { title: 'dude', suite: 'friend' } as TestResult;
+  const thirdTest = { title: 'man', suite: 'pal' } as TestResult;
   describe('getEachRunDate', (): void => {
     it('Will get dates from an ordered list of test results', (): void => {
       expect(getEachRunDate(testResults)).to.eql(datesAsMonthDayYear);
@@ -35,24 +39,24 @@ describe('historyTableFormatting', (): void => {
   describe('getEachSuiteTitle', (): void => {
     it('Retrieves suite names from test results in alphabetic order', (): void => {
       expect(getEachSuiteTitle([
-        { suite: 'hello' },
-        { suite: 'dude' },
-        { suite: 'man'},
+        firstTest,
+        secondTest,
+        thirdTest,
       ] as TestResult[])).to.eql([
-        'dude',
-        'hello',
-        'man',
+        firstTest.suite,
+        secondTest.suite,
+        thirdTest.suite,
       ]);
     });
-    it('Retrieves a set array of suite names from test results', (): void => {
+    it('Retrieves a array of suite names without duplicates from test results', (): void => {
       expect(getEachSuiteTitle([
-        { suite: 'ally' },
-        { suite: 'ally' },
-        { suite: 'bob' },
-        { suite: 'bob'},
+        firstTest,
+        firstTest,
+        secondTest,
+        secondTest,
       ] as TestResult[])).to.eql([
-        'ally',
-        'bob',
+        firstTest.suite,
+        secondTest.suite,
       ]);
     });
   });
@@ -90,15 +94,24 @@ describe('historyTableFormatting', (): void => {
       expect(collectTestResultsByDate(results)).to.eql(expected);
     });
   });
-  describe('sortHistoryByDate', (): void => {
-    it('Will sort an array of test results within a test results by date object', (): void => {
-      const incrementing = [1, 2, 3, 4, 5].map(createDateStringWithVariableTime);
-      const results = incrementing.map((dateString: string): TestResult => ({
-        date: convertDateStringToMilliseconds(dateString),
-      } as TestResult));
-      expect(sortHistoryByDate(collectTestResultsByDate(results))).to.eql({
-        [duplicateMonthDayYear]: results.reverse(),
-      })
+  describe('removeDuplicateTestResults', (): void => {
+    const dupe = { suite: 'duplicate' };
+    const dupeTwo = { suite: 'a duplicate duplicate!' };
+    const notADupe = { suite: 'not a duplicate '};
+    it('Removes test results that have the same suite title', (): void => {
+      expect(removeDuplicateTestResults([dupe, dupeTwo, dupe, dupe, notADupe, dupeTwo] as TestResult[]))
+        .to.eql([dupe, dupeTwo, notADupe]);
+    });
+  });
+  describe('indexTestResultsBySuite', (): void => {
+    const indexedBySuite = {
+      [firstTest.suite]: firstTest,
+      [secondTest.suite]: secondTest,
+      [thirdTest.suite]: thirdTest,
+    };
+    it('Will create an object with suite names as keys and test results as values', (): void => {
+      expect(indexTestResultsBySuite([firstTest, secondTest, thirdTest]))
+        .to.eql(indexedBySuite);
     });
   });
 });
