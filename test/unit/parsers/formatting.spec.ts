@@ -23,7 +23,7 @@ import {
   ONE_SECOND,
   PATH_SEPARATOR,
   SECOND_SUFFIX,
-} from '../../../src/constants';
+} from '../../../src/constants/constants';
 import { Test } from 'mocha';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { isString } from '../../../src/utilities/typeChecks';

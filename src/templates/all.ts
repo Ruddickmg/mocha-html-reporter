@@ -2,7 +2,7 @@ import { imageTemplate } from './imageTemplate.html';
 import { reportTemplate } from './report.html';
 import { testResultTemplate } from './testResult.html';
 import { testSuiteTemplate } from './testSuite.html';
-import { TEMPLATE_BRACES } from '../constants';
+import { TEMPLATE_BRACES } from '../constants/constants';
 import { Content, ReportData, TestResult } from "../report/eventHandlers";
 
 export { imageTemplate } from './imageTemplate.html';

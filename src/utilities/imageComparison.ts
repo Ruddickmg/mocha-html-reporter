@@ -1,5 +1,5 @@
 import { readFile, createWriteStream } from 'fs';
-import { PATH_SEPARATOR } from '../constants/constants';
+import { PATH_SEPARATOR } from "../constants/constants";
 import { fgMagenta, escape } from '../constants/consoleColors';
 import { capitalizeFirstLetter } from "./strings";
 const PNG = require('pngjs').PNG;

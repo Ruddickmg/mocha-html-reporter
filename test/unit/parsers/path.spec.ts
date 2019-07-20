@@ -25,7 +25,7 @@ describe('path', (): void => {
     });
   });
   describe('getParentPath', (): void => {
-    const path = {
+    const test = {
       title: testName,
       parent: {
         title: thirdWord,
@@ -37,6 +37,6 @@ describe('path', (): void => {
         },
       },
     } as Test;
-    it('Will parse a path through parent test suites', (): any => expect(getParentPath(path)).to.eql(splitPath));
+    it('Will parse a path through parent test suites', (): any => expect(getParentPath(test)).to.eql(splitPath));
   });
 });

@@ -1,13 +1,13 @@
-import { addValuesToTemplate, Templates } from '../templates';
 import { ReportData, TestResult, TestSuite } from './eventHandlers';
-import { NEW_LINE } from '../constants';
+import { NEW_LINE } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import {
   reportTemplate,
   imageTemplate,
   testResultTemplate,
   testSuiteTemplate,
-} from '../templates';
+  addValuesToTemplate,
+} from '../templates/all';
 
 export const convertReportToHtml = (
   reportData: ReportData,

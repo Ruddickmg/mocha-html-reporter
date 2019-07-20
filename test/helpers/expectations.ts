@@ -1,5 +1,5 @@
 import { Test } from 'mocha';
-import { PATH_TO_PACKAGE } from '../../src/constants';
+import { PATH_TO_PACKAGE } from '../../src/constants/constants';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
 import { formatDuration } from '../../src/parsers/formatting';
 import { TestSuite } from '../../src/report/eventHandlers';
@@ -49,13 +49,13 @@ export const expectedTestResultsByPath: TestSuite = {
       }
     }
   }
-};
+} as unknown as TestSuite;
 
 export const tests = [{
   title: testOne,
   file: `${pathToMockTestDirectory}/${firstDir}/${secondDir}/${thirdDirOnTestOne}/${testOne}.spec.js`,
-  duration: durationOne,
   image: expectedImage,
+  duration: durationOne,
   parent: {
     title: suiteOne,
     parent: {
@@ -102,4 +102,4 @@ export const tests = [{
       },
     },
   },
-}] as Test[];
+}] as unknown as Test[];

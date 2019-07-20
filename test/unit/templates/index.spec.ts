@@ -1,16 +1,15 @@
 import { expect } from 'chai';
-import { reportTemplate } from "../../../src/templates/report.html";
-import { imageTemplate } from "../../../src/templates/imageTemplate.html";
-import { testResultTemplate } from "../../../src/templates/testResult.html";
-import { testSuiteTemplate } from "../../../src/templates/testSuite.html";
 import {
+  reportTemplate,
+  imageTemplate,
+  testSuiteTemplate,
+  testResultTemplate,
   addValuesToTemplate,
   clearAllTemplateValues,
-  getTemplate,
   getTemplates,
-} from "../../../src/templates";
+} from '../../../src/templates/all';
 
-describe('templating', () => {
+describe('templates', () => {
   const firstTemplateLabel = 'test1';
   const secondTemplateLabel = 'test2';
   const value1 = 'testing123';

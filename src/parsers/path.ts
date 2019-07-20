@@ -1,7 +1,5 @@
-import { EMPTY_STRING, PATH_SEPARATOR } from "../constants";
+import { EMPTY_STRING, PATH_SEPARATOR, PERIOD } from '../constants/constants';
 import { Test, Suite } from 'mocha';
-
-const PERIOD: string = '.';
 
 export const getParentPath = (
   { parent, title }: Test | Suite,
@@ -20,6 +18,11 @@ export const getFilePath = (
       : path
   ).split(PATH_SEPARATOR)
     .filter((directory: string): boolean => directory !== EMPTY_STRING);
-  const fileName = splitPath.pop().split(PERIOD).shift();
+  splitPath.pop().split(PERIOD).shift();
   return splitPath
 };
+
+export default {
+  getParentPath,
+  getFilePath,
+}

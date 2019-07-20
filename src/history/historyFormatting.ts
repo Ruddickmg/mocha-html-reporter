@@ -4,7 +4,7 @@ import {
   getMonthDayYearFromDate,
 } from "../parsers/formatting";
 import { sortTestResultsByDate } from "../utilities/sorting";
-import { EMPTY_STRING } from "../constants/index";
+import { EMPTY_STRING } from "../constants/constants";
 import {
   compose,
   mapOverObject,
@@ -20,15 +20,14 @@ export interface TestResultsBySuite {
 
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
-  return [...new Set(dates)]
+  return Array.from(new Set(dates))
     .sort()
     .map(convertMillisecondsToDate)
     .map(getMonthDayYearFromDate);
 };
 
-export const getEachSuiteTitle = (history: TestResult[]): string[] => [
-  ...new Set(history.map(({ suite }: TestResult): string => suite).sort()),
-];
+export const getEachSuiteTitle = (history: TestResult[]): string[] => Array
+  .from(new Set(history.map(({ suite }: TestResult): string => suite).sort()));
 
 export const collectTestResultsByDate = (history: TestResult[]): TestResultsByDate => history
     .reduce((tests: TestResultsByDate, test: TestResult): TestResultsByDate => {
@@ -63,8 +62,6 @@ export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite
     ...testResultsBySuite,
     [test.suite]: test,
   }), {});
-
-export const create
 
 export const formatHistoryTable = (history: TestResult[]): any => {
   const emptyTest = { title: EMPTY_STRING } as TestResult;

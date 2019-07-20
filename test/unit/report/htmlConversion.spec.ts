@@ -6,15 +6,16 @@ import {
 } from '../../../src/report/htmlConversion';
 import {
   addValuesToTemplate,
-  getTemplate,
-  getTemplates,
-  Templates,
-} from '../../../src/templates';
+  imageTemplate,
+  testResultTemplate,
+  testSuiteTemplate,
+  reportTemplate,
+} from '../../../src/templates/all';
 import {
   NEW_LINE,
   PATH_SEPARATOR,
   PATH_TO_STYLE_SHEET,
-} from '../../../src/constants';
+} from '../../../src/constants/constants';
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import { formatDuration } from '../../../src/parsers/formatting';
 import {getStyles} from '../../../src/parsers/styles';
@@ -36,31 +37,19 @@ describe('testResult', () => {
     .map(({duration, ...rest}) => ({
       duration: formatDuration(duration),
       path: pathToMockTestDirectory.split(PATH_SEPARATOR),
-      content: '',
       ...rest,
-    }));
+    }) as TestResult);
 
   describe('convertTestResultsToHtml',() => {
     it('Will add an image if there is one present on the passed in object', async () => {
-      const {
-        testResultTemplate,
-        imageTemplate,
-      } = getTemplates();
       const image = 'testing123';
       const expectedAddition = addValuesToTemplate(imageTemplate, { image } as TestResult);
-
       expect(convertTestResultsToHtml(
-        [{ title: 'whatever', content: '', duration: formatDuration(duration), path: [], image }],
-        testResultTemplate,
-        imageTemplate,
+        [{ title: 'whatever', duration: formatDuration(duration), path: [], image } as TestResult],
       )).to.contain(expectedAddition);
     });
 
     it('Will add all values and return correctly formatted html output', async (): Promise<void> => {
-      const {
-        testResultTemplate,
-        imageTemplate,
-      } = getTemplates();
       const expectedResults = mockTestResults.map(
         (result: TestResult): string => addValuesToTemplate(
           testResultTemplate,
@@ -70,16 +59,10 @@ describe('testResult', () => {
 
       expect(convertTestResultsToHtml(
         mockTestResults,
-        testResultTemplate,
-        imageTemplate,
       )).to.equal(expectedResults.join(NEW_LINE));
     });
 
     it('Will add images to the html output', async (): Promise<void> => {
-      const {
-        testResultTemplate,
-        imageTemplate,
-      } = getTemplates();
       const image = 'some image';
       const expectedResults = mockTestResults.map(
         (result: TestResult): string => addValuesToTemplate(
@@ -93,8 +76,6 @@ describe('testResult', () => {
 
       expect(convertTestResultsToHtml(
         mockTestResults.map((results: TestResult): TestResult => ({ image, ...results })),
-        testResultTemplate,
-        imageTemplate,
       ))
         .to.equal(expectedResults.join(NEW_LINE));
     });
@@ -102,12 +83,6 @@ describe('testResult', () => {
   describe('convertTestSuiteToHtml', (): void => {
 
     it('Will convert a test suite into the desired html output', async (): Promise<void> => {
-      const templates = await getTemplates();
-      const {
-        imageTemplate,
-        testResultTemplate,
-        testSuiteTemplate,
-      }: Templates = templates;
       const testResult = {
         title,
         duration: formatDuration(duration),
@@ -122,25 +97,18 @@ describe('testResult', () => {
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
         title,
         content: testResultHtml,
-      } as TestResult);
+      });
       const testSuite = {
         [title]: [testResult],
       } as TestSuite;
 
-      expect(convertTestSuiteToHtml(testSuite, templates)).to.equal(testSuiteHtml);
+      expect(convertTestSuiteToHtml(testSuite)).to.equal(testSuiteHtml);
     });
   });
   describe('convertReportToHtml', () => {
     it('Will convert a test suite into an html report', async (): Promise<void> => {
-      const templates = await getTemplates();
       const styles = await getStyles(PATH_TO_STYLE_SHEET);
       const suite = 'some suite';
-      const {
-        imageTemplate,
-        testResultTemplate,
-        testSuiteTemplate,
-        reportTemplate,
-      }: Templates = templates;
       const testResult = {
         title,
         suite,
@@ -156,7 +124,7 @@ describe('testResult', () => {
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
         title,
         content: testResultHtml,
-      } as TestResult);
+      });
       const testSuite = {
         [title]: [testResult],
       } as TestSuite;
@@ -170,7 +138,7 @@ describe('testResult', () => {
         ...reportData,
       });
 
-      expect(convertReportToHtml(reportData, testSuite, templates)).to.equal(reportHtml);
+      expect(convertReportToHtml(reportData, testSuite)).to.equal(reportHtml);
     });
   });
 });

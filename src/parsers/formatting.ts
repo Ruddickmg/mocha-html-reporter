@@ -1,4 +1,4 @@
-import path from 'path';
+import { resolve } from 'path';
 import uuid from 'uuid/v1';
 import {
   EMPTY_STRING,
@@ -11,7 +11,7 @@ import {
   ONE_SECOND,
   PATH_SEPARATOR,
   SECOND_SUFFIX,
-} from '../constants';
+} from '../constants/constants';
 import { Test } from 'mocha';
 import { getFilePath, getParentPath } from './path';
 import { TestResult } from '../report/eventHandlers';
@@ -63,13 +63,13 @@ export const createTestResultFormatter = (
           ? getFilePath(file, pathToTestDirectory)
           : getParentPath(test),
         ...(!!image && { image }),
-      };
+      } as TestResult;
   };
 };
 
 export const formatOutputPath = (
   outputDir: string,
-): string => `${path.resolve(process.cwd(), outputDir)}${PATH_SEPARATOR}`;
+): string => `${resolve(process.cwd(), outputDir)}${PATH_SEPARATOR}`;
 
 export const formatOutputFilePath = (
   outputDir: string,

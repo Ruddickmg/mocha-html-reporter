@@ -7,7 +7,7 @@ import {
 import {
   PATH_TO_PACKAGE,
   PATH_SEPARATOR,
-} from '../constants';
+} from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 
 export const getPackageName = (): string => PATH_TO_PACKAGE

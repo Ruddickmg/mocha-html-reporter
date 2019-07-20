@@ -11,15 +11,16 @@ import {
   FINISHED,
   PASS,
   PATH_TO_STYLE_SHEET,
-} from '../constants';
+} from '../constants/constants';
 import { Runner } from 'mocha';
 import {
   Environment, formatHistoryOutputPath,
   formatOutputFilePath,
   getCommandLineOptions,
 } from '../parsers/formatting';
-import { getTemplates } from '../templates';
+import { getTemplates } from '../templates/all';
 import { getHistory } from "../history/storage";
+import { generateTestResultsBySuite } from "../parsers/testSuite";
 
 export const reportGenerator = async (
   runner: Runner,
@@ -46,9 +47,22 @@ export const reportGenerator = async (
   };
 
   const handlers: TestHandlers = {
-    [FAIL]: createTestHandler(tests, testDir, takeScreenShotOnFailure),
-    [PASS]: createTestHandler(tests, testDir, screenShotEachTest),
-    [FINISHED]: createReportHandler(tests, pathToOutputFile, reportData, templates),
+    [FAIL]: createTestHandler(
+      tests,
+      testDir,
+      takeScreenShotOnFailure,
+    ),
+    [PASS]: createTestHandler(
+      tests,
+      testDir,
+      screenShotEachTest,
+    ),
+    [FINISHED]: createReportHandler(
+      tests,
+      pathToOutputFile,
+      reportData,
+      generateTestResultsBySuite,
+    ),
   };
 
   setTestEventHandlers(runner, handlers);

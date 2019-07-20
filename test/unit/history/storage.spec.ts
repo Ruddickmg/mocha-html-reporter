@@ -1,25 +1,26 @@
-import { expect } from 'chai';
+import {expect} from 'chai';
 import {
   getHistory,
   writeHistory,
   nonHistoryError,
   emptyHistoryError,
 } from '../../../src/history/storage';
-import { mkdirSync, writeFileSync } from "fs";
+import {mkdirSync, writeFileSync} from "fs";
 import {
   PATH_SEPARATOR,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from "../../../src/constants/index";
-import { checkTestTreeEquality} from "../../../src/parsers/testSuite";
-import { TestResult } from "../../../src/report/eventHandlers";
-const { remove } = require('fs-extra');
+} from '../../../src/constants/constants';
+import {checkTestTreeEquality} from '../../../src/parsers/testSuite';
+import {TestResult} from '../../../src/report/eventHandlers';
+
+const {remove} = require('fs-extra');
 
 describe('history', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/mockHistory`;
-  const firstTest = { title: 'hello world!' } as TestResult;
-  const secondTest = { title: 'hello computer!' } as TestResult;
-  const thirdTest = { title: 'hello... ?' } as TestResult;
+  const firstTest = {title: 'hello world!'} as TestResult;
+  const secondTest = {title: 'hello computer!'} as TestResult;
+  const thirdTest = {title: 'hello... ?'} as TestResult;
 
   beforeEach((): void => mkdirSync(pathToMockHtml));
   afterEach(() => remove(pathToMockHtml));
@@ -75,20 +76,20 @@ describe('history', (): void => {
     ['', 1, {}].forEach((variable: any): void => {
       const type = typeof variable;
       it(
-          `Will throw an error when attempting to write a value of type ${type} to history`,
-          async (): Promise<any> => {
-            const error = nonHistoryError(variable);
-            let errorThrown = false;
-            try {
-              await writeHistory(pathToMockHtml, variable);
-            } catch (e) {
-              errorThrown = true;
-              expect(e.message).to.equal(error);
-            }
-            if (!errorThrown) {
-              throw new Error(`Expected "writeHistory" to throw: ${error}`);
-            }
+        `Will throw an error when attempting to write a value of type ${type} to history`,
+        async (): Promise<any> => {
+          const error = nonHistoryError(variable);
+          let errorThrown = false;
+          try {
+            await writeHistory(pathToMockHtml, variable);
+          } catch (e) {
+            errorThrown = true;
+            expect(e.message).to.equal(error);
           }
+          if (!errorThrown) {
+            throw new Error(`Expected "writeHistory" to throw: ${error}`);
+          }
+        }
       );
     });
   });

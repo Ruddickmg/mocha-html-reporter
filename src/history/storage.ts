@@ -4,7 +4,7 @@ import {
   writeToFile,
 } from '../utilities/fileSystem';
 import { TestResult } from '../report/eventHandlers';
-import { PATH_SEPARATOR } from '../constants/index';
+import { PATH_SEPARATOR } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 
 export const emptyHistoryError = (): string => 'Expected an array containing test results while writing to history output, received an empty array';

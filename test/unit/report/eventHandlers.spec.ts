@@ -20,12 +20,12 @@ import {
   testSuiteTemplate,
   testResultTemplate,
   imageTemplate,
-} from '../../../src/templates';
+} from '../../../src/templates/all';
 import {getFileContents} from '../../../src/utilities/fileSystem';
 import {
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from '../../../src/constants';
+} from '../../../src/constants/constants';
 import { createTestResultFormatter, formatDuration } from '../../../src/parsers/formatting';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
