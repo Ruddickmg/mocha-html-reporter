@@ -113,9 +113,9 @@ const screenShotComparison = (() => {
       : Promise.reject(new Error('Unable to save image, no output directory was specified.'))
   );
 
-  const getExistingImage = (name: string): Promise<Buffer> => new Promise((resolve, reject) => readFile(
+  const getExistingImage = (name: string): Promise<any> => new Promise((resolve, reject) => readFile(
     outputFile(name),
-    (error: Error, buffer: Buffer): void => ((error || !buffer) ? reject(error) : resolve(buffer)),
+    (error: Error, buffer: any): void => ((error || !buffer) ? reject(error) : resolve(buffer)),
   ));
 
   const compareScreenShotWithBaseline = (pngImage: any, name: string): Promise<ImageComparisons> => getExistingImage(name)

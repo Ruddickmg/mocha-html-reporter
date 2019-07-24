@@ -44,7 +44,7 @@ export const getFileContents = (
     pathToFile,
     (
       error: Error,
-      data: Buffer,
+      data: any,
     ): void => {
       return error
         ? reject(error)

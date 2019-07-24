@@ -8,7 +8,7 @@ describe('functions', (): void => {
     const convertToString = (a: any): string => `${a}`;
     const addTheLetterD = (a: string): string => `${a}D`;
     it('Will apply an array of functions to a value', () => {
-      expect(compose([addTwo, convertToString, addTheLetterD], startingValue))
+      expect(compose(addTwo, convertToString, addTheLetterD)(startingValue))
         .to.equal(addTheLetterD(convertToString(addTwo(startingValue))));
     });
   });

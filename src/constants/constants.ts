@@ -1,11 +1,12 @@
 import { sep, resolve } from 'path';
+import { EOL } from 'os';
 
 export const PERIOD = '.';
 export const PASS = 'pass';
 export const FAIL = 'failed';
 export const FINISHED = 'end';
 export const PACKAGE_NAME = 'mocha-html-reporter';
-export const NEW_LINE ='\r\n';
+export const NEW_LINE = EOL;
 export const PATH_SEPARATOR = sep;
 export const TEMPLATE_BRACES = /{{.*?}}/g;
 export const UUID = 'id';

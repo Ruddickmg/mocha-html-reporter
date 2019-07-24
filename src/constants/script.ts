@@ -1,0 +1,13 @@
+export const PASSED = 'passed';
+export const FAILED = 'failed';
+export const HIDDEN = 'hidden';
+export const ACTIVE = 'active';
+export const TEST_DATA = 'test-data';
+export const HISTORY = 'history';
+export const PASSED_BUTTON_ID = 'passed-button';
+export const FAILED_BUTTON_ID = 'failed-button';
+export const MESSAGE = 'message';
+export const IMAGE = 'image';
+export const STACK = 'stack';
+export const SHOWING_FAILED = 'showingFailed';
+export const SHOWING_PASSED = 'showingPassed';

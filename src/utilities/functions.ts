@@ -5,7 +5,8 @@ interface Mapped {
 type Modifier = (...args: any[]) => any;
 
 export const compose = (
-  functions: Modifier[],
+  ...functions: Modifier[]
+): any => (
   value: any,
 ): any => functions
   .reduce((
