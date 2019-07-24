@@ -42,6 +42,12 @@ describe('scripts', (): void => {
       const line = `var x = require("${text}");`;
       expect(getTextBetweenMarkers(line, '"')).to.equal(text);
     });
+    it('Will get text between two different markers', (): void => {
+      const text = ' var x = 123; ';
+      const line = `function setX() {${text}}`;
+      expect(getTextBetweenMarkers(line, '{', '}'))
+        .to.equal(text);
+    });
   });
   describe('addTsExtension', (): void => {
     it('Add a .ts extension to the end of a string', (): void => {
