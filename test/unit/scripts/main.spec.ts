@@ -10,7 +10,7 @@ import {
   getImportVariableName,
   getTextBetweenMarkers,
   removeFileNameFromPath,
-  getImportLines, getCodeByPath,
+  getImportLines, getCodeByPath, mapVariableNamesToImportPaths,
 } from "../../../src/utilities/compile";
 import { babelOptions } from "../../../src/constants/babelOptions";
 import { NEW_LINE } from "../../../src/constants/constants";
@@ -128,5 +128,15 @@ describe('scripts', (): void => {
           [testImportFilePathThree]: await getCode(testImportFilePathThree),
         });
     });
+  });
+  describe('mapVariableNamesToImportPaths', (): void => {
+    it(
+      'Returns an object keyed by file path names with an array of their exported variables',
+      async (): Promise<void> => {
+        const files = await getCodeByPath(testImportFilePath);
+        expect(mapVariableNamesToImportPaths(files))
+          .to.eql
+      },
+    );
   });
 });

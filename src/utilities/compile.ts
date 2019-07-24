@@ -4,7 +4,10 @@ import {
   NEW_LINE,
   PATH_SEPARATOR,
 } from '../constants/constants';
-import { compose } from "./functions";
+import {
+  compose,
+  mapOverObject,
+} from "./functions";
 import { babelOptions } from "../constants/babelOptions";
 
 export interface Compiled {
@@ -17,17 +20,50 @@ interface CodeStore {
   [fileName: string]: string;
 }
 
+interface VariableNamesByPath {
+  [fileName: string]: string[];
+}
+
 const SPACE = ' ';
 const UNDERSCORE = '_';
 const QUOTATION_MARK = '"';
-const SEPERATORS = {
-  [SPACE]: true,
-  [',']: true,
-  [')']: true,
-  ['(']: true,
-  [']']: true,
-  ['[']: true,
-  [';']: true,
+const SEMICOLON = ';';
+const OPENING_CURLY = '{';
+const brackets: CodeStore = {
+  ['(']: ')',
+  ['[']: ']',
+  [OPENING_CURLY]: '}',
+};
+
+export const getCodeBlock = (
+  text: string,
+): string => {
+  const stack = ['{'];
+  const [beginning, end] = text
+    .split(OPENING_CURLY);
+
+  if (beginning.includes(SEMICOLON)) {
+    const [exportCode] = beginning.split(SEMICOLON);
+    return `${exportCode}${SEMICOLON}`;
+  }
+
+  return end.reduce((
+    output: string,
+    char: string,
+  ): string => {
+    const last = output[output.length - 1];
+    const openingBracket = brackets[char];
+    const closingBracket = brackets[char];
+    if (openingBracket) {
+      stack.push(char);
+    }
+    if (closingBracket === char) {
+      stack.pop();
+    }
+    return last === SEMICOLON && !stack.length
+      ? output
+      : `${output}${char}`;
+  }, beginning);
 };
 
 export const getImportVariableName = (text: string): string => text
@@ -95,3 +131,12 @@ export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
       [fileName]: code,
     }))) as CodeStore;
 };
+
+export const mapVariableNamesToImportPaths = (
+  files: CodeStore,
+): VariableNamesByPath => mapOverObject(
+  (code: string): string[] => getImportLines(code)
+    .map(getImportVariableName),
+  files,
+);
+
