@@ -170,3 +170,57 @@ export const mapFilePathsToImports = (
   return {};
 };
 
+const regExEscape = (code: string): string => code.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+const matchAllCode = (code: string): RegExp => new RegExp(regExEscape(code), 'g');
+
+export const removeDuplicateCodeBlocks = (
+  codeObject: CodeStore,
+  code: string,
+): string => Object
+  .keys(codeObject)
+  .reduce((code: string, variableName: string): string => {
+    const value = codeObject[variableName];
+    const [beginning, ...end] = code.split(value);
+    return [
+      beginning,
+      value,
+      end
+        .join(EMPTY_STRING)
+        .replace(matchAllCode(value), EMPTY_STRING),
+    ].join(EMPTY_STRING)
+  }, code);
+
+export const compileCode = (codeObject: CodeStore): string => {
+  const variableNames: string[] = Object.keys(codeObject).sort();
+  const codeWithoutDependencies: string[] = [];
+  const codeWithDependencies = variableNames
+    .reduce((
+      dependantCode: string[],
+      variable: string,
+    ): string[] => {
+      const code = codeObject[variable];
+      const dependants = variableNames
+        .reduce((
+          dependencies: string[],
+          dependency: string,
+        ): string[] => (
+          code.includes(dependency)
+            ? [...dependencies, codeObject[dependency]]
+            : dependencies
+        ), []);
+      if (dependants.length) {
+        return [
+          ...dependantCode,
+          ...dependants,
+        ];
+      } else {
+        codeWithoutDependencies.push(code);
+        return dependantCode;
+      }
+    }, []);
+    return removeDuplicateCodeBlocks(codeObject, [
+      ...codeWithoutDependencies,
+      ...codeWithDependencies,
+    ].join(NEW_LINE));
+};
+
