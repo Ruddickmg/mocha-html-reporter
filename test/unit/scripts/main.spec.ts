@@ -10,10 +10,15 @@ import {
   getImportVariableName,
   getTextBetweenMarkers,
   removeFileNameFromPath,
-  getImportLines, getCodeByPath, mapVariableNamesToImportPaths,
+  getImportLines,
+  getCodeByPath,
+  getCodeBlock,
+  getCodeByVariableName,
+  mapFilePathsToImports,
 } from "../../../src/utilities/compile";
 import { babelOptions } from "../../../src/constants/babelOptions";
-import { NEW_LINE } from "../../../src/constants/constants";
+import {NEW_LINE, PATH_SEPARATOR} from "../../../src/constants/constants";
+import {mapOverObject} from "../../../src/utilities/functions";
 
 const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFilePath = `${rootPath}main.ts`;
@@ -22,11 +27,12 @@ const testImportFilePathTwo = `${rootPath}testFileTwo.ts`;
 const testImportFilePathThree = `${rootPath}testFileThree.ts`;
 const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.ts`;
 const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.ts`;
-const expected = "var testTest = \"testing 123\";\n"+
-    "var testPhrase = \"still testing\";\n"+
-    "var testingCompiler = function testingCompiler() {\n" +
-  "  console.log(testPhrase, testTest);\n" +
-  "};";
+const firstVariableName = '_some.func';
+const secondVariableName = 'someVariable';
+const functionCodeBlock = 'function () {\n        console.log(\'hello, I am a code block!\');\n    var ${secondVariableName} = function () {};      };';
+const func = `var ${firstVariableName} = ${functionCodeBlock}`;
+const assignment = `       var ${secondVariableName} = \'some other thing\';`;
+const code = `${func}\n${assignment}`;
 
 describe('scripts', (): void => {
   describe('getImportVariableName', (): void => {
@@ -129,14 +135,48 @@ describe('scripts', (): void => {
         });
     });
   });
-  describe('mapVariableNamesToImportPaths', (): void => {
-    it(
-      'Returns an object keyed by file path names with an array of their exported variables',
-      async (): Promise<void> => {
-        const files = await getCodeByPath(testImportFilePath);
-        expect(mapVariableNamesToImportPaths(files))
-          .to.eql
-      },
-    );
+  describe('getCodeBlock', (): void => {
+    it('Will parse a function to extract it from a code file', (): void => {
+      expect(getCodeBlock(code)).to.equal(func);
+    });
+    it('Will parse an assignment to extract from a code file', (): void => {
+      expect(getCodeBlock(`${assignment}\n${func}`)).to.equal(assignment);
+    });
+  });
+  describe('getCodeByVariableName', (): void => {
+    it('Maps variable names to their corresponding code', (): void => {
+      expect(getCodeByVariableName(code)).to.eql({
+        [firstVariableName]: func,
+        [secondVariableName]: assignment,
+      });
+    });
+  });
+  describe('getImportsByFileName', (): void => {
+    const filePathOne = './something.ts';
+    const filePathTwo = './other';
+    const importOne = `var _x = require("${filePathOne}");`;
+    const importTwo = `var _y = require("${filePathTwo}");`;
+    const variableOne = '_x.one';
+    const variableTwo = '_x.two';
+    const variableThree = '_y.three();';
+    const testCode = `
+      ${importOne}
+      ${importTwo}
+      console.log(${variableOne}, ${variableTwo});
+      ${variableThree}
+    `;
+    it('Gets all imported variable names mapped to the file path', (): void => {
+      expect(mapFilePathsToImports({ [testImportFilePath]: testCode }))
+        .to.eql({
+          [testImportFilePath] : mapOverObject(
+            (filePath: string): string => `${rootPath}${PATH_SEPARATOR}${filePath}`,
+            {
+              [variableOne]: filePathOne,
+              [variableTwo]: filePathOne,
+              [variableThree]: filePathTwo,
+            },
+          ),
+        });
+    });
   });
 });
