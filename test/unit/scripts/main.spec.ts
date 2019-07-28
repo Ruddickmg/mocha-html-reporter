@@ -7,18 +7,18 @@ import {
   getCode,
   getFileName,
   addTsExtension,
-  getImportVariableName,
   getTextBetweenMarkers,
   removeFileNameFromPath,
   getImportLines,
   getCodeByPath,
   getCodeBlock,
-  getCodeByVariableName,
-  mapFilePathsToImports,
-} from "../../../src/utilities/compile";
-import { babelOptions } from "../../../src/constants/babelOptions";
-import {NEW_LINE, PATH_SEPARATOR} from "../../../src/constants/constants";
-import {mapOverObject} from "../../../src/utilities/functions";
+  mapCodeBlocksToVariableNames,
+  compileCode,
+  removeDuplicateCodeBlocks,
+  getVariableName, mapFilePathsToCodeBlocksByVariableName,
+} from '../../../src/utilities/compile';
+import { babelOptions } from '../../../src/constants/babelOptions';
+import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 
 const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFilePath = `${rootPath}main.ts`;
@@ -29,17 +29,60 @@ const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.ts`;
 const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.ts`;
 const firstVariableName = '_some.func';
 const secondVariableName = 'someVariable';
-const functionCodeBlock = 'function () {\n        console.log(\'hello, I am a code block!\');\n    var ${secondVariableName} = function () {};      };';
+const thirdVariableName = 'variableThree';
+const fourthVariableName = 'variableFour';
+const firstCodeBlock = `var ${firstVariableName} = console.log(${secondVariableName}, ${fourthVariableName});`;
+const secondCodeBlock = `var ${secondVariableName} = 25;`;
+const thirdCodeBlock = `var ${thirdVariableName} = function (someVariable) { console.log(${firstVariableName}); };`;
+const fourthCodeBlock = `var ${fourthVariableName} = 32;`;
+const functionCodeBlock = `function () {
+        console.log('hello, I am a code block!');
+    var ${secondVariableName} = function () {};      };`;
 const func = `var ${firstVariableName} = ${functionCodeBlock}`;
-const assignment = `       var ${secondVariableName} = \'some other thing\';`;
+const assignment = `       var ${secondVariableName} = 'some other thing';`;
 const code = `${func}\n${assignment}`;
 
 describe('scripts', (): void => {
-  describe('getImportVariableName', (): void => {
-    it('Extracts a variable name from an import line', (): void => {
+  describe('getVariableName', (): void => {
+    it('Will get a variable name from a var declaration with var as a substring of the variable name', (): void => {
+      const variableName = 'variable';
+      expect(getVariableName(`var ${variableName} = function () {};`))
+        .to.equal(variableName);
+    });
+    it('Will get a variable with function as a substring of the var declaration name', (): void => {
+      const variableName = 'functional';
+      expect(getVariableName(`var ${variableName} = function () {};`))
+        .to.equal(variableName);
+    });
+    it('Will get a variable with function as a substring of the function declaration name', (): void => {
+      const variableName = 'functional';
+      expect(getVariableName(`function ${variableName}() {};`))
+        .to.equal(variableName);
+    });
+    it('Will get a variable name from a var declaration with a space between the function declaration and open parentheses', (): void => {
+      const variableName = 'b';
+      expect(getVariableName(`var ${variableName} = function () {};`))
+        .to.equal(variableName);
+    });
+    it('Will get a variable name from a function declaration', (): void => {
       const variableName = 'x';
-      const importLine = `var ${variableName} = require("./some/file.ts")`;
-      expect(getImportVariableName(importLine)).to.equal(variableName);
+      expect(getVariableName(`function ${variableName}() {};`))
+        .to.equal(variableName);
+    });
+    it('Will get a variable name from a function declaration with a space between the variable name and opening parentheses', (): void => {
+      const variableName = 'y';
+      expect(getVariableName(`function ${variableName} () {};`))
+        .to.equal(variableName);
+    });
+    it('will get a variable name from a function that has both a var declaration and a function declaration', (): void => {
+      const variableName = 'z';
+      expect(getVariableName(`var ${variableName} = function b() {};`))
+        .to.equal(variableName);
+    });
+    it('will get a variable name from a function that has both a var declaration and a function declaration and a space after the function declaration name', (): void => {
+      const variableName = 'a';
+      expect(getVariableName(`var ${variableName} = function b () {};`))
+        .to.equal(variableName);
     });
   });
   describe('getTextBetweenMarkers', (): void => {
@@ -78,18 +121,18 @@ describe('scripts', (): void => {
   });
   describe('getCode', (): void => {
     it('Gets and transforms code via babel from a specified file', (done): void => {
-        transformFile(
-          testImportFilePath,
-          babelOptions,
-          async (error: Error, { code }: Compiled): Promise<void>  => {
-            try {
-              expect(await getCode(testImportFilePath)).to.equal(code);
-              done(error);
-            } catch (e) {
-              done(e);
-            }
-          },
-        );
+      transformFile(
+        testImportFilePath,
+        babelOptions,
+        async (error: Error, { code: transformedCode }: Compiled): Promise<void> => {
+          try {
+            expect(await getCode(testImportFilePath)).to.equal(transformedCode);
+            done(error);
+          } catch (e) {
+            done(e);
+          }
+        },
+      );
     });
   });
   describe('getImportLines', (): void => {
@@ -103,12 +146,12 @@ describe('scripts', (): void => {
           'var b = 13',
           lineTwo,
           'var c = "booo"',
-        ].join(NEW_LINE))
+        ].join(NEW_LINE)),
       ).to.eql([lineOne, lineTwo]);
     });
   });
   describe('getCodeByPath', (): void => {
-    it('Will get all code imported by a file', async (): Promise<void> => {
+    it('Gets all code imported by a file', async (): Promise<void> => {
       expect(await getCodeByPath(testImportFilePath))
         .to.eql({
           [testImportFilePath]: await getCode(testImportFilePath),
@@ -116,7 +159,7 @@ describe('scripts', (): void => {
           [testImportFilePathTwo]: await getCode(testImportFilePathTwo),
         });
     });
-    it('Will get all code imported by files recursively', async (): Promise<void> => {
+    it('Gets all code imported by files recursively', async (): Promise<void> => {
       expect(await getCodeByPath(recursiveImportTestFile))
         .to.eql({
           [recursiveImportTestFile]: await getCode(recursiveImportTestFile),
@@ -125,7 +168,7 @@ describe('scripts', (): void => {
           [testImportFilePathThree]: await getCode(testImportFilePathThree),
         });
     });
-    it('Will only get only single representations for imports', async (): Promise<void> => {
+    it('Gets single unique representations for imports', async (): Promise<void> => {
       expect(await getCodeByPath(duplicateImportTestFile))
         .to.eql({
           [duplicateImportTestFile]: await getCode(duplicateImportTestFile),
@@ -143,40 +186,72 @@ describe('scripts', (): void => {
       expect(getCodeBlock(`${assignment}\n${func}`)).to.equal(assignment);
     });
   });
-  describe('getCodeByVariableName', (): void => {
+  describe('mapCodeBlocksToVariableNames', (): void => {
     it('Maps variable names to their corresponding code', (): void => {
-      expect(getCodeByVariableName(code)).to.eql({
+      expect(mapCodeBlocksToVariableNames(code)).to.eql({
         [firstVariableName]: func,
         [secondVariableName]: assignment,
       });
     });
   });
-  describe('getImportsByFileName', (): void => {
-    const filePathOne = './something.ts';
-    const filePathTwo = './other';
-    const importOne = `var _x = require("${filePathOne}");`;
-    const importTwo = `var _y = require("${filePathTwo}");`;
-    const variableOne = '_x.one';
-    const variableTwo = '_x.two';
-    const variableThree = '_y.three();';
-    const testCode = `
-      ${importOne}
-      ${importTwo}
-      console.log(${variableOne}, ${variableTwo});
-      ${variableThree}
-    `;
-    it('Gets all imported variable names mapped to the file path', (): void => {
-      expect(mapFilePathsToImports({ [testImportFilePath]: testCode }))
+  describe('mapFilePathsToCodeBlocksByVariableName', (): void => {
+    it('Creates an object containing the variable name to code block mappings for each file', (): void => {
+      expect(mapFilePathsToCodeBlocksByVariableName({
+        [testImportFilePath]: `${firstCodeBlock}\n${secondCodeBlock}`,
+        [duplicateImportTestFile]: thirdCodeBlock,
+      }))
         .to.eql({
-          [testImportFilePath] : mapOverObject(
-            (filePath: string): string => `${rootPath}${PATH_SEPARATOR}${filePath}`,
-            {
-              [variableOne]: filePathOne,
-              [variableTwo]: filePathOne,
-              [variableThree]: filePathTwo,
-            },
-          ),
+          [testImportFilePath]: {
+            [firstVariableName]: firstCodeBlock,
+            [secondVariableName]: secondCodeBlock,
+          },
+          [duplicateImportTestFile]: {
+            [thirdVariableName]: thirdCodeBlock,
+          },
         });
+    });
+  });
+  describe('renameOverlappingVariables', (): void => {
+    it('Renames variable names that are overlapping between files', (): void => {
+
+    });
+  });
+  describe('removeDuplicateCodeBlocks', (): void => {
+    it('Will remove duplicate blocks of code from a string', (): void => {
+      expect(removeDuplicateCodeBlocks({
+        firstCodeBlock,
+        secondCodeBlock,
+        thirdCodeBlock,
+        fourthCodeBlock,
+      }, [
+        firstCodeBlock,
+        secondCodeBlock,
+        thirdCodeBlock,
+        secondCodeBlock,
+        secondCodeBlock,
+        fourthCodeBlock,
+        firstCodeBlock,
+      ].join(EMPTY_STRING))).to.equal([
+        firstCodeBlock,
+        secondCodeBlock,
+        thirdCodeBlock,
+        fourthCodeBlock,
+      ].join(EMPTY_STRING));
+    });
+  });
+  describe('compileCode', (): void => {
+    it('Compiles a list of code blocks mapped to variable names sorted in alphabetical order according to dependency', (): void => {
+      expect(compileCode({
+        [firstVariableName]: firstCodeBlock,
+        [secondVariableName]: secondCodeBlock,
+        [thirdVariableName]: thirdCodeBlock,
+        [fourthVariableName]: fourthCodeBlock,
+      })).to.equal([
+        secondCodeBlock,
+        fourthCodeBlock,
+        firstCodeBlock,
+        thirdCodeBlock,
+      ].join(EMPTY_STRING));
     });
   });
 });

@@ -7,34 +7,30 @@ import {
 import {
   compose,
   mapOverObject,
-} from "./functions";
-import { babelOptions } from "../constants/babelOptions";
+} from './functions';
+import { babelOptions } from '../constants/babelOptions';
+import { escapedRegEx } from './regEx';
 
 export interface Compiled {
-  code: string,
-  map: any,
-  ast: any,
+  code: string;
 }
 
 export interface CodeStore {
-  [fileName: string]: string;
+  [identifier: string]: string;
 }
 
-interface VariableNamesByPath {
-  [fileName: string]: string[];
+export interface FileCodeMappings {
+  [filename: string]: CodeStore;
 }
 
 const SPACE = ' ';
-const UNDERSCORE = '_';
-const DOT = '.';
 const VARIABLE_DECLARATION = 'var';
-const EXPORT_DECLARATION = 'exports';
+const FUNCTION_DECLARATION = 'function';
 const QUOTATION_MARK = '"';
 const SEMICOLON = ';';
 const OPENING_CURLY = '{';
+const OPEN_PARENTHESES = '(';
 const brackets: CodeStore = {
-  ['(']: ')',
-  ['[']: ']',
   [OPENING_CURLY]: '}',
 };
 
@@ -51,29 +47,25 @@ export const getCodeBlock = (
   return Array
     .from(end.join(OPENING_CURLY))
     .reduce((
-    output: string,
-    char: string,
-  ): string => {
-    const stackSize = stack.length;
-    const last = output[output.length - 1];
-    const top = stack[stackSize - 1];
-    const openingBracket = brackets[char];
-    const closingBracket = brackets[top];
-    if (openingBracket) {
-      stack.push(char);
-    }
-    if (closingBracket === char) {
-      stack.pop();
-    }
-    return last === SEMICOLON && !stackSize
-      ? output
-      : `${output}${char}`;
-  }, `${beginning}${OPENING_CURLY}`);
+      output: string,
+      char: string,
+    ): string => {
+      const stackSize = stack.length;
+      const last = output[output.length - 1];
+      const top = stack[stackSize - 1];
+      const openingBracket = brackets[char];
+      const closingBracket = brackets[top];
+      if (openingBracket) {
+        stack.push(char);
+      }
+      if (closingBracket === char) {
+        stack.pop();
+      }
+      return last === SEMICOLON && !stackSize
+        ? output
+        : `${output}${char}`;
+    }, `${beginning}${OPENING_CURLY}`);
 };
-
-export const getImportVariableName = (text: string): string => text
-  .split(VARIABLE_DECLARATION)[1]
-  .split(SPACE)[1];
 
 export const getTextBetweenMarkers = (
   text: string,
@@ -88,6 +80,20 @@ export const getFileName = (code: string): string => getTextBetweenMarkers(code,
   .split(PATH_SEPARATOR)
   .pop();
 
+export const charIsNotEmptyString = (codeSection: string): boolean => codeSection !== EMPTY_STRING;
+
+export const getVariableName = (line: string): string => {
+  const declaration = line.includes(VARIABLE_DECLARATION)
+    ? VARIABLE_DECLARATION
+    : FUNCTION_DECLARATION;
+  return line
+    .split(`${declaration} `)[1]
+    .split(SPACE)
+    .filter(charIsNotEmptyString)[0]
+    .split(OPEN_PARENTHESES)
+    .filter(charIsNotEmptyString)[0];
+};
+
 export const getCode = (
   fileName: string,
 ): Promise<string> => new Promise((
@@ -96,13 +102,11 @@ export const getCode = (
 ): void => transformFile(
   fileName,
   babelOptions,
-  (error: Error, result: Compiled): void => {
-    return (
-      error
-        ? reject(error)
-        : resolve(result.code)
-    );
-  },
+  (error: Error, result: Compiled): void => (
+    error
+      ? reject(error)
+      : resolve(result.code)
+  ),
 ));
 
 export const removeFileNameFromPath = (path: string): string => {
@@ -137,7 +141,7 @@ export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
     }))) as CodeStore;
 };
 
-export const getCodeByVariableName = (code: string): CodeStore => {
+export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
   let variableName: string;
   return code
     .split(NEW_LINE)
@@ -148,34 +152,24 @@ export const getCodeByVariableName = (code: string): CodeStore => {
       lines: string[],
     ): CodeStore => {
       const comparison = all[variableName] || EMPTY_STRING;
-      const code = getCodeBlock(lines.slice(index).join(NEW_LINE));
+      const codeBlock = getCodeBlock(lines.slice(index).join(NEW_LINE));
       if (
-        line.includes(VARIABLE_DECLARATION) &&
-        !comparison.includes(code)
+        (line.includes(VARIABLE_DECLARATION) || line.includes(FUNCTION_DECLARATION))
+        && !comparison.includes(codeBlock)
       ) {
-        variableName = getImportVariableName(line);
+        variableName = getVariableName(line);
         return {
           ...all,
-          [variableName]: code,
+          [variableName]: codeBlock,
         };
       }
       return all;
     }, {});
 };
 
-export const mapFilePathsToImports = (
-  files: CodeStore,
-): VariableNamesByPath => {
-  // TODO
-  return {};
-};
-
-const regExEscape = (code: string): string => code.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
-const matchAllCode = (code: string): RegExp => new RegExp(regExEscape(code), 'g');
-
 export const removeDuplicateCodeBlocks = (
   codeObject: CodeStore,
-  code: string,
+  codeBlocks: string,
 ): string => Object
   .keys(codeObject)
   .reduce((code: string, variableName: string): string => {
@@ -186,41 +180,40 @@ export const removeDuplicateCodeBlocks = (
       value,
       end
         .join(EMPTY_STRING)
-        .replace(matchAllCode(value), EMPTY_STRING),
-    ].join(EMPTY_STRING)
-  }, code);
+        .replace(escapedRegEx(value), EMPTY_STRING),
+    ].join(EMPTY_STRING);
+  }, codeBlocks);
+
+export const mapFilePathsToCodeBlocksByVariableName = (
+  codeByFilePath: CodeStore,
+): FileCodeMappings => mapOverObject(
+  mapCodeBlocksToVariableNames,
+  codeByFilePath,
+);
 
 export const compileCode = (codeObject: CodeStore): string => {
   const variableNames: string[] = Object.keys(codeObject).sort();
   const codeWithoutDependencies: string[] = [];
   const codeWithDependencies = variableNames
     .reduce((
-      dependantCode: string[],
+      codeBlocks: string[],
       variable: string,
     ): string[] => {
       const code = codeObject[variable];
       const dependants = variableNames
-        .reduce((
-          dependencies: string[],
-          dependency: string,
-        ): string[] => (
-          code.includes(dependency)
-            ? [...dependencies, codeObject[dependency]]
-            : dependencies
-        ), []);
-      if (dependants.length) {
-        return [
-          ...dependantCode,
-          ...dependants,
-        ];
-      } else {
+        .filter((dependency: string): boolean => dependency !== variable
+          && code.includes(dependency))
+        .map((dependency: string): string => codeObject[dependency]);
+      if (!dependants.length) {
         codeWithoutDependencies.push(code);
-        return dependantCode;
       }
+      return [
+        ...codeBlocks,
+        ...dependants,
+      ];
     }, []);
-    return removeDuplicateCodeBlocks(codeObject, [
-      ...codeWithoutDependencies,
-      ...codeWithDependencies,
-    ].join(NEW_LINE));
+  return removeDuplicateCodeBlocks(codeObject, [
+    ...codeWithoutDependencies,
+    ...codeWithDependencies,
+  ].join(EMPTY_STRING));
 };
-

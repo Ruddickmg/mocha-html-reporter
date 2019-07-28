@@ -32,3 +32,5 @@ rules:
   indent: 'off'
   # set indentation rules for 2 spaces to combat conflict between airbnb and typscript settings
   '@typescript-eslint/indent': ['error', 2]
+  '@typescript-eslint/no-object-literal-type-assertion': 0
+  'import/prefer-default-export': 0

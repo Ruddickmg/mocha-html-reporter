@@ -18,34 +18,38 @@ import {
 } from '../../../src/constants/constants';
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import { formatDuration } from '../../../src/parsers/formatting';
-import {getStyles} from '../../../src/parsers/styles';
-import {pathToMockTestDirectory} from '../../helpers/expectations';
+import { getStyles } from '../../../src/parsers/styles';
+import { pathToMockTestDirectory } from '../../helpers/expectations';
 
 describe('testResult', () => {
   const image = 'test image';
   const title = 'some title';
   const firstTitle = 'hello';
-  const duration = 1337;
+  const testDuration = 1337;
   const mockTestValues = [{
     title: firstTitle,
-    duration,
+    duration: testDuration,
   }, {
     title: 'world',
-    duration,
+    duration: testDuration,
   }];
   const mockTestResults: TestResult[] = mockTestValues
-    .map(({duration, ...rest}) => ({
+    .map(({ duration, ...rest }): TestResult => ({
       duration: formatDuration(duration),
       path: pathToMockTestDirectory.split(PATH_SEPARATOR),
       ...rest,
     }) as TestResult);
 
-  describe('convertTestResultsToHtml',() => {
-    it('Will add an image if there is one present on the passed in object', async () => {
-      const image = 'testing123';
-      const expectedAddition = addValuesToTemplate(imageTemplate, { image } as TestResult);
+  describe('convertTestResultsToHtml', (): void => {
+    it('Will add an image if there is one present on the passed in object', async (): Promise<void> => {
+      const expectedAddition = addValuesToTemplate(
+        imageTemplate,
+        { image } as TestResult,
+      );
       expect(convertTestResultsToHtml(
-        [{ title: 'whatever', duration: formatDuration(duration), path: [], image } as TestResult],
+        [{
+          title: 'whatever', duration: formatDuration(testDuration), path: [], image,
+        } as TestResult],
       )).to.contain(expectedAddition);
     });
 
@@ -63,7 +67,6 @@ describe('testResult', () => {
     });
 
     it('Will add images to the html output', async (): Promise<void> => {
-      const image = 'some image';
       const expectedResults = mockTestResults.map(
         (result: TestResult): string => addValuesToTemplate(
           testResultTemplate,
@@ -81,17 +84,16 @@ describe('testResult', () => {
     });
   });
   describe('convertTestSuiteToHtml', (): void => {
-
     it('Will convert a test suite into the desired html output', async (): Promise<void> => {
-      const testResult = {
+      const testResult: TestResult = {
         title,
-        duration: formatDuration(duration),
+        duration: formatDuration(testDuration),
         image,
       } as TestResult;
       const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
       const testResultHtml = addValuesToTemplate(testResultTemplate, {
         title,
-        duration,
+        duration: testDuration,
         image: imageHtml,
       } as TestResult);
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
@@ -112,13 +114,13 @@ describe('testResult', () => {
       const testResult = {
         title,
         suite,
-        duration: formatDuration(duration),
+        duration: formatDuration(testDuration),
         image,
       } as TestResult;
       const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
       const testResultHtml = addValuesToTemplate(testResultTemplate, {
         title,
-        duration,
+        duration: testDuration,
         image: imageHtml,
       } as TestResult);
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
