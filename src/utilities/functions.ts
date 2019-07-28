@@ -2,7 +2,7 @@ interface Mapped {
   [key: string]: any;
 }
 
-type Modifier = (...args: any[]) => any;
+type Modifier= (...args: any[]) => any;
 
 export const compose = (
   ...functions: Modifier[]
@@ -24,5 +24,5 @@ export const mapOverObject = (
     key: string,
   ): Mapped => ({
     ...mapped,
-    [key]: modifier(object[key]),
+    [key]: modifier(object[key], key, object),
   }), {});

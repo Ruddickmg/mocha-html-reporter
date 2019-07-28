@@ -26,6 +26,7 @@ export interface FileCodeMappings {
 const SPACE = ' ';
 const VARIABLE_DECLARATION = 'var';
 const FUNCTION_DECLARATION = 'function';
+const IMPORT_DECLARATION = 'require';
 const QUOTATION_MARK = '"';
 const SEMICOLON = ';';
 const OPENING_CURLY = '{';
@@ -76,10 +77,13 @@ export const getTextBetweenMarkers = (
   .split(closing)[0];
 
 export const addTsExtension = (name: string): string => `${name}.ts`;
-export const getFileName = (code: string): string => getTextBetweenMarkers(code, QUOTATION_MARK)
+export const getFileNameFromRequire = (
+  code: string,
+): string => getTextBetweenMarkers(code, QUOTATION_MARK)
   .split(PATH_SEPARATOR)
   .pop();
 
+export const getFileNameFromPath = (path: string, extension = '.ts'): string => path.split(PATH_SEPARATOR).pop().replace(extension, EMPTY_STRING);
 export const charIsNotEmptyString = (codeSection: string): boolean => codeSection !== EMPTY_STRING;
 
 export const getVariableName = (line: string): string => {
@@ -125,7 +129,7 @@ export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
   const importLines = getImportLines(code);
   const paths = importLines
     .map(compose(
-      getFileName,
+      getFileNameFromRequire,
       addTsExtension,
       (name: string): string => `${pathToFile}${PATH_SEPARATOR}${name}`,
     ));
@@ -190,6 +194,39 @@ export const mapFilePathsToCodeBlocksByVariableName = (
   mapCodeBlocksToVariableNames,
   codeByFilePath,
 );
+
+export const replaceVariablesInCode = (
+  variableName: string,
+  replacement: string,
+  code: string,
+): string => code
+  .replace(new RegExp(`(?<=\\W(?=([^"]*"[^"]*")*[^"]*$)(?=([^']*'[^']*')*[^']*$))${variableName}(?=\\W)`, 'g'), replacement);
+
+export const combineVariablesForEachFile = (
+  variablesForEachFile: FileCodeMappings,
+): CodeStore => Object.keys(variablesForEachFile)
+  .reduce((variableNameMappings: CodeStore, filePath: string): CodeStore => {
+    const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
+    const codeByVariableName = variablesForEachFile[filePath];
+    return Object.keys(codeByVariableName)
+      .filter((
+        variableName: string,
+      ): boolean => !codeByVariableName[variableName].includes(IMPORT_DECLARATION))
+      .reduce((fileCodeByVariableName: CodeStore, variableName: string): CodeStore => {
+        const replacementVariableName = `${fileNamePrefix}.${variableName}`;
+        const codeWithVariablesReplaced = mapOverObject((
+          code: string,
+        ): string => replaceVariablesInCode(
+          variableName,
+          replacementVariableName,
+          code,
+        ), codeByVariableName);
+        return {
+          ...fileCodeByVariableName,
+          [replacementVariableName]: codeWithVariablesReplaced[variableName],
+        };
+      }, variableNameMappings);
+  }, {});
 
 export const compileCode = (codeObject: CodeStore): string => {
   const variableNames: string[] = Object.keys(codeObject).sort();

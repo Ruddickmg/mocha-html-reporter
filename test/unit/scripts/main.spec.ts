@@ -5,7 +5,7 @@ import {
 import {
   Compiled,
   getCode,
-  getFileName,
+  getFileNameFromRequire,
   addTsExtension,
   getTextBetweenMarkers,
   removeFileNameFromPath,
@@ -15,19 +15,25 @@ import {
   mapCodeBlocksToVariableNames,
   compileCode,
   removeDuplicateCodeBlocks,
-  getVariableName, mapFilePathsToCodeBlocksByVariableName,
+  getVariableName,
+  mapFilePathsToCodeBlocksByVariableName,
+  getFileNameFromPath,
+  replaceVariablesInCode,
+  combineVariablesForEachFile,
 } from '../../../src/utilities/compile';
 import { babelOptions } from '../../../src/constants/babelOptions';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
+import { mapOverObject } from '../../../src/utilities/functions';
 
 const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
-const testImportFilePath = `${rootPath}main.ts`;
+const testImportFileName = 'main.ts';
+const testImportFilePath = `${rootPath}${testImportFileName}`;
 const testImportFilePathOne = `${rootPath}testFileOne.ts`;
 const testImportFilePathTwo = `${rootPath}testFileTwo.ts`;
 const testImportFilePathThree = `${rootPath}testFileThree.ts`;
 const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.ts`;
 const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.ts`;
-const firstVariableName = '_some.func';
+const firstVariableName = 'someFunk';
 const secondVariableName = 'someVariable';
 const thirdVariableName = 'variableThree';
 const fourthVariableName = 'variableFour';
@@ -43,6 +49,44 @@ const assignment = `       var ${secondVariableName} = 'some other thing';`;
 const code = `${func}\n${assignment}`;
 
 describe('scripts', (): void => {
+  describe('replaceVariablesInCode', (): void => {
+    const variable = 'hello';
+    const replacement = 'holly';
+    it('Ignores code within double quotes', (): void => {
+      const codeString = `console.log("${variable}", "hi ${variable} goodbye")`;
+      expect(replaceVariablesInCode(variable, replacement, codeString)).to.equal(codeString);
+    });
+    it('Ignores code within in single quotes', (): void => {
+      const codeString = `console.log('${variable}', 'hi ${variable} goodbye')`;
+      expect(replaceVariablesInCode(variable, replacement, codeString))
+        .to.equal(codeString);
+    });
+    it('Ignores code the the match is a substring of', (): void => {
+      const codeString = `const hi${variable} = ${variable}ending`;
+      expect(replaceVariablesInCode(variable, replacement, codeString))
+        .to.equal(codeString);
+    });
+    it('Replaces code between parentheses', (): void => {
+      const fillCode = (variableName: string): string => `console.log(${variableName});`;
+      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
+        .to.equal(fillCode(replacement));
+    });
+    it('Replaces code between brackets', (): void => {
+      const fillCode = (variableName: string): string => `arr[${variableName}] = 12`;
+      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
+        .to.equal(fillCode(replacement));
+    });
+    it('Replaces code with commas surrounding it', (): void => {
+      const fillCode = (variableName: string): string => `console.log(hi,${variableName},'go')`;
+      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
+        .to.equal(fillCode(replacement));
+    });
+    it('Replaces code with space around it', (): void => {
+      const fillCode = (variableName: string): string => `var ${variableName} = '1212'`;
+      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
+        .to.equal(fillCode(replacement));
+    });
+  });
   describe('getVariableName', (): void => {
     it('Will get a variable name from a var declaration with var as a substring of the variable name', (): void => {
       const variableName = 'variable';
@@ -104,12 +148,22 @@ describe('scripts', (): void => {
       expect(addTsExtension(text)).to.equal(`${text}.ts`);
     });
   });
-  describe('getFileName', (): void => {
-    it('Will get a fileName from a file path', (): void => {
+  describe('getFileNameFromRequire', (): void => {
+    it('Will get a fileName from a require declaration', (): void => {
       const fileName = 'file.ts';
       const path = `require("/path/to/${fileName}")`;
-      expect(getFileName(path))
+      expect(getFileNameFromRequire(path))
         .to.equal(fileName);
+    });
+  });
+  describe('getFileNameFromPath', (): void => {
+    const fileName = 'main';
+    it('will get the file name from a path, defaulting to a .ts extension', (): void => {
+      expect(getFileNameFromPath(testImportFilePath)).to.equal(fileName);
+    });
+    it('will get the file name from a path with a specified extension', (): void => {
+      const extension = '.js';
+      expect(getFileNameFromPath(`${rootPath}${fileName}${extension}`, extension)).to.equal(fileName);
     });
   });
   describe('removeFileNameFromPath', (): void => {
@@ -211,9 +265,29 @@ describe('scripts', (): void => {
         });
     });
   });
-  describe('renameOverlappingVariables', (): void => {
+  describe('combineVariablesForEachFile', (): void => {
     it('Renames variable names that are overlapping between files', (): void => {
-
+      const firstFileName = getFileNameFromPath(testImportFilePath);
+      const secondFileName = getFileNameFromPath(duplicateImportTestFile);
+      const expected = {
+        [`_${firstFileName}.${firstVariableName}`]: firstCodeBlock,
+        [`_${firstFileName}.${secondVariableName}`]: secondCodeBlock,
+        [`_${secondFileName}.${thirdVariableName}`]: thirdCodeBlock,
+        [`_${secondFileName}.${firstVariableName}`]: fourthCodeBlock,
+      };
+      expect(combineVariablesForEachFile({
+        [testImportFilePath]: {
+          [firstVariableName]: firstCodeBlock,
+          [secondVariableName]: secondCodeBlock,
+        },
+        [duplicateImportTestFile]: {
+          [thirdVariableName]: thirdCodeBlock,
+          [firstVariableName]: fourthCodeBlock,
+        },
+      })).to.eql(mapOverObject((
+        codeBlock: string,
+        key: string,
+      ): string => replaceVariablesInCode(key.split('.').pop(), key, codeBlock), expected));
     });
   });
   describe('removeDuplicateCodeBlocks', (): void => {
