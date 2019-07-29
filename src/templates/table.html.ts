@@ -1,4 +1,4 @@
 export const tableTemplate = `<table id="{{id}} class="{{class}}">
-    {{rows}}
+    {{content}}
 </table>`;
 export default tableTemplate;

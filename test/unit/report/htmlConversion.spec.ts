@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import {
   convertTestResultsToHtml,
   convertTestSuiteToHtml,
-  convertReportToHtml,
+  convertReportToHtml, convertHistoryToHtml,
 } from '../../../src/report/htmlConversion';
 import {
   addValuesToTemplate,
@@ -10,6 +10,9 @@ import {
   testResultTemplate,
   testSuiteTemplate,
   reportTemplate,
+  tableTemplate,
+  tableHeaderTemplate,
+  tableRowTemplate,
 } from '../../../src/templates/all';
 import {
   NEW_LINE,
@@ -17,9 +20,14 @@ import {
   PATH_TO_STYLE_SHEET,
 } from '../../../src/constants/constants';
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
-import { formatDuration } from '../../../src/parsers/formatting';
+import {
+  convertDateStringToMilliseconds,
+  formatDuration,
+  millisecondsToHumanReadable
+} from '../../../src/parsers/formatting';
 import { getStyles } from '../../../src/parsers/styles';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
+import {formatHistory, historyTestSuiteHeaderTitle} from '../../../src/history/historyFormatting';
 
 describe('testResult', () => {
   const image = 'test image';
@@ -108,7 +116,46 @@ describe('testResult', () => {
     });
   });
   describe('convertHistoryToHtml', (): void => {
-    // TODO
+    const firstSuiteName = 'suite #1';
+    const secondSuiteName = 'suite #2';
+    const testResults = [
+      'August 13, 1987 23:15:30',
+      'August 14, 1987 23:15:30',
+      'August 15, 1987 23:15:30',
+      'August 16, 1987 23:15:30',
+    ].map((dateString: string): TestResult => ({
+      title: dateString,
+      date: convertDateStringToMilliseconds(dateString),
+    } as TestResult))
+      .reduce((results: TestResult[], test: TestResult): TestResult[] => [
+        ...results,
+        { ...test, suite: firstSuiteName },
+        { ...test, suite: secondSuiteName },
+      ], []);
+    it('Converts history data into a table displaying test results over time', (): void => {
+      const history = formatHistory(testResults);
+      console.log('history', history);
+      expect(convertHistoryToHtml(history))
+        .to.equal(addValuesToTemplate(tableTemplate, {
+          content: Object.keys(history)
+            .map((suiteName: string): string => {
+              const template = suiteName === historyTestSuiteHeaderTitle
+                ? tableHeaderTemplate
+                : tableRowTemplate;
+              return addValuesToTemplate(
+                tableRowTemplate,
+                {
+                  content: (history[suiteName] as TestResult[])
+                    .map(({ title: testTitle }: TestResult): string => addValuesToTemplate(
+                      template,
+                      { content: testTitle },
+                    ))
+                    .join(NEW_LINE) as string,
+                },
+              );
+            }).join(NEW_LINE),
+        }));
+    });
   });
   describe('convertReportToHtml', (): void => {
     it('Will convert a test suite into an html report', async (): Promise<void> => {

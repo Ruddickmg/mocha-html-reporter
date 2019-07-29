@@ -5,7 +5,7 @@ import {
   getEachSuiteTitle,
   removeDuplicateTestResults,
   indexTestResultsBySuite,
-  TestResultsByDate, formatHistoryTable,
+  TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle,
 } from '../../../src/history/historyFormatting';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { convertDateStringToMilliseconds } from '../../../src/parsers/formatting';
@@ -124,7 +124,7 @@ describe('historyTableFormatting', (): void => {
         .to.eql(indexedBySuite);
     });
   });
-  describe('formatHistoryTable', (): void => {
+  describe('formatHistory', (): void => {
     it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
       const firstSuiteName = 'suite #1';
       const secondSuiteName = 'suite #2';
@@ -134,8 +134,10 @@ describe('historyTableFormatting', (): void => {
           ...(index % 2 === 0 ? [{ ...test, suite: firstSuiteName }] : []),
           { ...test, suite: secondSuiteName },
         ], []);
-      expect(formatHistoryTable(differentSuites))
+      expect(formatHistory(differentSuites))
         .to.eql({
+          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+            .map((date: string): TestResult => ({ title: date } as TestResult)),
           [firstSuiteName]: differentSuites
             .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
             .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
@@ -156,8 +158,10 @@ describe('historyTableFormatting', (): void => {
           { ...test, suite: firstSuiteName },
           { ...test, suite: secondSuiteName },
         ], []);
-      expect(formatHistoryTable(differentSuites))
+      expect(formatHistory(differentSuites))
         .to.eql({
+          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+            .map((date: string): TestResult => ({ title: date } as TestResult)),
           [firstSuiteName]: differentSuites
             .filter(({ suite }: TestResult): boolean => suite === firstSuiteName),
           [secondSuiteName]: differentSuites

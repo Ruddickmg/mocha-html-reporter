@@ -8,14 +8,7 @@ import {
   testSuiteTemplate,
   addValuesToTemplate,
 } from '../templates/all';
-
-export const convertReportToHtml = (
-  reportData: ReportData,
-  testSuite: TestSuite,
-): string => addValuesToTemplate(reportTemplate, {
-  suites: convertTestSuiteToHtml(testSuite),
-  ...reportData,
-});
+import {History} from "../history/historyFormatting";
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],
@@ -49,3 +42,15 @@ export const convertTestSuiteToHtml = (
     })
     .join(NEW_LINE);
 }(testSuite));
+
+export const convertReportToHtml = (
+  reportData: ReportData,
+  testSuite: TestSuite,
+): string => addValuesToTemplate(reportTemplate, {
+  suites: convertTestSuiteToHtml(testSuite),
+  ...reportData,
+});
+
+export const convertHistoryToHtml = (history: History): string => {
+  // TODO
+};

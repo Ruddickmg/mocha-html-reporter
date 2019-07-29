@@ -18,6 +18,12 @@ export interface TestResultsBySuite {
   [suite: string]: TestResult;
 }
 
+export interface History {
+  [suiteName: string]: TestResult[] | string[];
+}
+
+export const historyTestSuiteHeaderTitle = 'Test Suites';
+
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
   return Array.from(new Set(dates))
@@ -64,7 +70,7 @@ export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite
     [test.suite]: test,
   }), {});
 
-export const formatHistoryTable = (history: TestResult[]): any => {
+export const formatHistory = (history: TestResult[]): History => {
   const emptyTest = { title: EMPTY_STRING } as TestResult;
   const dates = getEachRunDate(history);
   const suites = getEachSuiteTitle(history);
@@ -75,11 +81,11 @@ export const formatHistoryTable = (history: TestResult[]): any => {
   );
 
   return dates.reduce((
-    formattedHistory,
+    formattedHistory: History,
     dateString: string,
-  ): any => {
+  ): History => {
     const results = suiteAndDateMatrix[dateString];
-    return suites.reduce((formattedSuite: any, suiteName: string) => {
+    return suites.reduce((formattedSuite: History, suiteName: string): History => {
       const test = results[suiteName] || emptyTest;
       const previous = formattedSuite[suiteName] || [];
       return {
@@ -87,5 +93,8 @@ export const formatHistoryTable = (history: TestResult[]): any => {
         [suiteName]: [...previous, test],
       };
     }, formattedHistory);
-  }, {});
+  }, {
+    [historyTestSuiteHeaderTitle]: dates
+      .map((date: string): TestResult => ({ title: date } as TestResult)),
+  });
 };
