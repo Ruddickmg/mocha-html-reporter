@@ -228,7 +228,25 @@ export const combineVariablesForEachFile = (
       }, variableNameMappings);
   }, {});
 
-export const compileCode = (codeObject: CodeStore): string => {
+export type NameGenerator = (...args: any[]) => string;
+export type VariableRenamer = (code: string, variableNames: string[]) => string;
+
+export const renameAllVariables = (
+  generateName: NameGenerator,
+): VariableRenamer => (
+  code: string,
+  variableNames: string[],
+): string => variableNames
+  .reduce((
+    codeWithRenamedVariables: string,
+    variableName: string,
+  ): string => replaceVariablesInCode(
+    variableName,
+    generateName(),
+    codeWithRenamedVariables,
+  ), code);
+
+export const combineCodeFromFilesIntoSingleString = (codeObject: CodeStore): string => {
   const variableNames: string[] = Object.keys(codeObject).sort();
   const codeWithoutDependencies: string[] = [];
   const codeWithDependencies = variableNames
@@ -253,4 +271,18 @@ export const compileCode = (codeObject: CodeStore): string => {
     ...codeWithoutDependencies,
     ...codeWithDependencies,
   ].join(EMPTY_STRING));
+};
+
+export const compileCode = async (
+  fileName: string,
+  variableNameGenerator: NameGenerator,
+): Promise<string> => {
+  const codeByPath = await getCodeByPath(fileName);
+  const renameVariables = renameAllVariables(variableNameGenerator);
+  const codeByVariables = compose(
+    mapFilePathsToCodeBlocksByVariableName,
+    combineVariablesForEachFile,
+  )(codeByPath);
+  const code = combineCodeFromFilesIntoSingleString(codeByVariables);
+  return renameVariables(code, Object.keys(codeByVariables));
 };

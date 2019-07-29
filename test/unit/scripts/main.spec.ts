@@ -13,13 +13,15 @@ import {
   getCodeByPath,
   getCodeBlock,
   mapCodeBlocksToVariableNames,
-  compileCode,
+  combineCodeFromFilesIntoSingleString,
   removeDuplicateCodeBlocks,
   getVariableName,
   mapFilePathsToCodeBlocksByVariableName,
   getFileNameFromPath,
   replaceVariablesInCode,
   combineVariablesForEachFile,
+  renameAllVariables,
+  compileCode,
 } from '../../../src/utilities/compile';
 import { babelOptions } from '../../../src/constants/babelOptions';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
@@ -313,9 +315,20 @@ describe('scripts', (): void => {
       ].join(EMPTY_STRING));
     });
   });
-  describe('compileCode', (): void => {
+  describe('renameAllVariables', (): void => {
+    it('Changes all variable symbols into alpha numeric strings', (): void => {
+      let i = 0;
+      const rename = renameAllVariables((): string => {
+        i += 1;
+        return `variable${i}`;
+      });
+      expect(rename('hi my name is bob, and my favorite activity is bob time', ['is', 'bob']))
+        .to.equal('hi my name variable1 variable2, and my favorite activity variable1 variable2 time');
+    });
+  });
+  describe('combineCodeFromFilesIntoSingleString', (): void => {
     it('Compiles a list of code blocks mapped to variable names sorted in alphabetical order according to dependency', (): void => {
-      expect(compileCode({
+      expect(combineCodeFromFilesIntoSingleString({
         [firstVariableName]: firstCodeBlock,
         [secondVariableName]: secondCodeBlock,
         [thirdVariableName]: thirdCodeBlock,
@@ -326,6 +339,19 @@ describe('scripts', (): void => {
         firstCodeBlock,
         thirdCodeBlock,
       ].join(EMPTY_STRING));
+    });
+  });
+  describe('compileCode', (): void => {
+    let i = 0;
+    const rename = (): string => {
+      i += 1;
+      return `variable${i}`;
+    };
+    it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
+      expect(await compileCode(testImportFilePath, rename))
+        .to.equal(`var variable3 = 'more testing';var variable2 = 'still testing';var variable1 = 'testing 123';var variable4 = function variable4() {
+  console.log(variable2, variable1, variable3);
+};`);
     });
   });
 });
