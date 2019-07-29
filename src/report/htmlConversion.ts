@@ -48,4 +48,4 @@ export const convertTestSuiteToHtml = (
       );
     })
     .join(NEW_LINE);
-})(testSuite);
+}(testSuite));

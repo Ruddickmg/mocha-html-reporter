@@ -1,26 +1,26 @@
-import {expect} from 'chai';
+import { expect } from 'chai';
+import { mkdirSync, writeFileSync } from 'fs';
 import {
   getHistory,
   writeHistory,
   nonHistoryError,
   emptyHistoryError,
 } from '../../../src/history/storage';
-import {mkdirSync, writeFileSync} from "fs";
 import {
   PATH_SEPARATOR,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
-import {checkTestTreeEquality} from '../../../src/parsers/testSuite';
-import {TestResult} from '../../../src/report/eventHandlers';
+import { checkTestTreeEquality } from '../../../src/parsers/testSuite';
+import { TestResult } from '../../../src/report/eventHandlers';
 
-const {remove} = require('fs-extra');
+const { remove } = require('fs-extra');
 
 describe('history', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/mockHistory`;
-  const firstTest = {title: 'hello world!'} as TestResult;
-  const secondTest = {title: 'hello computer!'} as TestResult;
-  const thirdTest = {title: 'hello... ?'} as TestResult;
+  const firstTest = { title: 'hello world!' } as TestResult;
+  const secondTest = { title: 'hello computer!' } as TestResult;
+  const thirdTest = { title: 'hello... ?' } as TestResult;
 
   beforeEach((): void => mkdirSync(pathToMockHtml));
   afterEach(() => remove(pathToMockHtml));
@@ -89,7 +89,7 @@ describe('history', (): void => {
           if (!errorThrown) {
             throw new Error(`Expected "writeHistory" to throw: ${error}`);
           }
-        }
+        },
       );
     });
   });

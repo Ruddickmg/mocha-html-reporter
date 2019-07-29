@@ -1,17 +1,17 @@
-import { TestResult } from "../report/eventHandlers";
+import { TestResult } from '../report/eventHandlers';
 import {
   convertMillisecondsToDate,
   getMonthDayYearFromDate,
-} from "../parsers/formatting";
-import { sortTestResultsByDate } from "../utilities/sorting";
-import { EMPTY_STRING } from "../constants/constants";
+} from '../parsers/formatting';
+import { sortTestResultsByDate } from '../utilities/sorting';
+import { EMPTY_STRING } from '../constants/constants';
 import {
   compose,
   mapOverObject,
-} from "../utilities/functions";
+} from '../utilities/functions';
 
 export interface TestResultsByDate {
-  [date: string]: TestResult[],
+  [date: string]: TestResult[];
 }
 
 export interface TestResultsBySuite {
@@ -30,13 +30,14 @@ export const getEachSuiteTitle = (history: TestResult[]): string[] => Array
   .from(new Set(history.map(({ suite }: TestResult): string => suite).sort()));
 
 export const collectTestResultsByDate = (history: TestResult[]): TestResultsByDate => history
-    .reduce((tests: TestResultsByDate, test: TestResult): TestResultsByDate => {
-      const dateString = getMonthDayYearFromDate(convertMillisecondsToDate(test.date));
-      const testsOnSameDay = tests[dateString] || [];
-      return {
-        [dateString]: [...testsOnSameDay, test],
-      };
-    }, {});
+  .reduce((tests: TestResultsByDate, test: TestResult): TestResultsByDate => {
+    const dateString = getMonthDayYearFromDate(convertMillisecondsToDate(test.date));
+    const testsOnSameDay = tests[dateString] || [];
+    return {
+      ...tests,
+      [dateString]: [...testsOnSameDay, test],
+    };
+  }, {});
 
 export const removeDuplicateTestResults = (testRuns: TestResult[]): TestResult[] => {
   const seenTests: any = {};
@@ -69,12 +70,9 @@ export const formatHistoryTable = (history: TestResult[]): any => {
   const suites = getEachSuiteTitle(history);
   const historyByDate = collectTestResultsByDate(history);
   const suiteAndDateMatrix = mapOverObject(
-    (results: TestResult[]): TestResultsByDate => compose([
-      sortTestResultsByDate,
-      removeDuplicateTestResults,
-      indexTestResultsBySuite,
-    ], results)
-  , historyByDate);
+    compose(sortTestResultsByDate, removeDuplicateTestResults, indexTestResultsBySuite),
+    historyByDate,
+  );
 
   return dates.reduce((
     formattedHistory,
@@ -86,7 +84,7 @@ export const formatHistoryTable = (history: TestResult[]): any => {
       const previous = formattedSuite[suiteName] || [];
       return {
         ...formattedSuite,
-        [suiteName]: [ ...previous, test ],
+        [suiteName]: [...previous, test],
       };
     }, formattedHistory);
   }, {});

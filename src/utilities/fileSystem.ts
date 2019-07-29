@@ -30,11 +30,10 @@ export const writeToFile = (
     content,
     (
       error: Error,
-    ): void => {
-      return error
-        ? reject(error)
-        : resolve()
-    });
+    ): void => (error
+      ? reject(error)
+      : resolve()),
+  );
 });
 
 export const getFileContents = (
@@ -45,8 +44,8 @@ export const getFileContents = (
     (
       error: Error,
       data: any,
-    ): void => {
-      return error
-        ? reject(error)
-        : resolve(data.toString());
-    }));
+    ): void => (error
+      ? reject(error)
+      : resolve(data.toString())),
+  ),
+);

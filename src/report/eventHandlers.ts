@@ -62,7 +62,7 @@ export const createTestHandler = (
   const formatTestResults = createTestResultFormatter(testDirectory);
   return (
     test: Test,
-  ): Promise<TestResult[]> => new Promise((resolve) => {
+  ): Promise<TestResult[]> => new Promise(resolve => {
     const updateTests = (image?: string): void => {
       testResults.push(formatTestResults(test, image));
       resolve(testResults);
@@ -84,5 +84,5 @@ export const createReportHandler = (
 ): TestHandler => async (): Promise<void[]> => {
   const testSuite = generateTestResults(tests);
   const html = convertReportToHtml(reportData, testSuite);
-  return Promise.all([ writeToFile(pathToOutputFile, html) ]);
+  return Promise.all([writeToFile(pathToOutputFile, html)]);
 };

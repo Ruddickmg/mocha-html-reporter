@@ -35,7 +35,7 @@ describe('compareImageToBaseline', function compareImageToBaselineSpec(): void {
       removeTestFile(testFileName);
       expect(exists).to.equal(true);
     });
-    it(`Will return an "image" which is the original screenshot if no baseline image exists ${title}`, async () : Promise<void> => {
+    it(`Will return an "image" which is the original screenshot if no baseline image exists ${title}`, async (): Promise<void> => {
       const name = `woo-${index}`;
       const testFileName = createTestFileName(name);
       const result = await compareImageToBaseline(base64ImageOne, name, location);
@@ -45,7 +45,7 @@ describe('compareImageToBaseline', function compareImageToBaselineSpec(): void {
     ['difference', 'baseline', 'screenshot']
       .forEach((imageType: string): any => it(
         `Will compare a screenshot to a previously stored image and return a "${imageType}" image if a difference was found ${title}`,
-        async ():Promise<void> => {
+        async (): Promise<void> => {
           const name = `zoo-${imageType}-${index}`;
           const testFileName = createTestFileName(name);
           await compareImageToBaseline(base64ImageOne, name, location);

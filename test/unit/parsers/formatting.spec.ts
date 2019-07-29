@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { Test } from 'mocha';
 import {
   buildStringOfTruthyValues,
   Environment,
@@ -24,7 +25,6 @@ import {
   PATH_SEPARATOR,
   SECOND_SUFFIX,
 } from '../../../src/constants/constants';
-import { Test } from 'mocha';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { isString } from '../../../src/utilities/typeChecks';
 
@@ -52,7 +52,7 @@ describe('formatting', () => {
   describe('convertMillisecondsToDate', (): void => {
     it('Will get convert and epoch back to it\'s original date', (): void => {
       const date = new Date();
-      expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString())
+      expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString());
     });
   });
   describe('convertDateStringToMilliseconds', (): void => {
@@ -80,7 +80,7 @@ describe('formatting', () => {
       duration: formatDuration(duration),
     };
     const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
-    it ('Will format test results correctly from the raw test data', () => {
+    it('Will format test results correctly from the raw test data', () => {
       const [firstTestResult] = mockTestValues;
       const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
 
@@ -107,7 +107,7 @@ describe('formatting', () => {
     });
   });
   describe('getCommandLineOptions', (): void => {
-    it ('Will extract options from the "environment" passed in from the mocha test runner', (): void => {
+    it('Will extract options from the "environment" passed in from the mocha test runner', (): void => {
       const reporterOptions = {
         outputDir,
         fileName,

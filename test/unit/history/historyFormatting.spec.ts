@@ -5,10 +5,11 @@ import {
   getEachSuiteTitle,
   removeDuplicateTestResults,
   indexTestResultsBySuite,
-  TestResultsByDate,
-} from "../../../src/history/historyFormatting";
-import { TestResult } from "../../../src/report/eventHandlers";
-import {convertDateStringToMilliseconds} from "../../../src/parsers/formatting";
+  TestResultsByDate, formatHistoryTable,
+} from '../../../src/history/historyFormatting';
+import { TestResult } from '../../../src/report/eventHandlers';
+import { convertDateStringToMilliseconds } from '../../../src/parsers/formatting';
+import { EMPTY_STRING } from '../../../src/constants/constants';
 
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';
@@ -69,6 +70,7 @@ describe('historyTableFormatting', (): void => {
             date: string,
             index: number,
           ): TestResultsByDate => ({
+            ...resultsByDate,
             [date]: [testResults[index]],
           }), {}),
       );
@@ -83,13 +85,14 @@ describe('historyTableFormatting', (): void => {
         testOnSameDay,
       ];
       const expected: TestResultsByDate = datesAsMonthDayYear
-          .reduce((
-            resultsByDate: TestResultsByDate,
-            date: string,
-            index: number,
-          ): TestResultsByDate => ({
-            [date]: [testResults[index]],
-          }), {});
+        .reduce((
+          resultsByDate: TestResultsByDate,
+          date: string,
+          index: number,
+        ): TestResultsByDate => ({
+          ...resultsByDate,
+          [date]: [testResults[index]],
+        }), {});
       expected[duplicateMonthDayYear] = [...expected[duplicateMonthDayYear], testOnSameDay];
       expect(collectTestResultsByDate(results)).to.eql(expected);
     });
@@ -97,9 +100,16 @@ describe('historyTableFormatting', (): void => {
   describe('removeDuplicateTestResults', (): void => {
     const dupe = { suite: 'duplicate' };
     const dupeTwo = { suite: 'a duplicate duplicate!' };
-    const notADupe = { suite: 'not a duplicate '};
+    const notADupe = { suite: 'not a duplicate ' };
     it('Removes test results that have the same suite title', (): void => {
-      expect(removeDuplicateTestResults([dupe, dupeTwo, dupe, dupe, notADupe, dupeTwo] as TestResult[]))
+      expect(removeDuplicateTestResults([
+        dupe,
+        dupeTwo,
+        dupe,
+        dupe,
+        notADupe,
+        dupeTwo,
+      ] as TestResult[]))
         .to.eql([dupe, dupeTwo, notADupe]);
     });
   });
@@ -112,6 +122,47 @@ describe('historyTableFormatting', (): void => {
     it('Will create an object with suite names as keys and test results as values', (): void => {
       expect(indexTestResultsBySuite([firstTest, secondTest, thirdTest]))
         .to.eql(indexedBySuite);
+    });
+  });
+  describe('formatHistoryTable', (): void => {
+    it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
+      const firstSuiteName = 'suite #1';
+      const secondSuiteName = 'suite #2';
+      const differentSuites = testResults
+        .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
+          ...results,
+          ...(index % 2 === 0 ? [{ ...test, suite: firstSuiteName }] : []),
+          { ...test, suite: secondSuiteName },
+        ], []);
+      expect(formatHistoryTable(differentSuites))
+        .to.eql({
+          [firstSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
+            .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
+              ...tests,
+              test,
+              { title: EMPTY_STRING } as TestResult,
+            ], []),
+          [secondSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName),
+        });
+    });
+    it('Will format historical data to into a format parsable into an html table', (): void => {
+      const firstSuiteName = 'suite #1';
+      const secondSuiteName = 'suite #2';
+      const differentSuites = testResults
+        .reduce((results: TestResult[], test: TestResult): TestResult[] => [
+          ...results,
+          { ...test, suite: firstSuiteName },
+          { ...test, suite: secondSuiteName },
+        ], []);
+      expect(formatHistoryTable(differentSuites))
+        .to.eql({
+          [firstSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName),
+          [secondSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName),
+        });
     });
   });
 });

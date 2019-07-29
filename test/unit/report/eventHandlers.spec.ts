@@ -1,6 +1,7 @@
 import { Test, Runner } from 'mocha';
 import { expect } from 'chai';
 import { spy } from 'sinon';
+import { mkdirSync } from 'fs';
 import {
   createReportHandler,
   createTestHandler,
@@ -21,7 +22,7 @@ import {
   testResultTemplate,
   imageTemplate,
 } from '../../../src/templates/all';
-import {getFileContents} from '../../../src/utilities/fileSystem';
+import { getFileContents } from '../../../src/utilities/fileSystem';
 import {
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
@@ -29,8 +30,8 @@ import {
 import { createTestResultFormatter, formatDuration } from '../../../src/parsers/formatting';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
-import {mkdirSync} from 'fs';
-import {generateTestResultsByPath, generateTestResultsBySuite} from "../../../src/parsers/testSuite";
+import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/parsers/testSuite';
+
 const { remove } = require('fs-extra');
 
 describe('eventHandlers', (): void => {
@@ -48,9 +49,9 @@ describe('eventHandlers', (): void => {
 
   describe('delayStart', (): void => {
     it('Will set a property on the passed in test runner preventing it from auto starting the tests', (): void => {
-      let runner = {} as Runner;
+      const runner = {} as Runner;
       delayStart(runner);
-      expect(runner).to.eql({_delay: true});
+      expect(runner).to.eql({ _delay: true });
     });
   });
   describe('setTestEventHandlers', (): void => {
@@ -62,7 +63,7 @@ describe('eventHandlers', (): void => {
       };
       const runner = { on } as unknown;
       setTestEventHandlers(
-        runner as Runner ,
+        runner as Runner,
         (handlers as unknown) as TestHandlers,
       );
       expect(on.calledWith(action, handlers[action])).to.eql(true);
@@ -96,7 +97,7 @@ describe('eventHandlers', (): void => {
     const title = 'best test';
     const suite = 'a suite';
     const path = ['some', 'cool', 'directory'];
-    const duration = .4;
+    const duration = 0.4;
     const image = 'image'; // base64NoImageString;
     const testResults: TestResult[] = [
       {
@@ -124,7 +125,7 @@ describe('eventHandlers', (): void => {
         .reverse()
         .reduce((content: string, title: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title }
+          { content, title },
         ), addValuesToTemplate(testResultTemplate, {
           title,
           duration: formatDuration(duration),
@@ -146,7 +147,7 @@ describe('eventHandlers', (): void => {
         .reverse()
         .reduce((content: string, title: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title }
+          { content, title },
         ), addValuesToTemplate(testResultTemplate, {
           title,
           duration: formatDuration(duration),

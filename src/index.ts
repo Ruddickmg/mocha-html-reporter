@@ -1,6 +1,6 @@
-import { Environment } from './parsers/formatting';
 import { reporters, Runner } from 'mocha';
-import { reportGenerator } from "./report/reportGenerator";
+import { Environment } from './parsers/formatting';
+import { reportGenerator } from './report/reportGenerator';
 
 export function mochaHtmlReporter(runner: Runner, options: Environment): void {
   reportGenerator(runner, options)

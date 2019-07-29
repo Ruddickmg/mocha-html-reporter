@@ -1,7 +1,7 @@
 import { Test } from 'mocha';
 import { expect } from 'chai';
 import { getFilePath, getParentPath } from '../../../src/parsers/path';
-import { pathToMockTestDirectory } from "../../helpers/expectations";
+import { pathToMockTestDirectory } from '../../helpers/expectations';
 
 describe('path', (): void => {
   const firstWord = 'hello';

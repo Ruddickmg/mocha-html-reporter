@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { compose, mapOverObject } from "../../../src/utilities/functions";
+import { compose, mapOverObject } from '../../../src/utilities/functions';
 
 describe('functions', (): void => {
   describe('compose', (): void => {
@@ -25,13 +25,12 @@ describe('functions', (): void => {
       [secondKey]: [secondValue, thirdValue],
     };
     it('Will map over test results indexed by date', () => expect(
-        mapOverObject(arrayModifier, object),
-      ).to.eql({
-          [firstKey]: [modifier(firstValue)],
-          [secondKey]: [
-            modifier(secondValue),
-            modifier(thirdValue)],
-        }),
-    );
+      mapOverObject(arrayModifier, object),
+    ).to.eql({
+      [firstKey]: [modifier(firstValue)],
+      [secondKey]: [
+        modifier(secondValue),
+        modifier(thirdValue)],
+    }));
   });
 });

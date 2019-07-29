@@ -16,7 +16,7 @@ export const typeChecks: TypeChecks = [
   'String',
   'Number',
   'Date',
-  'RegExp'
+  'RegExp',
 ].reduce((
   typeChecks: TypeChecks,
   name: string,

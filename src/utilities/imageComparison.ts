@@ -1,15 +1,16 @@
 import { readFile, createWriteStream } from 'fs';
-import { PATH_SEPARATOR } from "../constants/constants";
+import { PATH_SEPARATOR } from '../constants/constants';
 import { fgMagenta, escape } from '../constants/consoleColors';
-import { capitalizeFirstLetter } from "./strings";
-const PNG = require('pngjs').PNG;
+import { capitalizeFirstLetter } from './strings';
+
+const { PNG } = require('pngjs');
 const pixelmatch = require('pixelmatch');
 
 export interface Coordinates {
- x: number;
- y: number;
- width: number;
- height: number;
+  x: number;
+  y: number;
+  width: number;
+  height: number;
 }
 
 export interface ImageComparisons {
@@ -120,7 +121,7 @@ const screenShotComparison = (() => {
 
   const compareScreenShotWithBaseline = (pngImage: any, name: string): Promise<ImageComparisons> => getExistingImage(name)
     .then(comparison => compareToPreviousImage(pngImage, PNG.sync.read(comparison)))
-    .catch((error) => {
+    .catch(error => {
       if (error.code === NO_FILE_EXISTS) {
         return saveToDirectory(pngImage, name);
       }

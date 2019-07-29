@@ -10,6 +10,7 @@ import {
   getFileContents,
   writeToFile,
 } from '../../../src/utilities/fileSystem';
+
 const { remove } = require('fs-extra');
 
 describe('fileSystem', (): void => {
@@ -20,7 +21,7 @@ describe('fileSystem', (): void => {
 
   beforeEach((): void => {
     mkdirSync(pathToMockHtml);
-    writeFileSync(pathToTestFile, defaultString)
+    writeFileSync(pathToTestFile, defaultString);
   });
   afterEach(() => remove(pathToMockHtml));
 

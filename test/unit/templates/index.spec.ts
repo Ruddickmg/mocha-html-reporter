@@ -27,10 +27,10 @@ describe('templates', () => {
     });
   });
   describe('addValuesToTemplate', () => {
-    it ('Will replace a template label with it\'s appropriate value(s)', () => {
+    it('Will replace a template label with it\'s appropriate value(s)', () => {
       const result = addValuesToTemplate(getMockTemplate(), {
         [firstTemplateLabel]: value1,
-        [secondTemplateLabel]: value2
+        [secondTemplateLabel]: value2,
       });
       expect(result).to.equal('<h1>testing123</h1><h2>testing321</h2>');
     });
@@ -47,7 +47,7 @@ describe('templates', () => {
   });
   describe('clearAllTemplateValues', () => {
     it('Will remove all template values', () => {
-      expect(clearAllTemplateValues(getMockTemplate())).to.equal('<h1></h1><h2></h2>')
+      expect(clearAllTemplateValues(getMockTemplate())).to.equal('<h1></h1><h2></h2>');
     });
   });
 });

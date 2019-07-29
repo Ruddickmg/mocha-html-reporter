@@ -1,3 +1,3 @@
-import {testObject} from "./testFileThree";
+import { testObject } from './testFileThree';
 
 console.log('testObject', testObject);

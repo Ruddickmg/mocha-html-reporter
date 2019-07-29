@@ -2,12 +2,17 @@ import {
   addClassToElement,
   getChildOfElement,
   getFailedButton, getPassedButton,
-  removeClassFromElement
+  removeClassFromElement,
 } from './elements';
 import { ACTIVE } from '../constants/script';
 
-export const activateElement = (element: Element): void => addClassToElement(ACTIVE, element);
-export const deactivateElement = (element:Element): void => removeClassFromElement(ACTIVE, element);
+export const activateElement = (
+  element: Element,
+): void => addClassToElement(ACTIVE, element);
+
+export const deactivateElement = (
+  element: Element,
+): void => removeClassFromElement(ACTIVE, element);
 
 export const activateFailedButton = () => activateElement(getFailedButton());
 export const deactivateFailedButton = () => deactivateElement(getFailedButton());

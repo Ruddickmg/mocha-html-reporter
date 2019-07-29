@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import {capitalizeFirstLetter} from "../../../src/utilities/strings";
+import { capitalizeFirstLetter } from '../../../src/utilities/strings';
 
 describe('strings', (): void => {
   describe('capitalizeFirstLetter', (): void => {

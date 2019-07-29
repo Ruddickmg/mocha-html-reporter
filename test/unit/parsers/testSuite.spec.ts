@@ -9,9 +9,9 @@ import {
   expectedImage,
   expectedTestResultsByPath, pathToMockTestDirectory,
   tests,
-} from "../../helpers/expectations";
-import { createTestResultFormatter } from "../../../src/parsers/formatting";
-import { TestResult } from "../../../src/report/eventHandlers";
+} from '../../helpers/expectations';
+import { createTestResultFormatter } from '../../../src/parsers/formatting';
+import { TestResult } from '../../../src/report/eventHandlers';
 
 describe('testTree', (): void => {
   const testResultFormatter = createTestResultFormatter(pathToMockTestDirectory);
@@ -68,21 +68,21 @@ describe('testTree', (): void => {
 
 describe('checkTestTreeEquality', (): void => {
   const tree = {
-    a: { d:[{ duration: 1}] },
+    a: { d: [{ duration: 1 }] },
     e: { f: [{ title: 'hello' }, { title: 'world' }] },
   };
   const empty = {};
-  const differsInArray =  {
-    a: { d:[{ duration: 2 }] },
+  const differsInArray = {
+    a: { d: [{ duration: 2 }] },
     e: { f: [{ title: 'hello' }, { title: 'world' }] },
   };
-  const differsInDepth =  {
-    a: { b: { d:[{ duration: 1}] } },
+  const differsInDepth = {
+    a: { b: { d: [{ duration: 1 }] } },
     e: { f: [{ title: 'hello' }, { title: 'world' }] },
   };
-  const differsByString =  {
-    a: { b: { d:[{ duration: 1}] } },
-    e: { f: [{ title: 'hello' }, { title: 'neighbor'}] },
+  const differsByString = {
+    a: { b: { d: [{ duration: 1 }] } },
+    e: { f: [{ title: 'hello' }, { title: 'neighbor' }] },
   };
   it('Doesn\'t throw an assertion error when two trees are equal', (): void => {
     expect(checkTestTreeEquality.bind({}, tree, tree))

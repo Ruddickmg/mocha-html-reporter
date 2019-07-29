@@ -1,5 +1,6 @@
 import { resolve } from 'path';
 import uuid from 'uuid/v1';
+import { Test } from 'mocha';
 import {
   EMPTY_STRING,
   HOUR_SUFFIX,
@@ -12,7 +13,6 @@ import {
   PATH_SEPARATOR,
   SECOND_SUFFIX,
 } from '../constants/constants';
-import { Test } from 'mocha';
 import { getFilePath, getParentPath } from './path';
 import { TestResult } from '../report/eventHandlers';
 
@@ -23,7 +23,7 @@ export interface ExpectedOptions {
   testDir?: string;
   fileName?: string;
   screenShotEachTest?: boolean;
-  screenShotOnFailure?: boolean,
+  screenShotOnFailure?: boolean;
 }
 
 export interface Environment {
@@ -41,29 +41,29 @@ export const createTestResultFormatter = (
 ): TestResultFormatter => {
   const suiteIds: SuiteIds = {};
   return (
-      test: Test,
-      image?: string,
-    ): TestResult => {
-      const {
-        title,
-        parent,
-        duration,
-        file,
-      } = test;
-      const suite = parent.title;
-      const suiteId = suiteIds[suite] || uuid();
-      suiteIds[suite] = suiteId;
-      return {
-        id: uuid(),
-        title,
-        suite,
-        suiteId,
-        duration: formatDuration(duration),
-        path: file
-          ? getFilePath(file, pathToTestDirectory)
-          : getParentPath(test),
-        ...(!!image && { image }),
-      } as TestResult;
+    test: Test,
+    image?: string,
+  ): TestResult => {
+    const {
+      title,
+      parent,
+      duration,
+      file,
+    } = test;
+    const suite = parent.title;
+    const suiteId = suiteIds[suite] || uuid();
+    suiteIds[suite] = suiteId;
+    return {
+      id: uuid(),
+      title,
+      suite,
+      suiteId,
+      duration: formatDuration(duration),
+      path: file
+        ? getFilePath(file, pathToTestDirectory)
+        : getParentPath(test),
+      ...(!!image && { image }),
+    } as TestResult;
   };
 };
 
@@ -94,7 +94,7 @@ export const removeFileName = (pathToFile: string): string => {
 export const getAmountOfExcess = (
   totalTime: number,
   timeSpan: number,
-  ): number[] => [floor(totalTime / timeSpan), totalTime % timeSpan];
+): number[] => [floor(totalTime / timeSpan), totalTime % timeSpan];
 
 export const buildStringOfTruthyValues = (
   ...values: any[]
@@ -132,7 +132,7 @@ export const millisecondsToHumanReadable = (totalMilliseconds: number): string =
       }
       return [time, remaining];
     }, [[], totalMilliseconds]);
-  const [ hours, minutes, seconds, milliseconds ] = times;
+  const [hours, minutes, seconds, milliseconds] = times;
   const humanReadable = buildStringOfTruthyValues(
     hours && `${hours} ${HOUR_SUFFIX}`,
     minutes && `${minutes} ${MINUTE_SUFFIX}`,

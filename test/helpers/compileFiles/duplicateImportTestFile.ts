@@ -1,6 +1,6 @@
-import { testPhrase } from "./testFileOne";
-import { testTest } from "./testFileTwo";
-import { testObject } from "./testFileThree";
+import { testPhrase } from './testFileOne';
+import { testTest } from './testFileTwo';
+import { testObject } from './testFileThree';
 
 console.log(
   'test phrase', testPhrase,

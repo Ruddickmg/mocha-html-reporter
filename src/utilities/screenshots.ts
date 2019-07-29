@@ -1,5 +1,5 @@
 import * as html2canvas from 'html2canvas';
-import { base64NoImageString } from "../constants/base64NoImageString";
+import { base64NoImageString } from '../constants/base64NoImageString';
 
 export const takeScreenShot = async (): Promise<string> => new Promise(async (resolve, reject) => {
   try {

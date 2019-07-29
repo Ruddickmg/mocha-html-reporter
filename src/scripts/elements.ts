@@ -1,4 +1,4 @@
-import {FAILED_BUTTON_ID, PASSED_BUTTON_ID} from "../constants/script";
+import { FAILED_BUTTON_ID, PASSED_BUTTON_ID } from '../constants/script';
 
 export const getElementById = (id: string): Element => document.getElementById(id);
 

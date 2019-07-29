@@ -31,10 +31,10 @@ module.exports = function (config) {
           'node',
         ],
         moduleResolution: 'node',
-        module: "commonjs",
-        target: "ES5",
+        module: 'commonjs',
+        target: 'ES5',
       },
-      exclude: ["node_modules"],
+      exclude: ['node_modules'],
     },
     customLaunchers: {
       FirefoxHeadless: {

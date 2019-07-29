@@ -1,3 +1,4 @@
+import { Runner } from 'mocha';
 import { getStyles } from '../parsers/styles';
 import {
   createReportHandler,
@@ -12,15 +13,12 @@ import {
   PASS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
-import { Runner } from 'mocha';
 import {
-  Environment, formatHistoryOutputPath,
+  Environment,
   formatOutputFilePath,
   getCommandLineOptions,
 } from '../parsers/formatting';
-import { getTemplates } from '../templates/all';
-import { getHistory } from "../history/storage";
-import { generateTestResultsBySuite } from "../parsers/testSuite";
+import { generateTestResultsBySuite } from '../parsers/testSuite';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -35,10 +33,7 @@ export const reportGenerator = async (
     fileName,
   } = getCommandLineOptions(environment);
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
-  const pathToHistoryOutput = formatHistoryOutputPath(outputDir, fileName);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const history = await getHistory(pathToHistoryOutput);
-  const templates = getTemplates();
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',

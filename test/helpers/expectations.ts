@@ -46,9 +46,9 @@ export const expectedTestResultsByPath: TestSuite = {
           duration: formatDuration(durationTwo),
           image: expectedImage,
         }],
-      }
-    }
-  }
+      },
+    },
+  },
 } as unknown as TestSuite;
 
 export const tests = [{

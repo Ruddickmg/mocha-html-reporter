@@ -3,16 +3,16 @@ import {
   PASSED,
   SHOWING_FAILED,
   SHOWING_PASSED,
-} from "../constants/script";
+} from '../constants/script';
 import {
   hideAllTestsOnCurrentPage,
   hideHistory,
   hideTestSuite,
   showByClassOnCurrentPage,
   showHistory,
-  showTestSuit
-} from "./visibility";
-import { moveToElementById } from "./elements";
+  showTestSuit,
+} from './visibility';
+import { moveToElementById } from './elements';
 
 interface ShowingRecord {
   [field: string]: boolean | string;

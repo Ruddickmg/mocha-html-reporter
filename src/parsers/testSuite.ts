@@ -9,7 +9,7 @@ export const generateTestResultsByPath = (
   .reduce((testSuite, test) => {
     let lastDirectory = testSuite as TestSuite;
     let suiteDirectory: TestSuite | TestResult[];
-    const suite = test.suite;
+    const { suite } = test;
     const { path } = test;
     const buildTestResults = (directory: string): void => {
       if (!lastDirectory[directory]) {
@@ -40,20 +40,20 @@ export const generateTestResultsBySuite = (
   }, {});
 
 export const checkTestTreeEquality = (
-    test1: any,
-    test2: any,
-  ): void => {
-    if (!test1 || !test2 || isString(test1) || isNumber(test1)) {
-      expect(test1).to.equal(test2);
-    }  else {
-      new Set(Object.keys(test1).concat(Object.keys(test2)))
-        .forEach((directory: string): void => {
-          directory !== UUID &&
-          directory !== SUITE_UUID &&
-          checkTestTreeEquality(
+  test1: any,
+  test2: any,
+): void => {
+  if (!test1 || !test2 || isString(test1) || isNumber(test1)) {
+    expect(test1).to.equal(test2);
+  } else {
+    new Set(Object.keys(test1).concat(Object.keys(test2)))
+      .forEach((directory: string): void => {
+        directory !== UUID
+          && directory !== SUITE_UUID
+          && checkTestTreeEquality(
             test1[directory],
             test2[directory],
-          )
-        });
-    }
-  };
+          );
+      });
+  }
+};

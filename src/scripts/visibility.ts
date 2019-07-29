@@ -3,7 +3,7 @@ import {
   getElementById,
   getElementsByClasses,
   removeClassFromElement,
-} from "./elements";
+} from './elements';
 import {
   FAILED,
   HIDDEN,
@@ -13,18 +13,22 @@ import {
   PASSED,
   STACK,
   TEST_DATA,
-} from "../constants/script";
-import { getCurrentPage } from "./navigation";
-import {activateChildAndButton, deactivateChildAndButton,} from "./activation";
+} from '../constants/script';
+import { getCurrentPage } from './navigation';
+import { activateChildAndButton, deactivateChildAndButton } from './activation';
 
 export const hideElement = (element: Element): void => addClassToElement(HIDDEN, element);
 export const showElement = (element: Element): void => removeClassFromElement(HIDDEN, element);
 
-export const showByClassOnCurrentPage = (cssClass: string): void => getElementsByClasses(cssClass, getCurrentPage())
-  .forEach(showElement);
+export const showByClassOnCurrentPage = (cssClass: string): void => getElementsByClasses(
+  cssClass,
+  getCurrentPage(),
+).forEach(showElement);
 
-export const hideByClassOnCurrentPage = (cssClass: string): void => getElementsByClasses(cssClass, getCurrentPage())
-  .forEach(hideElement);
+export const hideByClassOnCurrentPage = (cssClass: string): void => getElementsByClasses(
+  cssClass,
+  getCurrentPage(),
+).forEach(hideElement);
 
 export const showById = (id: string): void => showElement(getElementById(id));
 export const hideById = (id: string): void => hideElement(getElementById(id));

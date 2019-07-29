@@ -5,11 +5,11 @@ import {
   toggleMessage,
   toggleStack,
   togglePassedTests,
-} from "./toggle";
+} from './toggle';
 import {
   switchToPage,
-  moveToHistory
-} from "./navigation";
+  moveToHistory,
+} from './navigation';
 
 type PageAction = (...data: string[]) => void | boolean;
 
@@ -28,7 +28,7 @@ export default (binding: PageActions): void => {
     moveToHistory,
   };
   Object.keys(publicMethods)
-    .forEach((methodName) => {
+    .forEach(methodName => {
       binding[methodName] = publicMethods[methodName];
     });
 };

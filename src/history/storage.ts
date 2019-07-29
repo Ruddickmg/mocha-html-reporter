@@ -21,7 +21,7 @@ export const getHistory = (
     resolve(
       (await Promise.all(files.map(
         (
-          fileName: string
+          fileName: string,
         ): Promise<any> => getFileContents(`${pathToHistoryDir}${PATH_SEPARATOR}${fileName}`),
       )))
         .reduce((
@@ -30,7 +30,7 @@ export const getHistory = (
         ): TestResult[] => [
           ...history,
           ...JSON.parse(contents),
-        ], [] as TestResult[])
+        ], [] as TestResult[]),
     );
   },
 ));

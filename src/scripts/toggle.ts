@@ -6,14 +6,14 @@ import {
   showByClassOnCurrentPage,
   showImage,
   showMessage,
-  showStack
-} from "./visibility";
+  showStack,
+} from './visibility';
 import {
   activateFailedButton,
   activatePassedButton,
   deactivateFailedButton,
   deactivatePassedButton,
-} from "./activation";
+} from './activation';
 import {
   FAILED,
   IMAGE,
@@ -22,13 +22,13 @@ import {
   SHOWING_FAILED,
   SHOWING_PASSED,
   STACK,
-} from "../constants/script";
+} from '../constants/script';
 import {
   isShowing,
   setVisibility,
-} from "./navigation";
+} from './navigation';
 
-export const toggle = (state:string): boolean | string => {
+export const toggle = (state: string): boolean | string => {
   const result = !isShowing(state);
   setVisibility(state, result);
   return result;
