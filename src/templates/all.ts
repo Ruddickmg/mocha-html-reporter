@@ -1,14 +1,20 @@
-import { imageTemplate } from './imageTemplate.html';
+import { imageTemplate } from './image.html';
 import { reportTemplate } from './report.html';
 import { testResultTemplate } from './testResult.html';
 import { testSuiteTemplate } from './testSuite.html';
+import { tableHeaderTemplate } from './tableHeader.html';
+import { tableTemplate } from './table.html';
+import { tableRowTemplate } from './tableRow.html';
 import { TEMPLATE_BRACES } from '../constants/constants';
 import { Content, ReportData, TestResult } from '../report/eventHandlers';
 
-export { imageTemplate } from './imageTemplate.html';
+export { imageTemplate } from './image.html';
 export { reportTemplate } from './report.html';
 export { testResultTemplate } from './testResult.html';
 export { testSuiteTemplate } from './testSuite.html';
+export { tableRowTemplate } from './tableRow.html';
+export { tableTemplate } from './table.html';
+export { tableHeaderTemplate } from './tableHeader.html';
 
 export interface Templates {
   [templateName: string]: string;
@@ -48,4 +54,7 @@ export default {
   testSuiteTemplate,
   testResultTemplate,
   imageTemplate,
+  tableRowTemplate,
+  tableHeaderTemplate,
+  tableTemplate,
 };

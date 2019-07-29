@@ -107,7 +107,10 @@ describe('testResult', () => {
       expect(convertTestSuiteToHtml(testSuite)).to.equal(testSuiteHtml);
     });
   });
-  describe('convertReportToHtml', () => {
+  describe('convertHistoryToHtml', (): void => {
+    // TODO
+  });
+  describe('convertReportToHtml', (): void => {
     it('Will convert a test suite into an html report', async (): Promise<void> => {
       const styles = await getStyles(PATH_TO_STYLE_SHEET);
       const suite = 'some suite';
