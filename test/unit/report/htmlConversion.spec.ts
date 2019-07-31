@@ -13,6 +13,7 @@ import {
   tableTemplate,
   tableHeaderTemplate,
   tableDataTemplate,
+  tableRowTemplate,
 } from '../../../src/templates/all';
 import {
   NEW_LINE,
@@ -112,6 +113,41 @@ describe('testResult', () => {
       } as TestSuite;
 
       expect(convertTestSuiteToHtml(testSuite)).to.equal(testSuiteHtml);
+    });
+  });
+  describe('convertArrayIntoTableRow', (): void => {
+    const secondTitle = 'billy';
+    const thirdTitle = 'bob';
+    const testResults = [
+      { title: firstTitle },
+      { title: secondTitle },
+      { title: thirdTitle },
+    ] as TestResult[];
+    it('Will convert an array into a table header row', (): void => {
+      expect(convertArrayToTableRow(testResults, tableHeaderTemplate))
+        .to.equal(addValuesToTemplate(
+          tableRowTemplate,
+          {
+            content: testResults
+              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                tableHeaderTemplate,
+                { content: currentTitle },
+              )).join(NEW_LINE),
+          },
+        ));
+    });
+    it('Will convert an array into a table data row', (): void => {
+      expect(convertArrayToTableRow(testResults, tableDataTemplate))
+        .to.equal(addValuesToTemplate(
+          tableRowTemplate,
+          {
+            content: testResults
+              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                tableDataTemplate,
+                { content: currentTitle },
+              )).join(NEW_LINE),
+          },
+        ));
     });
   });
   describe('convertHistoryToHtml', (): void => {
