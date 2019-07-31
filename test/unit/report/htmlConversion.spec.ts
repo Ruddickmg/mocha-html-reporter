@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import {
   convertTestResultsToHtml,
   convertTestSuiteToHtml,
-  convertReportToHtml, convertHistoryToHtml,
+  convertReportToHtml, convertHistoryToHtml, convertArrayToTableRow,
 } from '../../../src/report/htmlConversion';
 import {
   addValuesToTemplate,
@@ -13,6 +13,7 @@ import {
   tableTemplate,
   tableHeaderTemplate,
   tableRowTemplate,
+  tableDataTemplate,
 } from '../../../src/templates/all';
 import {
   NEW_LINE,
@@ -27,7 +28,7 @@ import {
 } from '../../../src/parsers/formatting';
 import { getStyles } from '../../../src/parsers/styles';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
-import {formatHistory, historyTestSuiteHeaderTitle} from '../../../src/history/historyFormatting';
+import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/history/historyFormatting';
 
 describe('testResult', () => {
   const image = 'test image';
@@ -134,26 +135,17 @@ describe('testResult', () => {
       ], []);
     it('Converts history data into a table displaying test results over time', (): void => {
       const history = formatHistory(testResults);
-      console.log('history', history);
       expect(convertHistoryToHtml(history))
         .to.equal(addValuesToTemplate(tableTemplate, {
-          content: Object.keys(history)
-            .map((suiteName: string): string => {
-              const template = suiteName === historyTestSuiteHeaderTitle
-                ? tableHeaderTemplate
-                : tableRowTemplate;
-              return addValuesToTemplate(
-                tableRowTemplate,
-                {
-                  content: (history[suiteName] as TestResult[])
-                    .map(({ title: testTitle }: TestResult): string => addValuesToTemplate(
-                      template,
-                      { content: testTitle },
-                    ))
-                    .join(NEW_LINE) as string,
-                },
-              );
-            }).join(NEW_LINE),
+          id: 'history-table',
+          content: [
+            convertArrayToTableRow(history[historyTestSuiteHeaderTitle], tableHeaderTemplate),
+          ].concat(Object.keys(history)
+            .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
+            .map((suiteName: string): string => convertArrayToTableRow(
+              history[suiteName],
+              tableDataTemplate,
+            ))).join(NEW_LINE),
         }));
     });
   });

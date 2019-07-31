@@ -1,14 +1,18 @@
 import { ReportData, TestResult, TestSuite } from './eventHandlers';
 import { NEW_LINE } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
+import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
 import {
   reportTemplate,
   imageTemplate,
   testResultTemplate,
   testSuiteTemplate,
   addValuesToTemplate,
+  tableHeaderTemplate,
+  tableRowTemplate,
+  tableTemplate,
+  tableDataTemplate,
 } from '../templates/all';
-import {History} from "../history/historyFormatting";
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],
@@ -51,6 +55,34 @@ export const convertReportToHtml = (
   ...reportData,
 });
 
+export const convertArrayToTableRow = (
+  data: TestResult[],
+  dataTemplate: string,
+): string => addValuesToTemplate(
+  tableRowTemplate,
+  {
+    content: data.map(({ title }: TestResult): string => addValuesToTemplate(
+      dataTemplate,
+      { content: title },
+    )).join(NEW_LINE),
+  },
+);
+
 export const convertHistoryToHtml = (history: History): string => {
-  // TODO
+  const header = history[historyTestSuiteHeaderTitle] || [];
+  return addValuesToTemplate(
+    tableTemplate,
+    {
+      id: 'history-table',
+      content: [
+        convertArrayToTableRow(header, tableHeaderTemplate),
+        Object.keys(history)
+          .filter((testSuiteName: string): boolean => testSuiteName !== historyTestSuiteHeaderTitle)
+          .map((testSuiteName: string): string => convertArrayToTableRow(
+            history[testSuiteName] || [],
+            tableDataTemplate,
+          )).join(NEW_LINE),
+      ].join(NEW_LINE),
+    },
+  );
 };

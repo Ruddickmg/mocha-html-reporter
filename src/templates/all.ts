@@ -7,6 +7,7 @@ import { tableTemplate } from './table.html';
 import { tableRowTemplate } from './tableRow.html';
 import { TEMPLATE_BRACES } from '../constants/constants';
 import { Content, ReportData, TestResult } from '../report/eventHandlers';
+import { tableDataTemplate } from './tableData.html';
 
 export { imageTemplate } from './image.html';
 export { reportTemplate } from './report.html';
@@ -15,6 +16,7 @@ export { testSuiteTemplate } from './testSuite.html';
 export { tableRowTemplate } from './tableRow.html';
 export { tableTemplate } from './table.html';
 export { tableHeaderTemplate } from './tableHeader.html';
+export { tableDataTemplate } from './tableData.html';
 
 export interface Templates {
   [templateName: string]: string;
@@ -56,5 +58,6 @@ export default {
   imageTemplate,
   tableRowTemplate,
   tableHeaderTemplate,
+  tableDataTemplate,
   tableTemplate,
 };

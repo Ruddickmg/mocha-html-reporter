@@ -19,7 +19,7 @@ export interface TestResultsBySuite {
 }
 
 export interface History {
-  [suiteName: string]: TestResult[] | string[];
+  [suiteName: string]: TestResult[];
 }
 
 export const historyTestSuiteHeaderTitle = 'Test Suites';
