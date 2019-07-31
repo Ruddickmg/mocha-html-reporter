@@ -12,7 +12,7 @@ import {
   removeFileName,
   convertMillisecondsToDate,
   convertDateStringToMilliseconds,
-  getMonthDayYearFromDate,
+  getMonthDayYearFromDate, millisecondsToHumanReadable, millisecondsToRoundedHumanReadable, roundToTheNearestTenth,
 } from '../../../src/parsers/formatting';
 import {
   HOUR_SUFFIX,
@@ -48,11 +48,16 @@ describe('formatting', () => {
     parent,
     title: 'world',
   }];
-
+  describe('roundToNearestTenth', (): void => {
+    it('Will round a number to the nearest tenth', (): void => {
+      expect(roundToTheNearestTenth(12.56)).to.equal(12.6);
+    });
+  });
   describe('convertMillisecondsToDate', (): void => {
     it('Will get convert and epoch back to it\'s original date', (): void => {
       const date = new Date();
-      expect(convertMillisecondsToDate(date.getTime()).toDateString()).to.equal(date.toDateString());
+      expect(convertMillisecondsToDate(date.getTime()).toDateString())
+        .to.equal(date.toDateString());
     });
   });
   describe('convertDateStringToMilliseconds', (): void => {
@@ -164,7 +169,7 @@ describe('formatting', () => {
       expect(formatDuration(ONE_HOUR + ONE_MILLISECOND))
         .to.equal(`1 ${HOUR_SUFFIX}, 1 ${MILLISECOND_SUFFIX}`);
     });
-    it('Will pars ms into a string containing hours and minutes', (): void => {
+    it('Will parse ms into a string containing hours and minutes', (): void => {
       expect(formatDuration(ONE_HOUR + ONE_MINUTE))
         .to.equal(`1 ${HOUR_SUFFIX}, 1 ${MINUTE_SUFFIX}`);
     });
@@ -197,6 +202,28 @@ describe('formatting', () => {
     });
     it('Calculates a correct remainder of milliseconds if it goes over a time span', (): void => {
       expect(getAmountOfExcess(ONE_MINUTE + offset, ONE_SECOND)).to.eql([secondsInAMinute, offset]);
+    });
+  });
+  describe('millisecondsToHumanReadable', (): void => {
+    it('Will convert milliseconds to a human readable representation of time', (): void => {
+      expect(millisecondsToHumanReadable(3661500)).to.equal('1 h, 1 m, 1 s, 500 ms');
+    });
+  });
+  describe('millisecondsToRoundedHumanReadable', (): void => {
+    it('Converts 0 milliseconds to "0 ms"', (): void => {
+      expect(millisecondsToRoundedHumanReadable(0)).to.equal('0 ms');
+    });
+    it('Converts milliseconds to an abbreviated human readable string of milliseconds', (): void => {
+      expect(millisecondsToRoundedHumanReadable(400)).to.equal('400 ms');
+    });
+    it('Converts milliseconds to an abbreviated string of seconds', (): void => {
+      expect(millisecondsToRoundedHumanReadable(1200)).to.equal('1.2 s');
+    });
+    it('Converts milliseconds to an abbreviated string for minutes', (): void => {
+      expect(millisecondsToRoundedHumanReadable(66000)).to.equal('1.1 m');
+    });
+    it('Converts milliseconds to an abbreviated string for hours', (): void => {
+      expect(millisecondsToRoundedHumanReadable(3661500)).to.equal('1 h');
     });
   });
   describe('buildStringOfTruthyValues', (): void => {

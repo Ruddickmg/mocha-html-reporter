@@ -12,7 +12,6 @@ import {
   reportTemplate,
   tableTemplate,
   tableHeaderTemplate,
-  tableRowTemplate,
   tableDataTemplate,
 } from '../../../src/templates/all';
 import {
@@ -24,7 +23,6 @@ import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import {
   convertDateStringToMilliseconds,
   formatDuration,
-  millisecondsToHumanReadable
 } from '../../../src/parsers/formatting';
 import { getStyles } from '../../../src/parsers/styles';
 import { pathToMockTestDirectory } from '../../helpers/expectations';

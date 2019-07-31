@@ -36,6 +36,93 @@ interface SuiteIds {
 
 export type TestResultFormatter = (test: Test, image?: string) => TestResult;
 
+const timeRanges = [
+  ONE_HOUR,
+  ONE_MINUTE,
+  ONE_SECOND,
+  ONE_MILLISECOND,
+];
+
+const suffixes = [HOUR_SUFFIX, MINUTE_SUFFIX, SECOND_SUFFIX, MILLISECOND_SUFFIX];
+const { round } = Math;
+
+export const getAmountOfExcess = (
+  totalTime: number,
+  timeSpan: number,
+): number[] => [floor(totalTime / timeSpan), totalTime % timeSpan];
+
+export const roundToTheNearestTenth = (amount: number): number => round(amount * 10) / 10;
+
+export const buildStringOfTruthyValues = (
+  ...values: any[]
+): string => {
+  const [first, ...rest] = values
+    .filter((value: string): boolean => (
+      value
+      && value !== EMPTY_STRING
+      && value !== '0'
+    ));
+  return rest
+    .reduce((
+      previous: string,
+      value: string,
+    ): string => `${previous}, ${value}`, first || EMPTY_STRING);
+};
+
+export const millisecondsToHumanReadable = (totalMilliseconds: number): string => {
+  const [times] = timeRanges
+    .reduce((
+      [time, milliseconds]: any,
+      comparison: number,
+    ) => {
+      const [total, remainder] = getAmountOfExcess(milliseconds, comparison);
+      return milliseconds < comparison
+        ? [[...time, false], milliseconds]
+        : [[...time, total], remainder];
+    }, [[], totalMilliseconds]);
+  const [hours, minutes, seconds, milliseconds] = times;
+  const humanReadable = buildStringOfTruthyValues(
+    hours && `${hours} ${HOUR_SUFFIX}`,
+    minutes && `${minutes} ${MINUTE_SUFFIX}`,
+    seconds && `${seconds} ${SECOND_SUFFIX}`,
+    milliseconds && `${milliseconds} ${MILLISECOND_SUFFIX}`,
+  );
+
+  return humanReadable === EMPTY_STRING
+    ? '0 ms'
+    : humanReadable;
+};
+
+export const millisecondsToRoundedHumanReadable = (milliseconds: number): string => {
+  const timeRangeIndex = timeRanges
+    .filter((timeRange: number): boolean => milliseconds < timeRange)
+    .length;
+  const suffix = suffixes[timeRangeIndex];
+  const timeRange = timeRanges[timeRangeIndex];
+  return milliseconds
+    ? `${roundToTheNearestTenth(milliseconds / timeRange)} ${suffix}`
+    : '0 ms';
+};
+
+export const convertMillisecondsToDate = (milliseconds: number): Date => {
+  const date = new Date(0);
+  date.setMilliseconds(milliseconds);
+  date.setHours(date.getHours() + 1);
+  return date;
+};
+
+export const convertDateStringToMilliseconds = (
+  dateString: string,
+): number => (new Date(dateString)).getTime();
+
+export const getMonthDayYearFromDate = (
+  date: Date,
+): string => `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
+
+export const formatDuration = (
+  duration: number,
+): string => millisecondsToHumanReadable(duration);
+
 export const createTestResultFormatter = (
   pathToTestDirectory: string,
 ): TestResultFormatter => {
@@ -90,70 +177,3 @@ export const removeFileName = (pathToFile: string): string => {
   const toRemove = `${PATH_SEPARATOR}${fileName}`;
   return pathToFile.replace(toRemove, EMPTY_STRING);
 };
-
-export const getAmountOfExcess = (
-  totalTime: number,
-  timeSpan: number,
-): number[] => [floor(totalTime / timeSpan), totalTime % timeSpan];
-
-export const buildStringOfTruthyValues = (
-  ...values: any[]
-): string => {
-  const [first, ...rest] = values
-    .filter((value: string): boolean => (
-      value
-      && value !== EMPTY_STRING
-      && value !== '0'
-    ));
-  return rest
-    .reduce((
-      previous: string,
-      value: string,
-    ): string => `${previous}, ${value}`, first || EMPTY_STRING);
-};
-
-export const millisecondsToHumanReadable = (totalMilliseconds: number): string => {
-  const [times] = [
-    ONE_HOUR,
-    ONE_MINUTE,
-    ONE_SECOND,
-    ONE_MILLISECOND,
-  ]
-    .reduce((
-      [time, milliseconds]: any,
-      comparison: number,
-      index: number,
-    ) => {
-      let remaining = milliseconds;
-      if (milliseconds >= comparison) {
-        const [total, remainder] = getAmountOfExcess(milliseconds, comparison);
-        remaining = remainder;
-        time[index] = total;
-      }
-      return [time, remaining];
-    }, [[], totalMilliseconds]);
-  const [hours, minutes, seconds, milliseconds] = times;
-  const humanReadable = buildStringOfTruthyValues(
-    hours && `${hours} ${HOUR_SUFFIX}`,
-    minutes && `${minutes} ${MINUTE_SUFFIX}`,
-    seconds && `${seconds} ${SECOND_SUFFIX}`,
-    milliseconds && `${milliseconds} ${MILLISECOND_SUFFIX}`,
-  );
-
-  return humanReadable === EMPTY_STRING
-    ? '0 ms'
-    : humanReadable;
-};
-
-export const convertMillisecondsToDate = (milliseconds: number): Date => {
-  const date = new Date(0);
-  date.setMilliseconds(milliseconds);
-  date.setHours(date.getHours() + 1);
-  return date;
-};
-
-export const convertDateStringToMilliseconds = (dateString: string): number => (new Date(dateString)).getTime();
-
-export const getMonthDayYearFromDate = (date: Date): string => `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
-
-export const formatDuration = (duration: number): string => millisecondsToHumanReadable(duration);
