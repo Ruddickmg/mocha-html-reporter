@@ -47,7 +47,6 @@ describe('history', (): void => {
     it('Will write multiple test results to a file in a specified directory', async (): Promise<void> => {
       const multipleTestResults = [firstTest, secondTest, thirdTest];
       await writeHistory(testFilePath, multipleTestResults);
-      console.log(await getHistory(testFilePath));
       checkTestTreeEquality(await getHistory(testFilePath), multipleTestResults);
     });
     it('Will throw an error when attempting to write an empty history', async (): Promise<void> => {
