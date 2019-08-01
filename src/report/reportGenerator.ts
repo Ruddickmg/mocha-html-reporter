@@ -15,10 +15,12 @@ import {
 } from '../constants/constants';
 import {
   Environment,
+  formatHistoryOutputPath,
   formatOutputFilePath,
   getCommandLineOptions,
 } from '../parsers/formatting';
 import { generateTestResultsBySuite } from '../parsers/testSuite';
+import { getHistory } from '../history/storage';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -33,12 +35,14 @@ export const reportGenerator = async (
     fileName,
   } = getCommandLineOptions(environment);
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
-  const styles = await getStyles(PATH_TO_STYLE_SHEET);
+  const styles = getStyles(PATH_TO_STYLE_SHEET);
+  const history = getHistory(formatHistoryOutputPath(outputDir, fileName));
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',
     pageTitle: 'This is a test',
     styles,
+    history,
   };
 
   const handlers: TestHandlers = {

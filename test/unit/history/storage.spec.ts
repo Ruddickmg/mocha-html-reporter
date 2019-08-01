@@ -1,3 +1,4 @@
+import { remove } from 'fs-extra';
 import { expect } from 'chai';
 import { mkdirSync, writeFileSync } from 'fs';
 import {
@@ -14,18 +15,20 @@ import {
 import { checkTestTreeEquality } from '../../../src/parsers/testSuite';
 import { TestResult } from '../../../src/report/eventHandlers';
 
-const { remove } = require('fs-extra');
-
 describe('history', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/mockHistory`;
   const firstTest = { title: 'hello world!' } as TestResult;
   const secondTest = { title: 'hello computer!' } as TestResult;
   const thirdTest = { title: 'hello... ?' } as TestResult;
 
+  const removeMockHtmlDirectory = () => remove(pathToMockHtml);
   beforeEach((): void => mkdirSync(pathToMockHtml));
-  afterEach(() => remove(pathToMockHtml));
+  afterEach(removeMockHtmlDirectory);
 
   describe('getHistory', (): void => {
+    it('Returns an empty array if no history exists', async (): Promise<void> => {
+      expect(await getHistory(pathToMockHtml)).to.eql([]);
+    });
     it('will grab file history from a file', async (): Promise<void> => {
       const testResults = [firstTest];
       writeFileSync(

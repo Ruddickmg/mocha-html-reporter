@@ -70,6 +70,15 @@ export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite
     [test.suite]: test,
   }), {});
 
+export const groupTestSuitesByDate = (testResults: TestResult[]): TestResult[][] => {
+  const testResultsWithDuplicatesRemoved = mapOverObject(
+    removeDuplicateTestResults,
+    collectTestResultsByDate(testResults),
+  );
+  return Object.keys(testResultsWithDuplicatesRemoved)
+    .map((date: string): TestResult[] => testResultsWithDuplicatesRemoved[date]);
+};
+
 export const formatHistory = (history: TestResult[]): History => {
   const emptyTest = { title: EMPTY_STRING } as TestResult;
   const dates = getEachRunDate(history);

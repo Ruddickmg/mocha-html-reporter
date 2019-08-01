@@ -5,7 +5,7 @@ import {
   getEachSuiteTitle,
   removeDuplicateTestResults,
   indexTestResultsBySuite,
-  TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle,
+  TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle, groupTestSuitesByDate,
 } from '../../../src/history/historyFormatting';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { convertDateStringToMilliseconds } from '../../../src/parsers/formatting';
@@ -167,6 +167,46 @@ describe('historyTableFormatting', (): void => {
           [secondSuiteName]: differentSuites
             .filter(({ suite }: TestResult): boolean => suite === secondSuiteName),
         });
+    });
+  });
+  describe('groupTestResultsByDate', (): void => {
+    it('Groups an array of test results into arrays of test results run on the same date', (): void => {
+      const firstSuiteName = 'suite #1';
+      const secondSuiteName = 'suite #2';
+      const groupedByDate: TestResult[][] = [];
+      const differentSuites = testResults
+        .reduce((results: TestResult[], test: TestResult): TestResult[] => {
+          const testsOnSameDate = [
+            { ...test, suite: firstSuiteName },
+            { ...test, suite: secondSuiteName },
+          ];
+          groupedByDate.push(testsOnSameDate);
+          return [...results, ...testsOnSameDate];
+        }, []);
+      expect(groupTestSuitesByDate(differentSuites))
+        .to.eql(groupedByDate);
+    });
+    it('Removes Duplicate test runs for the same date', (): void => {
+      const firstSuiteName = 'suite #1';
+      const secondSuiteName = 'suite #2';
+      const groupedByDate: TestResult[][] = [];
+      testResults
+        .forEach((test: TestResult): void => {
+          groupedByDate.push([
+            { ...test, suite: firstSuiteName },
+            { ...test, suite: secondSuiteName },
+          ]);
+        });
+      const duplicates = testResults
+        .reduce((results: TestResult[], test: TestResult): TestResult[] => [
+          ...results,
+          { ...test, suite: firstSuiteName },
+          { ...test, suite: firstSuiteName },
+          { ...test, suite: secondSuiteName },
+          { ...test, suite: secondSuiteName },
+        ], []);
+      expect(groupTestSuitesByDate(duplicates))
+        .to.eql(groupedByDate);
     });
   });
 });

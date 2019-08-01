@@ -2,7 +2,9 @@ import { expect } from 'chai';
 import {
   convertTestResultsToHtml,
   convertTestSuiteToHtml,
-  convertReportToHtml, convertHistoryToHtml, convertArrayToTableRow,
+  convertSuitesToHtml,
+  convertHistoryToHtml,
+  convertArrayToTableRow,
 } from '../../../src/report/htmlConversion';
 import {
   addValuesToTemplate,
@@ -18,14 +20,12 @@ import {
 import {
   NEW_LINE,
   PATH_SEPARATOR,
-  PATH_TO_STYLE_SHEET,
 } from '../../../src/constants/constants';
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import {
   convertDateStringToMilliseconds,
   formatDuration,
 } from '../../../src/parsers/formatting';
-import { getStyles } from '../../../src/parsers/styles';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/history/historyFormatting';
 
@@ -183,9 +183,8 @@ describe('testResult', () => {
         }));
     });
   });
-  describe('convertReportToHtml', (): void => {
+  describe('convertSuitesToHtml', (): void => {
     it('Will convert a test suite into an html report', async (): Promise<void> => {
-      const styles = await getStyles(PATH_TO_STYLE_SHEET);
       const suite = 'some suite';
       const testResult = {
         title,
@@ -203,20 +202,19 @@ describe('testResult', () => {
         title,
         content: testResultHtml,
       });
-      const testSuite = {
+      const testSuites = [{
         [title]: [testResult],
-      } as TestSuite;
+      }] as TestSuite[];
       const reportData = {
         reportTitle: 'test title',
         pageTitle: 'This is a test',
-        styles,
       };
       const reportHtml = addValuesToTemplate(reportTemplate, {
         suites: testSuiteHtml,
         ...reportData,
       });
 
-      expect(convertReportToHtml(reportData, testSuite)).to.equal(reportHtml);
+      expect(convertSuitesToHtml(reportData, testSuites)).to.equal(reportHtml);
     });
   });
 });

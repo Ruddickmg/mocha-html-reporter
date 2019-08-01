@@ -47,14 +47,6 @@ export const convertTestSuiteToHtml = (
     .join(NEW_LINE);
 }(testSuite));
 
-export const convertReportToHtml = (
-  reportData: ReportData,
-  testSuite: TestSuite,
-): string => addValuesToTemplate(reportTemplate, {
-  suites: convertTestSuiteToHtml(testSuite),
-  ...reportData,
-});
-
 export const convertArrayToTableRow = (
   data: TestResult[],
   dataTemplate: string,
@@ -86,3 +78,13 @@ export const convertHistoryToHtml = (history: History): string => {
     },
   );
 };
+
+export const convertSuitesToHtml = (
+  reportData: ReportData,
+  testSuites: TestSuite[],
+): string => addValuesToTemplate(reportTemplate, {
+  suites: testSuites
+    .map(convertTestSuiteToHtml)
+    .join(NEW_LINE),
+  ...reportData,
+});

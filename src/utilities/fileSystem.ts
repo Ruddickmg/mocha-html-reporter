@@ -1,12 +1,12 @@
 import {
   readFile,
-  writeFile,
   existsSync,
   mkdirSync,
+  createWriteStream,
 } from 'fs';
 import {
   PATH_TO_PACKAGE,
-  PATH_SEPARATOR,
+  PATH_SEPARATOR, STREAM_END,
 } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 
@@ -25,15 +25,14 @@ export const writeToFile = (
   if (!existsSync(pathToDirectory)) {
     mkdirSync(pathToDirectory);
   }
-  return writeFile(
-    pathToFile,
-    content,
-    (
-      error: Error,
-    ): void => (error
+  const writeStream = createWriteStream(pathToFile);
+  writeStream.write(content);
+  writeStream.on(STREAM_END, (error: Error): void => (
+    error
       ? reject(error)
-      : resolve()),
-  );
+      : resolve()
+  ));
+  writeStream.end();
 });
 
 export const getFileContents = (

@@ -5,7 +5,9 @@ export const PERIOD = '.';
 export const PASS = 'pass';
 export const FAIL = 'failed';
 export const FINISHED = 'end';
+export const STREAM_END = 'finish';
 export const PACKAGE_NAME = 'mocha-html-reporter';
+export const JSON_EXTENSION = '.json';
 export const NEW_LINE = EOL;
 export const PATH_SEPARATOR = sep;
 export const TEMPLATE_BRACES = /{{.*?}}/g;
@@ -49,4 +51,5 @@ export default {
   ONE_MINUTE,
   ONE_HOUR,
   DELAY_START_PROPERTY,
+  JSON_EXTENSION,
 };

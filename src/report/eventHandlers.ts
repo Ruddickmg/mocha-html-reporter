@@ -1,9 +1,13 @@
 import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
-import { convertReportToHtml } from './htmlConversion';
+import { convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
-import { createTestResultFormatter } from '../parsers/formatting';
+import {createTestResultFormatter, removeFileName} from '../parsers/formatting';
+import { groupTestSuitesByDate, formatHistory } from '../history/historyFormatting';
+import { addValuesToTemplate } from '../templates/all';
+import { writeHistory } from '../history/storage';
+import {flattenArray} from "../utilities/arrays";
 
 export interface Content {
   [name: string]: string;
@@ -35,10 +39,10 @@ export type TestHandler = (
 ) => void;
 
 export interface ReportData {
-  [value: string]: string;
   reportTitle: string;
   pageTitle: string;
-  styles: string;
+  styles?: Promise<string>;
+  history?: Promise<TestResult[]>;
 }
 
 export const delayStart = (runner: Runner): void => {
@@ -62,27 +66,47 @@ export const createTestHandler = (
   const formatTestResults = createTestResultFormatter(testDirectory);
   return (
     test: Test,
-  ): Promise<TestResult[]> => new Promise(resolve => {
+  ): Promise<TestResult[]> => new Promise((resolve): void => {
     const updateTests = (image?: string): void => {
       testResults.push(formatTestResults(test, image));
       resolve(testResults);
     };
-    captureScreen
-      ? takeScreenShot()
+    if (captureScreen) {
+      takeScreenShot()
         .then(updateTests)
         .catch((): Promise<void> => handleFailedScreenShot()
-          .then(updateTests))
-      : updateTests();
+          .then(updateTests));
+    } else {
+      updateTests();
+    }
   });
 };
 
 export const createReportHandler = (
   tests: TestResult[],
   pathToOutputFile: string,
-  reportData: ReportData,
-  generateTestResults: (tests: TestResult[]) => TestSuite,
+  { history, styles, ...reportData }: ReportData,
+  generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
-  const testSuite = generateTestResults(tests);
-  const html = convertReportToHtml(reportData, testSuite);
-  return Promise.all([writeToFile(pathToOutputFile, html)]);
+  const allTests = [...tests, ...await history];
+  const formattedHistory = formatHistory(allTests);
+  const htmlHistory = convertHistoryToHtml(formattedHistory);
+  const testsGroupedByDate = groupTestSuitesByDate(allTests);
+  const htmlSuites = convertSuitesToHtml(
+    reportData,
+    testsGroupedByDate
+      .map(generateTestSuite),
+  );
+  const reportWithHistory = addValuesToTemplate(htmlSuites, {
+    history: htmlHistory,
+    styles: await styles,
+  });
+  return Promise
+    .all([
+      writeToFile(pathToOutputFile, reportWithHistory),
+      writeHistory(
+        removeFileName(pathToOutputFile),
+        flattenArray(testsGroupedByDate),
+      ),
+    ]);
 };

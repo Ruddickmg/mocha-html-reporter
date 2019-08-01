@@ -1,3 +1,4 @@
+import { remove } from 'fs-extra';
 import { Test, Runner } from 'mocha';
 import { expect } from 'chai';
 import { spy } from 'sinon';
@@ -27,25 +28,31 @@ import {
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
-import { createTestResultFormatter, formatDuration } from '../../../src/parsers/formatting';
+import { createTestResultFormatter, formatDuration, removeFileName } from '../../../src/parsers/formatting';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/parsers/testSuite';
+import { getHistory } from '../../../src/history/storage';
+import { convertHistoryToHtml } from '../../../src/report/htmlConversion';
+import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
+import { flattenArray } from '../../../src/utilities/arrays';
 
-const { remove } = require('fs-extra');
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
   const fileName = 'morphius';
   const pathToMockFile = `${pathToMockHtml}/${fileName}.html`;
-  const removeAndCheckIds = (results: TestResult[]) => results.map(({ id, suiteId, ...result }: TestResult): any => {
-    expect(isString(id)).to.equal(true);
-    expect(isString(suiteId)).to.equal(true);
-    return result;
-  });
+  const removeAndCheckIds = (
+    results: TestResult[],
+  ): any => results
+    .map(({ id, suiteId, ...result }: TestResult): any => {
+      expect(isString(id)).to.equal(true);
+      expect(isString(suiteId)).to.equal(true);
+      return result;
+    });
 
-  beforeEach(() => mkdirSync(pathToMockHtml));
-  afterEach(() => remove(pathToMockHtml));
+  beforeEach((): void => mkdirSync(pathToMockHtml));
+  afterEach((): void => remove(pathToMockHtml));
 
   describe('delayStart', (): void => {
     it('Will set a property on the passed in test runner preventing it from auto starting the tests', (): void => {
@@ -86,7 +93,8 @@ describe('eventHandlers', (): void => {
       const takeScreenShot = true;
       const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
       const testHandler = createTestHandler(testResults, pathToMockTestDirectory, takeScreenShot);
-      const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
+      const formattedResults = tests
+        .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
 
       await Promise.all(tests.map((test: Test): void => testHandler(test)));
 
@@ -108,11 +116,11 @@ describe('eventHandlers', (): void => {
         path,
       },
     ] as TestResult[];
+    const history = getHistory(pathToMockHtml);
     const reportData = {
       reportTitle: 'hello',
       pageTitle: 'world',
-      styles: 'styling',
-      scripts: 'scripts',
+      history,
     };
     it('Parses tests correctly into html output by suite', async (): Promise<void> => {
       const reportHandler = createReportHandler(
@@ -123,15 +131,22 @@ describe('eventHandlers', (): void => {
       );
       const suites = [suite]
         .reverse()
-        .reduce((content: string, title: string): string => addValuesToTemplate(
+        .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title },
+          { content, title: suiteTitle },
         ), addValuesToTemplate(testResultTemplate, {
           title,
           duration: formatDuration(duration),
           image: addValuesToTemplate(imageTemplate, { image }),
         }));
-      const expected = addValuesToTemplate(reportTemplate, { suites, ...reportData });
+      const expected = addValuesToTemplate(reportTemplate, {
+        suites,
+        ...reportData,
+        history: convertHistoryToHtml(formatHistory([
+          ...testResults,
+          ...await history,
+        ])),
+      });
       await reportHandler();
 
       expect(await getFileContents(pathToMockFile)).to.equal(expected);
@@ -145,18 +160,37 @@ describe('eventHandlers', (): void => {
       );
       const suites = [...path, suite]
         .reverse()
-        .reduce((content: string, title: string): string => addValuesToTemplate(
+        .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title },
+          { content, title: suiteTitle },
         ), addValuesToTemplate(testResultTemplate, {
           title,
           duration: formatDuration(duration),
           image: addValuesToTemplate(imageTemplate, { image }),
         }));
-      const expected = addValuesToTemplate(reportTemplate, { suites, ...reportData });
+      const expected = addValuesToTemplate(reportTemplate, {
+        suites,
+        ...reportData,
+        history: convertHistoryToHtml(formatHistory([
+          ...testResults,
+          ...await history,
+        ])),
+      });
       await reportHandler();
 
       expect(await getFileContents(pathToMockFile)).to.equal(expected);
+    });
+    it('Will output history correctly into json', async (): Promise<void> => {
+      const reportHandler = createReportHandler(
+        testResults,
+        pathToMockFile,
+        reportData as ReportData,
+        generateTestResultsByPath,
+      );
+      const expected = flattenArray(groupTestSuitesByDate(testResults));
+      await reportHandler();
+
+      expect(await getHistory(removeFileName(pathToMockFile))).to.eql(expected);
     });
   });
 });
