@@ -85,7 +85,7 @@ export const writeHistory = (
   if (isArray(history)) {
     if (history.length) {
       return writeHistoryJsonStream(
-        `${removeFileName(fileName)}${PATH_SEPARATOR}${getFileNameFromPath(fileName)}.history.${JSON_EXTENSION}`,
+        `${removeFileName(fileName)}${PATH_SEPARATOR}${getFileNameFromPath(fileName)}.history${JSON_EXTENSION}`,
         history,
       );
     }
