@@ -83,7 +83,7 @@ export const getFileNameFromRequire = (
   .split(PATH_SEPARATOR)
   .pop();
 
-export const getFileNameFromPath = (path: string, extension = '.ts'): string => path.split(PATH_SEPARATOR).pop().replace(extension, EMPTY_STRING);
+export const getFileNameFromPath = (path: string): string => path.split(PATH_SEPARATOR).pop().split('.')[0];
 export const charIsNotEmptyString = (codeSection: string): boolean => codeSection !== EMPTY_STRING;
 
 export const getVariableName = (line: string): string => {

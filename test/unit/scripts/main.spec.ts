@@ -163,9 +163,9 @@ describe('scripts', (): void => {
     it('will get the file name from a path, defaulting to a .ts extension', (): void => {
       expect(getFileNameFromPath(testImportFilePath)).to.equal(fileName);
     });
-    it('will get the file name from a path with a specified extension', (): void => {
-      const extension = '.js';
-      expect(getFileNameFromPath(`${rootPath}${fileName}${extension}`, extension)).to.equal(fileName);
+    it('will remove multiple extensions', (): void => {
+      const extension = '.html.ts';
+      expect(getFileNameFromPath(`${rootPath}${fileName}${extension}`)).to.equal(fileName);
     });
   });
   describe('removeFileNameFromPath', (): void => {
