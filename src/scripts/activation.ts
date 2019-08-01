@@ -4,7 +4,7 @@ import {
   getFailedButton, getPassedButton,
   removeClassFromElement,
 } from './elements';
-import { ACTIVE } from '../constants/script';
+import { ACTIVE } from './constants';
 
 export const activateElement = (
   element: Element,

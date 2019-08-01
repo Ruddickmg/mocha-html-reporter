@@ -1,11 +1,11 @@
 import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
-import { convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
+import { cleanAndMinify, convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
 import { createTestResultFormatter } from '../parsers/formatting';
 import { groupTestSuitesByDate, formatHistory } from '../history/historyFormatting';
-import { addValuesToTemplate } from '../templates/all';
+import { addValuesToTemplate, clearAllTemplateValues } from '../templates/all';
 import { writeHistory } from '../history/storage';
 import { flattenArray } from '../utilities/arrays';
 
@@ -42,6 +42,7 @@ export interface ReportData {
   reportTitle: string;
   pageTitle: string;
   styles?: Promise<string>;
+  scripts?: Promise<string>;
   history?: Promise<TestResult[]>;
 }
 
@@ -87,7 +88,12 @@ export const createTestHandler = (
 export const createReportHandler = (
   tests: TestResult[],
   pathToOutputFile: string,
-  { history, styles, ...reportData }: ReportData,
+  {
+    history,
+    styles,
+    scripts,
+    ...reportData
+  }: ReportData,
   generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
   const allTests = [...tests, ...await history];
@@ -98,13 +104,14 @@ export const createReportHandler = (
     testsGroupedByDate
       .map(generateTestSuite),
   );
-  const reportWithHistory = addValuesToTemplate(htmlSuites, {
+  const report = addValuesToTemplate(htmlSuites, {
     history: htmlHistory,
     styles: await styles,
+    scripts: await scripts,
   });
   return Promise
     .all([
-      writeToFile(pathToOutputFile, reportWithHistory),
+      writeToFile(pathToOutputFile, cleanAndMinify(report)),
       writeHistory(
         pathToOutputFile,
         flattenArray(testsGroupedByDate),

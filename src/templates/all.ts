@@ -43,8 +43,7 @@ export const addValuesToTemplate = (
   TEMPLATE_BRACES,
   (match: string): string => {
     const label = match.slice(2, -2);
-    const value = values[label];
-    return (value || match) as string;
+    return (values[label] || match) as string;
   },
 );
 

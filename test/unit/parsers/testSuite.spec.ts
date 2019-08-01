@@ -6,6 +6,7 @@ import {
   generateTestResultsBySuite,
 } from '../../../src/parsers/testSuite';
 import {
+  expectedDate,
   expectedImage,
   expectedTestResultsByPath,
   pathToMockTestDirectory,
@@ -15,7 +16,7 @@ import { createTestResultFormatter } from '../../../src/parsers/formatting';
 import { TestResult } from '../../../src/report/eventHandlers';
 
 describe('testTree', (): void => {
-  const testResultFormatter = createTestResultFormatter(pathToMockTestDirectory);
+  const testResultFormatter = createTestResultFormatter(pathToMockTestDirectory, expectedDate);
   const formatTest = (test: Test): TestResult => testResultFormatter(test, expectedImage);
   describe('generateTestResultsByPath', (): void => {
     it('Will build a tree ending with an array of test results grouped by common paths (directory or test suite\'s)', async (): Promise<void> => {

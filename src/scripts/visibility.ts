@@ -13,7 +13,7 @@ import {
   PASSED,
   STACK,
   TEST_DATA,
-} from '../constants/script';
+} from './constants';
 import { getCurrentPage } from './navigation';
 import { activateChildAndButton, deactivateChildAndButton } from './activation';
 

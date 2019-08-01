@@ -17,6 +17,7 @@ const durationOne = 1;
 const durationTwo = 2;
 const durationThree = 3;
 
+export const expectedDate = Date.now();
 export const expectedImage = base64NoImageString;
 export const pathToMockTestDirectory = `${PATH_TO_PACKAGE}/test/mock`;
 export const expectedTestResultsByPath: TestSuite = {
@@ -29,6 +30,7 @@ export const expectedTestResultsByPath: TestSuite = {
           path: [firstDir, secondDir, thirdDirOnTestOne],
           duration: durationOne,
           image: expectedImage,
+          date: expectedDate,
         }],
         [suiteTwo]: [{
           title: testThree,
@@ -36,6 +38,7 @@ export const expectedTestResultsByPath: TestSuite = {
           path: [firstDir, secondDir, thirdDirOnTestOne],
           duration: durationThree,
           image: expectedImage,
+          date: expectedDate,
         }],
       },
       [thirdDirOnTestTwo]: {
@@ -45,6 +48,7 @@ export const expectedTestResultsByPath: TestSuite = {
           path: [firstDir, secondDir, thirdDirOnTestTwo],
           duration: durationTwo,
           image: expectedImage,
+          date: expectedDate,
         }],
       },
     },

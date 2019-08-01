@@ -19,7 +19,7 @@ import { TestResult } from '../report/eventHandlers';
 const { floor } = Math;
 
 export interface ExpectedOptions {
-  consoleReporter?: string;
+  reporter?: string;
   historyDir?: string;
   outputDir?: string;
   testDir?: string;
@@ -167,11 +167,6 @@ export const formatOutputFilePath = (
   outputDir: string,
   fileName: string,
 ): string => `${formatOutputPath(outputDir)}${fileName}.html`;
-
-export const formatHistoryOutputPath = (
-  outputDir: string,
-  fileName: string,
-): string => `${formatOutputPath(outputDir)}${fileName}.history`;
 
 export const getCommandLineOptions = (
   environment?: Environment,

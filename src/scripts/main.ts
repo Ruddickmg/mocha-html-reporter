@@ -1,4 +1,3 @@
-import { transform } from '@babel/core';
 import {
   toggleFailedTests,
   toggleImage,
@@ -28,7 +27,8 @@ export default (binding: PageActions): void => {
     moveToHistory,
   };
   Object.keys(publicMethods)
-    .forEach(methodName => {
+    .forEach((methodName: string): void => {
+      // eslint-disable-next-line no-param-reassign
       binding[methodName] = publicMethods[methodName];
     });
 };

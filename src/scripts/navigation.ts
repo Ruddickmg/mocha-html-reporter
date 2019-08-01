@@ -3,7 +3,7 @@ import {
   PASSED,
   SHOWING_FAILED,
   SHOWING_PASSED,
-} from '../constants/script';
+} from './constants';
 import {
   hideAllTestsOnCurrentPage,
   hideHistory,

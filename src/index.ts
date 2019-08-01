@@ -9,7 +9,7 @@ interface Reporters {
 }
 
 export function mochaHtmlReporter(runner: Runner, options: Environment): void {
-  const consoleReporter = capitalizeFirstLetter(options.reporterOptions.consoleReporter);
+  const consoleReporter = capitalizeFirstLetter(options.reporterOptions.reporter);
   const {
     Base,
     [consoleReporter]: Reporter,

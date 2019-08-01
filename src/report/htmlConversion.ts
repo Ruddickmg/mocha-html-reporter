@@ -1,7 +1,9 @@
+import { minify } from 'html-minifier';
 import { ReportData, TestResult, TestSuite } from './eventHandlers';
 import { NEW_LINE } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
+import { htmlMinifierConfiguration } from '../constants/html-minifier.config';
 import {
   reportTemplate,
   imageTemplate,
@@ -11,7 +13,7 @@ import {
   tableHeaderTemplate,
   tableRowTemplate,
   tableTemplate,
-  tableDataTemplate,
+  tableDataTemplate, clearAllTemplateValues,
 } from '../templates/all';
 
 export const convertTestResultsToHtml = (
@@ -94,3 +96,7 @@ export const convertSuitesToHtml = (
     .join(NEW_LINE),
   ...reportData,
 });
+
+export const cleanAndMinify = (
+  html: string,
+): string => minify(clearAllTemplateValues(html), htmlMinifierConfiguration);

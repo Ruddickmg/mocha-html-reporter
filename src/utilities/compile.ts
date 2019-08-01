@@ -18,6 +18,8 @@ import {
 } from './functions';
 import { babelOptions } from '../constants/babelOptions';
 import { escapedRegEx } from './regEx';
+import { logError } from './logging';
+import { getFileContents } from './fileSystem';
 
 export interface Compiled {
   code: string;
@@ -34,6 +36,7 @@ export interface FileCodeMappings {
 const brackets: CodeStore = {
   [OPENING_CURLY]: '}',
 };
+const EXTENSION = '.js';
 
 export const getCodeBlock = (
   text: string,
@@ -76,7 +79,7 @@ export const getTextBetweenMarkers = (
   .split(opening)[1]
   .split(closing)[0];
 
-export const addTsExtension = (name: string): string => `${name}.ts`;
+export const addExtension = (name: string): string => `${name}${EXTENSION}`;
 export const getFileNameFromRequire = (
   code: string,
 ): string => getTextBetweenMarkers(code, QUOTATION_MARK)
@@ -100,18 +103,7 @@ export const getVariableName = (line: string): string => {
 
 export const getCode = (
   fileName: string,
-): Promise<string> => new Promise((
-  resolve,
-  reject,
-): void => transformFile(
-  fileName,
-  babelOptions,
-  (error: Error, result: Compiled): void => (
-    error
-      ? reject(error)
-      : resolve(result.code)
-  ),
-));
+): Promise<string> => getFileContents(fileName);
 
 export const removeFileNameFromPath = (path: string): string => {
   const splitPath = path.split(PATH_SEPARATOR);
@@ -124,13 +116,13 @@ export const getImportLines = (text: string): string[] => text
   .filter((line: string): boolean => line.includes('require'));
 
 export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
+  const code = getCode(fileName);
   const pathToFile = removeFileNameFromPath(fileName);
-  const code: string = await getCode(fileName);
-  const importLines = getImportLines(code);
+  const importLines = getImportLines(await code);
   const paths = importLines
     .map(compose(
       getFileNameFromRequire,
-      addTsExtension,
+      addExtension,
       (name: string): string => `${pathToFile}${PATH_SEPARATOR}${name}`,
     ));
   return (await paths
@@ -141,7 +133,7 @@ export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
       ...(await getCodeByPath(path)),
       ...(await allCode),
     }), Promise.resolve({
-      [fileName]: code,
+      [fileName]: await code,
     }))) as CodeStore;
 };
 
@@ -277,12 +269,16 @@ export const compileCode = async (
   fileName: string,
   variableNameGenerator: NameGenerator,
 ): Promise<string> => {
-  const codeByPath = await getCodeByPath(fileName);
-  const renameVariables = renameAllVariables(variableNameGenerator);
-  const codeByVariables = compose(
-    mapFilePathsToCodeBlocksByVariableName,
-    combineVariablesForEachFile,
-  )(codeByPath);
-  const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-  return renameVariables(code, Object.keys(codeByVariables));
+  try {
+    const codeByPath = await getCodeByPath(fileName);
+    const renameVariables = renameAllVariables(variableNameGenerator);
+    const codeByVariables = compose(
+      mapFilePathsToCodeBlocksByVariableName,
+      combineVariablesForEachFile,
+    )(codeByPath);
+    const code = combineCodeFromFilesIntoSingleString(codeByVariables);
+    return renameVariables(code, Object.keys(codeByVariables));
+  } catch (error) {
+    return `${logError(error)}`;
+  }
 };

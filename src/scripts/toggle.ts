@@ -22,7 +22,7 @@ import {
   SHOWING_FAILED,
   SHOWING_PASSED,
   STACK,
-} from '../constants/script';
+} from './constants';
 import {
   isShowing,
   setVisibility,

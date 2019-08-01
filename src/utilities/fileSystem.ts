@@ -9,6 +9,7 @@ import {
 } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 import { logError, logMessage } from './logging';
+import { getFileNameFromPath } from './compile';
 
 export const writeToFile = (
   pathToFile: string,
@@ -28,7 +29,7 @@ export const writeToFile = (
       logError(error);
       reject(error);
     } else {
-      logMessage('file:', pathToFile, 'successfully written.');
+      logMessage(getFileNameFromPath(pathToFile), 'has been output to:', pathToFile);
       resolve();
     }
   });
