@@ -1,6 +1,5 @@
 import { readFile, createWriteStream } from 'fs';
 import { PATH_SEPARATOR } from '../constants/constants';
-import { fgMagenta, escape } from '../constants/consoleColors';
 import { capitalizeFirstLetter } from './strings';
 
 const { PNG } = require('pngjs');
@@ -41,7 +40,6 @@ const screenShotComparison = (() => {
     stream.write(data);
     stream.end();
     stream.on('finish', () => {
-      console.log(fgMagenta, `"${name}" output to ${path}`, escape);
       resolve();
     });
     stream.on('error', reject);

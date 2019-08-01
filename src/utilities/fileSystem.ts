@@ -6,7 +6,7 @@ import {
 } from 'fs';
 import {
   PATH_TO_PACKAGE,
-  PATH_SEPARATOR, STREAM_END,
+  PATH_SEPARATOR, STREAM_FINISH,
 } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 
@@ -27,7 +27,7 @@ export const writeToFile = (
   }
   const writeStream = createWriteStream(pathToFile);
   writeStream.write(content);
-  writeStream.on(STREAM_END, (error: Error): void => (
+  writeStream.on(STREAM_FINISH, (error: Error): void => (
     error
       ? reject(error)
       : resolve()

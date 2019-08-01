@@ -61,7 +61,10 @@ export const convertArrayToTableRow = (
 );
 
 export const convertHistoryToHtml = (history: History): string => {
-  const header = history[historyTestSuiteHeaderTitle] || [];
+  const header = [
+    { title: historyTestSuiteHeaderTitle },
+    ...(history[historyTestSuiteHeaderTitle] || []),
+  ] as TestResult[];
   return addValuesToTemplate(
     tableTemplate,
     {
@@ -71,7 +74,10 @@ export const convertHistoryToHtml = (history: History): string => {
         Object.keys(history)
           .filter((testSuiteName: string): boolean => testSuiteName !== historyTestSuiteHeaderTitle)
           .map((testSuiteName: string): string => convertArrayToTableRow(
-            history[testSuiteName] || [],
+            [
+              { title: testSuiteName },
+              ...(history[testSuiteName] || []),
+            ] as TestResult[],
             tableDataTemplate,
           )).join(NEW_LINE),
       ].join(NEW_LINE),

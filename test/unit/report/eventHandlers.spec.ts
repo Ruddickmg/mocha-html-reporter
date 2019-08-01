@@ -37,7 +37,6 @@ import { convertHistoryToHtml } from '../../../src/report/htmlConversion';
 import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
 
-
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
   const fileName = 'morphius';
@@ -105,13 +104,15 @@ describe('eventHandlers', (): void => {
     const title = 'best test';
     const suite = 'a suite';
     const path = ['some', 'cool', 'directory'];
-    const duration = 0.4;
+    const duration = 4;
+    const date = Date.now();
     const image = 'image'; // base64NoImageString;
     const testResults: TestResult[] = [
       {
         title,
         duration,
         image,
+        date,
         suite,
         path,
       },

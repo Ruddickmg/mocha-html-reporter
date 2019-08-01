@@ -1,7 +1,7 @@
 import { TestResult } from '../report/eventHandlers';
 import {
   convertMillisecondsToDate,
-  getMonthDayYearFromDate,
+  getMonthDayYearFromDate, millisecondsToRoundedHumanReadable,
 } from '../parsers/formatting';
 import { sortTestResultsByDate } from '../utilities/sorting';
 import { EMPTY_STRING } from '../constants/constants';
@@ -95,7 +95,10 @@ export const formatHistory = (history: TestResult[]): History => {
   ): History => {
     const results = suiteAndDateMatrix[dateString];
     return suites.reduce((formattedSuite: History, suiteName: string): History => {
-      const test = results[suiteName] || emptyTest;
+      const result = results[suiteName];
+      const test = result
+        ? { ...result, title: millisecondsToRoundedHumanReadable(result.duration) }
+        : emptyTest;
       const previous = formattedSuite[suiteName] || [];
       return {
         ...formattedSuite,

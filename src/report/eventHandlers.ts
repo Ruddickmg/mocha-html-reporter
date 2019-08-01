@@ -3,11 +3,11 @@ import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots
 import { writeToFile } from '../utilities/fileSystem';
 import { convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
-import {createTestResultFormatter, removeFileName} from '../parsers/formatting';
+import { createTestResultFormatter, removeFileName } from '../parsers/formatting';
 import { groupTestSuitesByDate, formatHistory } from '../history/historyFormatting';
 import { addValuesToTemplate } from '../templates/all';
 import { writeHistory } from '../history/storage';
-import {flattenArray} from "../utilities/arrays";
+import { flattenArray } from '../utilities/arrays';
 
 export interface Content {
   [name: string]: string;
@@ -62,8 +62,9 @@ export const createTestHandler = (
   testResults: TestResult[],
   testDirectory: string,
   captureScreen: boolean,
+  timeOfTest: number,
 ): TestHandler => {
-  const formatTestResults = createTestResultFormatter(testDirectory);
+  const formatTestResults = createTestResultFormatter(testDirectory, timeOfTest);
   return (
     test: Test,
   ): Promise<TestResult[]> => new Promise((resolve): void => {
@@ -89,8 +90,7 @@ export const createReportHandler = (
   generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
   const allTests = [...tests, ...await history];
-  const formattedHistory = formatHistory(allTests);
-  const htmlHistory = convertHistoryToHtml(formattedHistory);
+  const htmlHistory = convertHistoryToHtml(formatHistory(allTests));
   const testsGroupedByDate = groupTestSuitesByDate(allTests);
   const htmlSuites = convertSuitesToHtml(
     reportData,
@@ -105,7 +105,7 @@ export const createReportHandler = (
     .all([
       writeToFile(pathToOutputFile, reportWithHistory),
       writeHistory(
-        removeFileName(pathToOutputFile),
+        pathToOutputFile,
         flattenArray(testsGroupedByDate),
       ),
     ]);

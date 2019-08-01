@@ -7,7 +7,8 @@ import {
 } from '../../../src/parsers/testSuite';
 import {
   expectedImage,
-  expectedTestResultsByPath, pathToMockTestDirectory,
+  expectedTestResultsByPath,
+  pathToMockTestDirectory,
   tests,
 } from '../../helpers/expectations';
 import { createTestResultFormatter } from '../../../src/parsers/formatting';

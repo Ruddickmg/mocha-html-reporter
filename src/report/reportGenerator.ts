@@ -34,6 +34,7 @@ export const reportGenerator = async (
     outputDir,
     fileName,
   } = getCommandLineOptions(environment);
+  const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const styles = getStyles(PATH_TO_STYLE_SHEET);
   const history = getHistory(formatHistoryOutputPath(outputDir, fileName));
@@ -50,11 +51,13 @@ export const reportGenerator = async (
       tests,
       testDir,
       takeScreenShotOnFailure,
+      timeOfTest,
     ),
     [PASS]: createTestHandler(
       tests,
       testDir,
       screenShotEachTest,
+      timeOfTest,
     ),
     [FINISHED]: createReportHandler(
       tests,

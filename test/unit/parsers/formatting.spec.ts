@@ -75,17 +75,19 @@ describe('formatting', () => {
     });
   });
   describe('createTestResultFormatter', (): void => {
+    const date = Date.now();
     const expected = {
       title: firstTitle,
       suite: parentTitle,
+      date,
       path: [
         'some',
         'other',
       ],
-      duration: formatDuration(duration),
+      duration,
     };
-    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
-    it('Will format test results correctly from the raw test data', () => {
+    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+    it('Will format test results correctly from the raw test data', (): void => {
       const [firstTestResult] = mockTestValues;
       const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
 
@@ -212,6 +214,9 @@ describe('formatting', () => {
   describe('millisecondsToRoundedHumanReadable', (): void => {
     it('Converts 0 milliseconds to "0 ms"', (): void => {
       expect(millisecondsToRoundedHumanReadable(0)).to.equal('0 ms');
+    });
+    it('Converts 0.4 to 0.4 ms', (): void => {
+      expect(millisecondsToRoundedHumanReadable(0.4)).to.equal('0.4 ms');
     });
     it('Converts milliseconds to an abbreviated human readable string of milliseconds', (): void => {
       expect(millisecondsToRoundedHumanReadable(400)).to.equal('400 ms');

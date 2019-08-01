@@ -53,21 +53,22 @@ describe('history', (): void => {
     });
   });
   describe('writeHistory', (): void => {
+    const testFilePath = `${pathToMockHtml}${PATH_SEPARATOR}testFile.ts`;
     it('Will write a test result to a file in the specified directory', async (): Promise<void> => {
       const singleTestResult = [firstTest];
-      await writeHistory(pathToMockHtml, singleTestResult);
+      await writeHistory(testFilePath, singleTestResult);
       checkTestTreeEquality(await getHistory(pathToMockHtml), singleTestResult);
     });
     it('Will write multiple test results to a file in a specified directory', async (): Promise<void> => {
       const multipleTestResults = [firstTest, secondTest, thirdTest];
-      await writeHistory(pathToMockHtml, multipleTestResults);
+      await writeHistory(testFilePath, multipleTestResults);
       checkTestTreeEquality(await getHistory(pathToMockHtml), multipleTestResults);
     });
     it('Will throw an error when attempting to write an empty history', async (): Promise<void> => {
       const error = emptyHistoryError();
       let errorThrown = false;
       try {
-        await writeHistory(pathToMockHtml, []);
+        await writeHistory(testFilePath, []);
       } catch (e) {
         errorThrown = true;
         expect(e.message).to.equal(error);
@@ -84,7 +85,7 @@ describe('history', (): void => {
           const error = nonHistoryError(variable);
           let errorThrown = false;
           try {
-            await writeHistory(pathToMockHtml, variable);
+            await writeHistory(testFilePath, variable);
           } catch (e) {
             errorThrown = true;
             expect(e.message).to.equal(error);

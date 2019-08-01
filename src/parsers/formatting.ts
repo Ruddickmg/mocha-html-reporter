@@ -93,12 +93,13 @@ export const millisecondsToHumanReadable = (totalMilliseconds: number): string =
     : humanReadable;
 };
 
-export const millisecondsToRoundedHumanReadable = (milliseconds: number): string => {
+export const millisecondsToRoundedHumanReadable = (input: number): string => {
+  const milliseconds = Number(input);
   const timeRangeIndex = timeRanges
     .filter((timeRange: number): boolean => milliseconds < timeRange)
     .length;
-  const suffix = suffixes[timeRangeIndex];
-  const timeRange = timeRanges[timeRangeIndex];
+  const suffix = suffixes[timeRangeIndex] || MILLISECOND_SUFFIX;
+  const timeRange = timeRanges[timeRangeIndex] || ONE_MILLISECOND;
   return milliseconds
     ? `${roundToTheNearestTenth(milliseconds / timeRange)} ${suffix}`
     : '0 ms';
@@ -125,6 +126,7 @@ export const formatDuration = (
 
 export const createTestResultFormatter = (
   pathToTestDirectory: string,
+  timeOfTest: number,
 ): TestResultFormatter => {
   const suiteIds: SuiteIds = {};
   return (
@@ -145,7 +147,8 @@ export const createTestResultFormatter = (
       title,
       suite,
       suiteId,
-      duration: formatDuration(duration),
+      duration,
+      date: timeOfTest,
       path: file
         ? getFilePath(file, pathToTestDirectory)
         : getParentPath(test),

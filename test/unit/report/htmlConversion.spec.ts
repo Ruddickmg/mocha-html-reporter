@@ -173,11 +173,17 @@ describe('testResult', () => {
         .to.equal(addValuesToTemplate(tableTemplate, {
           id: 'history-table',
           content: [
-            convertArrayToTableRow(history[historyTestSuiteHeaderTitle], tableHeaderTemplate),
+            convertArrayToTableRow(
+              [
+                { title: historyTestSuiteHeaderTitle } as TestResult,
+                ...history[historyTestSuiteHeaderTitle],
+              ],
+              tableHeaderTemplate,
+            ),
           ].concat(Object.keys(history)
             .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
             .map((suiteName: string): string => convertArrayToTableRow(
-              history[suiteName],
+              [{ title: suiteName } as TestResult, ...history[suiteName]],
               tableDataTemplate,
             ))).join(NEW_LINE),
         }));
