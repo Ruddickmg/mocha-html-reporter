@@ -19,6 +19,8 @@ import { TestResult } from '../report/eventHandlers';
 const { floor } = Math;
 
 export interface ExpectedOptions {
+  consoleReporter?: string;
+  historyDir?: string;
   outputDir?: string;
   testDir?: string;
   fileName?: string;

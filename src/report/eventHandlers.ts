@@ -3,7 +3,7 @@ import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots
 import { writeToFile } from '../utilities/fileSystem';
 import { convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
-import { createTestResultFormatter, removeFileName } from '../parsers/formatting';
+import { createTestResultFormatter } from '../parsers/formatting';
 import { groupTestSuitesByDate, formatHistory } from '../history/historyFormatting';
 import { addValuesToTemplate } from '../templates/all';
 import { writeHistory } from '../history/storage';
@@ -46,6 +46,7 @@ export interface ReportData {
 }
 
 export const delayStart = (runner: Runner): void => {
+  // eslint-disable-next-line no-param-reassign
   runner[DELAY_START_PROPERTY] = true;
 };
 

@@ -6,7 +6,6 @@ import {
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
 import {
-  getPackageName,
   getFileContents,
   writeToFile,
 } from '../../../src/utilities/fileSystem';
@@ -25,11 +24,6 @@ describe('fileSystem', (): void => {
   });
   afterEach(() => remove(pathToMockHtml));
 
-  describe('getPackageName', (): void => {
-    it('Will get the name of the package', () => {
-      expect(getPackageName()).to.equal(PACKAGE_NAME);
-    });
-  });
   describe('getFileContents', (): void => {
     it('Will get the correct text from a file by path', async (): Promise<void> => {
       const fileContents = await getFileContents(pathToTestFile);

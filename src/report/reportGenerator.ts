@@ -15,7 +15,6 @@ import {
 } from '../constants/constants';
 import {
   Environment,
-  formatHistoryOutputPath,
   formatOutputFilePath,
   getCommandLineOptions,
 } from '../parsers/formatting';
@@ -37,7 +36,7 @@ export const reportGenerator = async (
   const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const styles = getStyles(PATH_TO_STYLE_SHEET);
-  const history = getHistory(formatHistoryOutputPath(outputDir, fileName));
+  const history = getHistory(pathToOutputFile);
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',

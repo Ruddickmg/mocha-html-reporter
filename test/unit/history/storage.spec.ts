@@ -20,49 +20,35 @@ describe('history', (): void => {
   const firstTest = { title: 'hello world!' } as TestResult;
   const secondTest = { title: 'hello computer!' } as TestResult;
   const thirdTest = { title: 'hello... ?' } as TestResult;
+  const testFilePath = `${pathToMockHtml}${PATH_SEPARATOR}testFile.ts`;
 
-  const removeMockHtmlDirectory = () => remove(pathToMockHtml);
   beforeEach((): void => mkdirSync(pathToMockHtml));
-  afterEach(removeMockHtmlDirectory);
+  afterEach((): void => remove(pathToMockHtml));
 
   describe('getHistory', (): void => {
     it('Returns an empty array if no history exists', async (): Promise<void> => {
-      expect(await getHistory(pathToMockHtml)).to.eql([]);
+      expect(await getHistory(testFilePath)).to.eql([]);
     });
     it('will grab file history from a file', async (): Promise<void> => {
       const testResults = [firstTest];
-      writeFileSync(
-        `${pathToMockHtml}${PATH_SEPARATOR}test.json`,
-        JSON.stringify(testResults),
-      );
+      await writeHistory(testFilePath, testResults);
       checkTestTreeEquality(
-        await getHistory(pathToMockHtml) as TestResult[],
+        await getHistory(testFilePath) as TestResult[],
         testResults as TestResult[],
-      );
-    });
-    it('Will grab and combine multiple history files', async (): Promise<void> => {
-      const testResults = [[firstTest], [secondTest], [thirdTest]] as TestResult[][];
-      testResults.map((result: TestResult[], index: number): void => writeFileSync(
-        `${pathToMockHtml}${PATH_SEPARATOR}${index}.json`,
-        JSON.stringify(result),
-      ));
-      checkTestTreeEquality(
-        await getHistory(pathToMockHtml),
-        testResults.map((([result]: TestResult[]): TestResult => result)),
       );
     });
   });
   describe('writeHistory', (): void => {
-    const testFilePath = `${pathToMockHtml}${PATH_SEPARATOR}testFile.ts`;
     it('Will write a test result to a file in the specified directory', async (): Promise<void> => {
       const singleTestResult = [firstTest];
       await writeHistory(testFilePath, singleTestResult);
-      checkTestTreeEquality(await getHistory(pathToMockHtml), singleTestResult);
+      checkTestTreeEquality(await getHistory(testFilePath), singleTestResult);
     });
     it('Will write multiple test results to a file in a specified directory', async (): Promise<void> => {
       const multipleTestResults = [firstTest, secondTest, thirdTest];
       await writeHistory(testFilePath, multipleTestResults);
-      checkTestTreeEquality(await getHistory(pathToMockHtml), multipleTestResults);
+      console.log(await getHistory(testFilePath));
+      checkTestTreeEquality(await getHistory(testFilePath), multipleTestResults);
     });
     it('Will throw an error when attempting to write an empty history', async (): Promise<void> => {
       const error = emptyHistoryError();

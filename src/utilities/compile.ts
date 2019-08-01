@@ -1,8 +1,16 @@
 import { transformFile } from '@babel/core';
 import {
   EMPTY_STRING,
+  FUNCTION_DECLARATION,
+  IMPORT_DECLARATION,
   NEW_LINE,
+  OPEN_PARENTHESES,
+  OPENING_CURLY,
   PATH_SEPARATOR,
+  QUOTATION_MARK,
+  SEMICOLON,
+  SPACE,
+  VARIABLE_DECLARATION,
 } from '../constants/constants';
 import {
   compose,
@@ -23,14 +31,6 @@ export interface FileCodeMappings {
   [filename: string]: CodeStore;
 }
 
-const SPACE = ' ';
-const VARIABLE_DECLARATION = 'var';
-const FUNCTION_DECLARATION = 'function';
-const IMPORT_DECLARATION = 'require';
-const QUOTATION_MARK = '"';
-const SEMICOLON = ';';
-const OPENING_CURLY = '{';
-const OPEN_PARENTHESES = '(';
 const brackets: CodeStore = {
   [OPENING_CURLY]: '}',
 };

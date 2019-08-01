@@ -76,11 +76,17 @@ describe('eventHandlers', (): void => {
     });
   });
   describe('createTestHandler', (): void => {
+    const date = Date.now();
     it('Parses tests into the correct output', (): void => {
       const testResults: TestResult[] = [];
       const takeScreenShot = false;
-      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
-      const testHandler = createTestHandler(testResults, pathToMockTestDirectory, takeScreenShot);
+      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+      const testHandler = createTestHandler(
+        testResults,
+        pathToMockTestDirectory,
+        takeScreenShot,
+        date,
+      );
       const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test));
 
       tests.forEach((test: Test): void => testHandler(test));
@@ -90,8 +96,13 @@ describe('eventHandlers', (): void => {
     it('Will parse a test and take a screen shot', async (): Promise<void> => {
       const testResults: TestResult[] = [];
       const takeScreenShot = true;
-      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory);
-      const testHandler = createTestHandler(testResults, pathToMockTestDirectory, takeScreenShot);
+      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+      const testHandler = createTestHandler(
+        testResults,
+        pathToMockTestDirectory,
+        takeScreenShot,
+        date,
+      );
       const formattedResults = tests
         .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
 
@@ -191,7 +202,7 @@ describe('eventHandlers', (): void => {
       const expected = flattenArray(groupTestSuitesByDate(testResults));
       await reportHandler();
 
-      expect(await getHistory(removeFileName(pathToMockFile))).to.eql(expected);
+      expect(await getHistory(pathToMockFile)).to.eql(expected);
     });
   });
 });

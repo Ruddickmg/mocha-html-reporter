@@ -5,14 +5,10 @@ import {
   createWriteStream,
 } from 'fs';
 import {
-  PATH_TO_PACKAGE,
-  PATH_SEPARATOR, STREAM_FINISH,
+  STREAM_FINISH,
 } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
-
-export const getPackageName = (): string => PATH_TO_PACKAGE
-  .split(PATH_SEPARATOR)
-  .pop();
+import { logError, logMessage } from './logging';
 
 export const writeToFile = (
   pathToFile: string,
@@ -27,11 +23,15 @@ export const writeToFile = (
   }
   const writeStream = createWriteStream(pathToFile);
   writeStream.write(content);
-  writeStream.on(STREAM_FINISH, (error: Error): void => (
-    error
-      ? reject(error)
-      : resolve()
-  ));
+  writeStream.on(STREAM_FINISH, (error: Error): void => {
+    if (error) {
+      logError(error);
+      reject(error);
+    } else {
+      logMessage('file:', pathToFile, 'successfully written.');
+      resolve();
+    }
+  });
   writeStream.end();
 });
 

@@ -29,6 +29,14 @@ export const ONE_SECOND = 1000 * ONE_MILLISECOND;
 export const ONE_MINUTE = 60 * ONE_SECOND;
 export const ONE_HOUR = 60 * ONE_MINUTE;
 export const DELAY_START_PROPERTY = '_delay';
+export const SPACE = ' ';
+export const VARIABLE_DECLARATION = 'var';
+export const FUNCTION_DECLARATION = 'function';
+export const IMPORT_DECLARATION = 'require';
+export const QUOTATION_MARK = '"';
+export const SEMICOLON = ';';
+export const OPENING_CURLY = '{';
+export const OPEN_PARENTHESES = '(';
 
 export default {
   PERIOD,
