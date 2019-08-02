@@ -1,4 +1,3 @@
-import { transformFile } from '@babel/core';
 import {
   EMPTY_STRING,
   FUNCTION_DECLARATION,
@@ -8,7 +7,7 @@ import {
   OPENING_CURLY,
   PATH_SEPARATOR,
   QUOTATION_MARK,
-  SEMICOLON,
+  SEMICOLON, SINGLE_QUOTE,
   SPACE,
   VARIABLE_DECLARATION,
 } from '../constants/constants';
@@ -16,10 +15,10 @@ import {
   compose,
   mapOverObject,
 } from './functions';
-import { babelOptions } from '../constants/babelOptions';
 import { escapedRegEx } from './regEx';
-import { logError } from './logging';
 import { getFileContents } from './fileSystem';
+import { isArray } from './typeChecks';
+import { millisecondsToHumanReadable } from '../parsers/formatting';
 
 export interface Compiled {
   code: string;
@@ -73,28 +72,41 @@ export const getCodeBlock = (
 
 export const getTextBetweenMarkers = (
   text: string,
-  opening: string,
-  closing: string = opening,
-): string => text
-  .split(opening)[1]
-  .split(closing)[0];
+  opening: string[] | string,
+  closing: string[] | string = opening,
+): string => {
+  const openingSymbol = isArray(opening)
+    ? (opening as string[]).find(((symbol: string): string => text.split(symbol)[1]))
+    : opening as string;
+  const closingSymbol: string = isArray(closing)
+    ? (closing as string[]).find(((symbol: string): string => text.split(symbol)[0]))
+    : closing as string;
+  return text
+    .split(openingSymbol)[1]
+    .split(closingSymbol)[0];
+};
 
 export const addExtension = (name: string): string => `${name}${EXTENSION}`;
 export const getFileNameFromRequire = (
   code: string,
-): string => getTextBetweenMarkers(code, QUOTATION_MARK)
+): string => getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE])
   .split(PATH_SEPARATOR)
   .pop();
 
 export const getFileNameFromPath = (path: string): string => path.split(PATH_SEPARATOR).pop().split('.')[0];
 export const charIsNotEmptyString = (codeSection: string): boolean => codeSection !== EMPTY_STRING;
 
+const addSpace = (text: string): string => `${text} `;
+const variableDeclarations = [
+  ...[VARIABLE_DECLARATION, 'const', 'let', FUNCTION_DECLARATION].map(addSpace),
+  FUNCTION_DECLARATION,
+];
+
 export const getVariableName = (line: string): string => {
-  const declaration = line.includes(VARIABLE_DECLARATION)
-    ? VARIABLE_DECLARATION
-    : FUNCTION_DECLARATION;
+  const declaration = variableDeclarations
+    .find((declarationType: string): boolean => line.includes(declarationType));
   return line
-    .split(`${declaration} `)[1]
+    .split(declaration)[1]
     .split(SPACE)
     .filter(charIsNotEmptyString)[0]
     .split(OPEN_PARENTHESES)
@@ -115,26 +127,40 @@ export const getImportLines = (text: string): string[] => text
   .split(NEW_LINE)
   .filter((line: string): boolean => line.includes('require'));
 
-export const getCodeByPath = async (fileName: string): Promise<CodeStore> => {
-  const code = getCode(fileName);
-  const pathToFile = removeFileNameFromPath(fileName);
-  const importLines = getImportLines(await code);
-  const paths = importLines
-    .map(compose(
-      getFileNameFromRequire,
-      addExtension,
-      (name: string): string => `${pathToFile}${PATH_SEPARATOR}${name}`,
-    ));
-  return (await paths
-    .reduce(async (
-      allCode: Promise<CodeStore>,
-      path: string,
-    ): Promise<CodeStore> => ({
-      ...(await getCodeByPath(path)),
-      ...(await allCode),
-    }), Promise.resolve({
-      [fileName]: await code,
-    }))) as CodeStore;
+export interface FilesToIgnore {
+  [fileName: string]: boolean;
+}
+
+export const getCodeByPath = async (file: string): Promise<CodeStore> => {
+  const seenFiles: FilesToIgnore = {};
+  const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
+    const code = await getCode(fileName);
+    const pathToFile = removeFileNameFromPath(fileName);
+    const importLines = getImportLines(code);
+    const paths = importLines
+      .map(compose(
+        getFileNameFromRequire,
+        addExtension,
+        (name: string): string => `${pathToFile}${PATH_SEPARATOR}${name}`,
+      ))
+      .filter(((path: string): boolean => {
+        const notSeenYet = !seenFiles[path];
+        seenFiles[path] = true;
+        return notSeenYet;
+      }));
+    seenFiles[fileName] = true;
+    return (await paths
+      .reduce(async (
+        allCode: Promise<CodeStore>,
+        path: string,
+      ): Promise<CodeStore> => ({
+        ...await getFileToCodeMappings(path),
+        ...await allCode,
+      }), Promise.resolve({
+        [fileName]: code,
+      }))) as CodeStore;
+  };
+  return getFileToCodeMappings(file);
 };
 
 export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
@@ -150,8 +176,9 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
       const comparison = all[variableName] || EMPTY_STRING;
       const codeBlock = getCodeBlock(lines.slice(index).join(NEW_LINE));
       if (
-        (line.includes(VARIABLE_DECLARATION) || line.includes(FUNCTION_DECLARATION))
+        !!variableDeclarations.find((declaration: string): boolean => line.includes(declaration))
         && !comparison.includes(codeBlock)
+        && !line.includes(IMPORT_DECLARATION)
       ) {
         variableName = getVariableName(line);
         return {
@@ -201,18 +228,17 @@ export const combineVariablesForEachFile = (
     const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
     const codeByVariableName = variablesForEachFile[filePath];
     return Object.keys(codeByVariableName)
-      .filter((
-        variableName: string,
-      ): boolean => !codeByVariableName[variableName].includes(IMPORT_DECLARATION))
       .reduce((fileCodeByVariableName: CodeStore, variableName: string): CodeStore => {
         const replacementVariableName = `${fileNamePrefix}.${variableName}`;
-        const codeWithVariablesReplaced = mapOverObject((
-          code: string,
-        ): string => replaceVariablesInCode(
-          variableName,
-          replacementVariableName,
-          code,
-        ), codeByVariableName);
+        const codeWithVariablesReplaced = !variableName.includes('.')
+          ? mapOverObject((
+            code: string,
+          ): string => replaceVariablesInCode(
+            variableName,
+            replacementVariableName,
+            code,
+          ), codeByVariableName)
+          : codeByVariableName;
         return {
           ...fileCodeByVariableName,
           [replacementVariableName]: codeWithVariablesReplaced[variableName],
@@ -221,11 +247,11 @@ export const combineVariablesForEachFile = (
   }, {});
 
 export type NameGenerator = (...args: any[]) => string;
-export type VariableRenamer = (code: string, variableNames: string[]) => string;
+export type VariableNameGenerator = (code: string, variableNames: string[]) => string;
 
 export const renameAllVariables = (
   generateName: NameGenerator,
-): VariableRenamer => (
+): VariableNameGenerator => (
   code: string,
   variableNames: string[],
 ): string => variableNames
@@ -267,18 +293,18 @@ export const combineCodeFromFilesIntoSingleString = (codeObject: CodeStore): str
 
 export const compileCode = async (
   fileName: string,
-  variableNameGenerator: NameGenerator,
 ): Promise<string> => {
-  try {
-    const codeByPath = await getCodeByPath(fileName);
-    const renameVariables = renameAllVariables(variableNameGenerator);
-    const codeByVariables = compose(
-      mapFilePathsToCodeBlocksByVariableName,
-      combineVariablesForEachFile,
-    )(codeByPath);
-    const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-    return renameVariables(code, Object.keys(codeByVariables));
-  } catch (error) {
-    return `${logError(error)}`;
-  }
+  let start = Date.now();
+  const codeByPath = await getCodeByPath(fileName);
+  console.log('got results in', millisecondsToHumanReadable(Date.now() - start));
+  start = Date.now();
+  const codeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
+  console.log('mapped to variable names in', millisecondsToHumanReadable(Date.now() - start));
+  start = Date.now();
+  const codeByVariables = combineVariablesForEachFile(codeByVariableName);
+  console.log('combined variables in', millisecondsToHumanReadable(Date.now() - start));
+  start = Date.now();
+  const code = combineCodeFromFilesIntoSingleString(codeByVariables);
+  console.log('finished compiling in', millisecondsToHumanReadable(Date.now() - start));
+  return code;
 };

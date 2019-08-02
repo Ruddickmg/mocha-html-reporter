@@ -1,9 +1,5 @@
 import { expect } from 'chai';
 import {
-  transformFile,
-} from '@babel/core';
-import {
-  Compiled,
   getCode,
   getFileNameFromRequire,
   addExtension,
@@ -23,7 +19,6 @@ import {
   renameAllVariables,
   compileCode,
 } from '../../../src/utilities/compile';
-import { babelOptions } from '../../../src/constants/babelOptions';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 import { mapOverObject } from '../../../src/utilities/functions';
 
@@ -35,6 +30,8 @@ const testImportFilePathTwo = `${rootPath}testFileTwo.js`;
 const testImportFilePathThree = `${rootPath}testFileThree.js`;
 const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.js`;
 const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.js`;
+const circularImportTestFile = `${rootPath}circularImport.js`;
+const secondCircularImportFile = `${rootPath}secondCircularImport.js`;
 const firstVariableName = 'someFunk';
 const secondVariableName = 'someVariable';
 const thirdVariableName = 'variableThree';
@@ -51,6 +48,9 @@ const assignment = `       var ${secondVariableName} = 'some other thing';`;
 const code = `${func}\n${assignment}`;
 
 describe('scripts', (): void => {
+  describe('Will handle circular dependencies', (): void => {
+
+  });
   describe('replaceVariablesInCode', (): void => {
     const variable = 'hello';
     const replacement = 'holly';
@@ -90,26 +90,44 @@ describe('scripts', (): void => {
     });
   });
   describe('getVariableName', (): void => {
-    it('Will get a variable name from a var declaration with var as a substring of the variable name', (): void => {
-      const variableName = 'variable';
-      expect(getVariableName(`var ${variableName} = function () {};`))
-        .to.equal(variableName);
-    });
-    it('Will get a variable with function as a substring of the var declaration name', (): void => {
-      const variableName = 'functional';
-      expect(getVariableName(`var ${variableName} = function () {};`))
-        .to.equal(variableName);
-    });
-    it('Will get a variable with function as a substring of the function declaration name', (): void => {
-      const variableName = 'functional';
-      expect(getVariableName(`function ${variableName}() {};`))
-        .to.equal(variableName);
-    });
-    it('Will get a variable name from a var declaration with a space between the function declaration and open parentheses', (): void => {
-      const variableName = 'b';
-      expect(getVariableName(`var ${variableName} = function () {};`))
-        .to.equal(variableName);
-    });
+    ['var', 'const', 'let']
+      .forEach((declaration: string): void => {
+        it(`Will get a variable name from a ${declaration} declaration with var as a substring of the variable name`, (): void => {
+          const variableName = 'variable';
+          expect(getVariableName(`${declaration} ${variableName} = function () {};`))
+            .to.equal(variableName);
+        });
+        it(`Will get a variable with function as a substring of the ${declaration} declaration name`, (): void => {
+          const variableName = 'functional';
+          expect(getVariableName(`${declaration} ${variableName} = function () {};`))
+            .to.equal(variableName);
+        });
+        it(`Will get a variable name from a ${declaration} declaration with let as a substring of the variable name`, (): void => {
+          const variableName = 'letter';
+          expect(getVariableName(`${declaration} ${variableName} = function () {};`))
+            .to.equal(variableName);
+        });
+        it(`Will get a variable with const as a substring of the ${declaration} declaration name`, (): void => {
+          const variableName = 'constants';
+          expect(getVariableName(`${declaration} ${variableName} = function () {};`))
+            .to.equal(variableName);
+        });
+        it(`Will get a variable name from a ${declaration} declaration with a space between the function declaration and open parentheses`, (): void => {
+          const variableName = 'b';
+          expect(getVariableName(`${declaration} ${variableName} = function () {};`))
+            .to.equal(variableName);
+        });
+        it(`will get a variable name from a function that has both a ${declaration} declaration and a function declaration`, (): void => {
+          const variableName = 'z';
+          expect(getVariableName(`${declaration} ${variableName} = function b() {};`))
+            .to.equal(variableName);
+        });
+        it(`will get a variable name from a function that has both a ${declaration} declaration and a function declaration and a space after the function declaration name`, (): void => {
+          const variableName = 'a';
+          expect(getVariableName(`${declaration} ${variableName} = function b () {};`))
+            .to.equal(variableName);
+        });
+      });
     it('Will get a variable name from a function declaration', (): void => {
       const variableName = 'x';
       expect(getVariableName(`function ${variableName}() {};`))
@@ -120,14 +138,9 @@ describe('scripts', (): void => {
       expect(getVariableName(`function ${variableName} () {};`))
         .to.equal(variableName);
     });
-    it('will get a variable name from a function that has both a var declaration and a function declaration', (): void => {
-      const variableName = 'z';
-      expect(getVariableName(`var ${variableName} = function b() {};`))
-        .to.equal(variableName);
-    });
-    it('will get a variable name from a function that has both a var declaration and a function declaration and a space after the function declaration name', (): void => {
-      const variableName = 'a';
-      expect(getVariableName(`var ${variableName} = function b () {};`))
+    it('Will get a variable with function as a substring of the function declaration name', (): void => {
+      const variableName = 'functional';
+      expect(getVariableName(`function ${variableName}() {};`))
         .to.equal(variableName);
     });
   });
@@ -142,6 +155,11 @@ describe('scripts', (): void => {
       const line = `function setX() {${text}}`;
       expect(getTextBetweenMarkers(line, '{', '}'))
         .to.equal(text);
+    });
+    it('Will match via an array of markers', (): void => {
+      const text = 'hi bob';
+      const line = `var x = require("${text}");`;
+      expect(getTextBetweenMarkers(line, ['"', '\''])).to.equal(text);
     });
   });
   describe('addTsExtension', (): void => {
@@ -175,24 +193,6 @@ describe('scripts', (): void => {
         .to.equal(path);
     });
   });
-  describe('getCode', (): void => {
-    it('Gets and transforms code via babel from a specified file', (done): void => {
-      getCode(testImportFilePath)
-        .then(() => done());
-    //   transformFile(
-    //     testImportFilePath,
-    //     babelOptions,
-    //     async (error: Error, { code: transformedCode }: Compiled): Promise<void> => {
-    //       try {
-    //         expect(await getCode(testImportFilePath)).to.equal(transformedCode);
-    //         done(error);
-    //       } catch (e) {
-    //         done(e);
-    //       }
-    //     },
-    //   );
-    });
-  });
   describe('getImportLines', (): void => {
     it('Gets all lines of code that are import statements', (): void => {
       const lineOne = 'var _thisVar = require("./some/directory.js");';
@@ -209,6 +209,13 @@ describe('scripts', (): void => {
     });
   });
   describe('getCodeByPath', (): void => {
+    it('Can import files with circular imports', async (): Promise<void> => {
+      expect(await getCodeByPath(circularImportTestFile))
+        .to.eql({
+          [circularImportTestFile]: await getCode(circularImportTestFile),
+          [secondCircularImportFile]: await getCode(secondCircularImportFile),
+        });
+    });
     it('Gets all code imported by a file', async (): Promise<void> => {
       expect(await getCodeByPath(testImportFilePath))
         .to.eql({
@@ -351,7 +358,7 @@ describe('scripts', (): void => {
     };
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
       expect(await compileCode(testImportFilePath, rename))
-        .to.equal(`var variable3 = "more testing";var variable2 = "still testing";var variable1 = "testing 123";var variable4 = function variable4() {\r\n  console.log(variable2, variable1, variable3);\r\n};`);
+        .to.equal('var variable3 = "more testing";var variable2 = "still testing";var variable1 = "testing 123";var variable4 = function variable4() {\r\n  console.log(variable2, variable1, variable3);\r\n};');
     });
   });
 });

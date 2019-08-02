@@ -107,7 +107,7 @@ export const createReportHandler = (
   const report = addValuesToTemplate(htmlSuites, {
     history: htmlHistory,
     styles: await styles,
-    scripts: await scripts,
+    // scripts: await scripts,
   });
   return Promise
     .all([

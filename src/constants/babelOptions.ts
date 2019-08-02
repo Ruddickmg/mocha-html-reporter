@@ -1,3 +1,1 @@
-export const babelOptions = {
-
-};
+export const babelOptions = {};
