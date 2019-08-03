@@ -1,15 +1,18 @@
-import { minify } from 'uglify-js';
 import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
-import { cleanAndMinify, convertHistoryToHtml, convertSuitesToHtml, minifyJs } from './htmlConversion';
+import {
+  cleanAndMinify,
+  convertHistoryToHtml,
+  convertSuitesToHtml,
+  minifyJs,
+} from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
 import { createTestResultFormatter } from '../parsers/formatting';
 import { formatHistory, groupTestSuitesByDate } from '../history/historyFormatting';
 import { addValuesToTemplate } from '../templates/all';
 import { writeHistory } from '../history/storage';
 import { flattenArray } from '../utilities/arrays';
-import { uglifyJsConfiguration } from '../configuraton/uglify-js.config';
 
 export interface Content {
   [name: string]: string;
