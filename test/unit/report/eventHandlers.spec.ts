@@ -35,7 +35,7 @@ import { base64NoImageString } from '../../../src/constants/base64NoImageString'
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/parsers/testSuite';
 import { getHistory } from '../../../src/history/storage';
-import { cleanAndMinify, convertHistoryToHtml } from '../../../src/report/htmlConversion';
+import { cleanAndMinify, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
 import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
 import { compileCode } from '../../../src/utilities/compiler';
@@ -165,7 +165,7 @@ describe('eventHandlers', (): void => {
         suites,
         ...reportData,
         styles: await styles,
-        scripts: await scripts,
+        scripts: minifyJs(await scripts),
         history: convertHistoryToHtml(formatHistory([
           ...testResults,
           ...await history,
@@ -204,7 +204,7 @@ describe('eventHandlers', (): void => {
         suites,
         ...reportData,
         styles: await styles,
-        scripts: await scripts,
+        scripts: minifyJs(await scripts),
         history: convertHistoryToHtml(formatHistory([
           ...testResults,
           ...await history,

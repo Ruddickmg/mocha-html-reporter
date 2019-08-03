@@ -9,7 +9,7 @@ interface PageActions {
   [method: string]: PageAction;
 }
 
-export default (binding: PageActions): void => {
+export default ((binding: PageActions): void => {
   const publicMethods: PageActions = {
     toggleMessage,
     toggleImage,
@@ -24,4 +24,5 @@ export default (binding: PageActions): void => {
       // eslint-disable-next-line no-param-reassign
       binding[methodName] = publicMethods[methodName];
     });
-};
+  // @ts-ignore
+})(window);

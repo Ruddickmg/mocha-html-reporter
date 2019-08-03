@@ -6,3 +6,5 @@ package-lock.json
 plans.txt
 dist
 dist/*
+test/reports
+test/reports/*

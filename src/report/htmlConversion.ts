@@ -1,9 +1,10 @@
-import { minify } from 'html-minifier';
+import { minify as minifyHtml } from 'html-minifier';
+import { minify as minifyJavascript } from 'uglify-js';
 import { ReportData, TestResult, TestSuite } from './eventHandlers';
 import { NEW_LINE } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
-import { htmlMinifierConfiguration } from '../constants/html-minifier.config';
+import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 import {
   addValuesToTemplate,
   clearAllTemplateValues,
@@ -16,6 +17,8 @@ import {
   testResultTemplate,
   testSuiteTemplate,
 } from '../templates/all';
+import { uglifyJsConfiguration } from '../configuraton/uglify-js.config';
+import { logError } from '../utilities/logging';
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],
@@ -100,4 +103,12 @@ export const convertSuitesToHtml = (
 
 export const cleanAndMinify = (
   html: string,
-): string => minify(clearAllTemplateValues(html), htmlMinifierConfiguration);
+): string => minifyHtml(clearAllTemplateValues(html), minifyHtmlConfiguration);
+
+export const minifyJs = (prettyCode: string): string => {
+  const { code, error } = minifyJavascript(prettyCode, uglifyJsConfiguration);
+  if (error) {
+    logError('Error in minification,', error);
+  }
+  return code;
+};
