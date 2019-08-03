@@ -373,7 +373,7 @@ describe('compiler', (): void => {
     };
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
       expect(await compileCode(testImportFilePath, rename))
-        .to.equal('var variable3 = "more testing";var variable2 = "still testing";var variable1 = "testing 123";var variable4 = function variable4() {\r\n  console.log(variable2, variable1, variable3);\r\n};');
+        .to.equal(`const variable3 = 'more testing';const variable2 = 'still testing';const variable1 = 'testing 123';const variable4 = function variable4() {\r\n  console.log(variable2, variable1, variable3);\r\n};`);
     });
   });
 });

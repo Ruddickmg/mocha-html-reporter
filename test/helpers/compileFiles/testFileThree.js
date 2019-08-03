@@ -1,5 +1,5 @@
-var _testFileOne = require("./testFileOne");
-var _testFileTwo = require("./testFileTwo");
+const _testFileOne = require('./testFileOne');
+const _testFileTwo = require('./testFileTwo');
 
 module.exports.testObject = {
   otherTestPhrase: _testFileOne.otherTestPhrase,

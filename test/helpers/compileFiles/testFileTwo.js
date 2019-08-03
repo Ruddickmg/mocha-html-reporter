@@ -1,2 +1,2 @@
-var testTest = "testing 123";
+const testTest = 'testing 123';
 module.exports.testTest = testTest;

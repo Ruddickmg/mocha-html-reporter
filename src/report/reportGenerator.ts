@@ -22,7 +22,7 @@ import {
 } from '../parsers/formatting';
 import { generateTestResultsBySuite } from '../parsers/testSuite';
 import { getHistory } from '../history/storage';
-import { compileCode } from '../utilities/compile';
+import { compileCode } from '../utilities/compiler';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -39,8 +39,8 @@ export const reportGenerator = async (
   const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const styles = getStyles(PATH_TO_STYLE_SHEET);
-  const scripts = compileCode(PATH_TO_SCRIPTS, uuid);
   const history = getHistory(pathToOutputFile);
+  const scripts = compileCode(PATH_TO_SCRIPTS, uuid);
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',

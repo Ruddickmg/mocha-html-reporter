@@ -1,3 +1,3 @@
-var _testFileThree = require("./testFileThree");
+const _testFileThree = require('./testFileThree');
 
-console.log("testObject", _testFileThree.testObject);
+console.log('testObject', _testFileThree.testObject);
