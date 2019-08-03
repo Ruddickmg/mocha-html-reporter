@@ -3,6 +3,7 @@ import { PATH_TO_PACKAGE } from '../../src/constants/constants';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
 import { formatDuration } from '../../src/parsers/formatting';
 import { TestSuite } from '../../src/report/eventHandlers';
+import { VariableNameGenerator } from '../../src/utilities/compile';
 
 const firstDir = 'firstDirectory';
 const secondDir = 'secondDirectory';
@@ -107,3 +108,11 @@ export const tests = [{
     },
   },
 }] as unknown as Test[];
+
+export const variableNameGenerator = (): VariableNameGenerator => {
+  let n = 0;
+  return (): string => {
+    n += 1;
+    return `variable${n}`;
+  };
+};

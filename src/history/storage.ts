@@ -14,7 +14,7 @@ import {
   STREAM_END,
 } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
-import { getFileNameFromPath } from '../utilities/compile';
+import { getFileNameFromPath } from '../utilities/compiler';
 import { removeFileName } from '../parsers/formatting';
 import { logError, logMessage } from '../utilities/logging';
 

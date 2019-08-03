@@ -14,7 +14,7 @@ import {
 } from '../../../src/report/eventHandlers';
 import {
   pathToMockTestDirectory,
-  tests,
+  tests, variableNameGenerator,
 } from '../../helpers/expectations';
 import {
   addValuesToTemplate,
@@ -38,7 +38,7 @@ import { getHistory } from '../../../src/history/storage';
 import { cleanAndMinify, convertHistoryToHtml } from '../../../src/report/htmlConversion';
 import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
-import { compileCode, VariableNameGenerator } from '../../../src/utilities/compile';
+import { compileCode } from '../../../src/utilities/compiler';
 import { getStyles } from '../../../src/parsers/styles';
 
 describe('eventHandlers', (): void => {
@@ -136,24 +136,17 @@ describe('eventHandlers', (): void => {
       reportTitle: 'hello',
       pageTitle: 'world',
     };
-    const variableNameGenerator = (): VariableNameGenerator => {
-      let n = 0;
-      return (): string => {
-        n += 1;
-        return `variable${n}`;
-      };
-    };
     it('Parses tests correctly into html output by suite', async (): Promise<void> => {
       const history = getHistory(pathToMockHtml);
       const styles = getStyles(PATH_TO_STYLE_SHEET);
-      // const scripts = compileCode(PATH_TO_SCRIPTS, (name: string): string => `hi${name}`);
+      const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
         {
           ...reportData,
           history,
-          // scripts,
+          scripts,
           styles,
         },
         generateTestResultsBySuite,
@@ -172,7 +165,7 @@ describe('eventHandlers', (): void => {
         suites,
         ...reportData,
         styles: await styles,
-        // scripts: await scripts,
+        scripts: await scripts,
         history: convertHistoryToHtml(formatHistory([
           ...testResults,
           ...await history,
@@ -185,8 +178,7 @@ describe('eventHandlers', (): void => {
     it('Parses tests correctly into html output by path', async (): Promise<void> => {
       const history = getHistory(pathToMockHtml);
       const styles = getStyles(PATH_TO_STYLE_SHEET);
-      const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
-      console.log('scripts', scripts);
+      const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
@@ -194,7 +186,7 @@ describe('eventHandlers', (): void => {
           ...reportData,
           history,
           styles,
-          // scripts,
+          scripts,
         },
         generateTestResultsByPath,
       );
@@ -212,7 +204,7 @@ describe('eventHandlers', (): void => {
         suites,
         ...reportData,
         styles: await styles,
-        // scripts: await scripts,
+        scripts: await scripts,
         history: convertHistoryToHtml(formatHistory([
           ...testResults,
           ...await history,
@@ -220,19 +212,19 @@ describe('eventHandlers', (): void => {
       });
       await reportHandler();
 
-      expect(await getFileContents(pathToMockFile)).to.equal(` ${cleanAndMinify(expected)}`);
+      expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinify(expected));
     });
     it('Will output history correctly into json', async (): Promise<void> => {
       const history = getHistory(pathToMockHtml);
       const styles = getStyles(PATH_TO_STYLE_SHEET);
-      // const scripts = compileCode(PATH_TO_SCRIPTS, (name: string): string => `hi${name}`);
+      const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
         {
           ...reportData,
           history,
-          // scripts,
+          scripts,
           styles,
         },
         generateTestResultsBySuite,

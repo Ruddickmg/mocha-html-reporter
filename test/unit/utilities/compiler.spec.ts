@@ -7,7 +7,6 @@ import {
   removeFileNameFromPath,
   getImportLines,
   getCodeByPath,
-  getCodeBlock,
   mapCodeBlocksToVariableNames,
   combineCodeFromFilesIntoSingleString,
   removeDuplicateCodeBlocks,
@@ -17,8 +16,8 @@ import {
   replaceVariablesInCode,
   combineVariablesForEachFile,
   renameAllVariables,
-  compileCode,
-} from '../../../src/utilities/compile';
+  compileCode, replaceVariablesInBulk,
+} from '../../../src/utilities/compiler';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 import { mapOverObject } from '../../../src/utilities/functions';
 
@@ -44,13 +43,11 @@ const functionCodeBlock = `function () {
         console.log('hello, I am a code block!');
     var ${secondVariableName} = function () {};      };`;
 const func = `var ${firstVariableName} = ${functionCodeBlock}`;
-const assignment = `       var ${secondVariableName} = 'some other thing';`;
+const assignmentWithoutLeadingSpaces = `var ${secondVariableName} = 'some other thing';`;
+const assignment = `       ${assignmentWithoutLeadingSpaces}`;
 const code = `${func}\n${assignment}`;
 
-describe('scripts', (): void => {
-  describe('Will handle circular dependencies', (): void => {
-
-  });
+describe('compiler', (): void => {
   describe('replaceVariablesInCode', (): void => {
     const variable = 'hello';
     const replacement = 'holly';
@@ -243,19 +240,11 @@ describe('scripts', (): void => {
         });
     });
   });
-  describe('getCodeBlock', (): void => {
-    it('Will parse a function to extract it from a code file', (): void => {
-      expect(getCodeBlock(code)).to.equal(func);
-    });
-    it('Will parse an assignment to extract from a code file', (): void => {
-      expect(getCodeBlock(`${assignment}\n${func}`)).to.equal(assignment);
-    });
-  });
   describe('mapCodeBlocksToVariableNames', (): void => {
     it('Maps variable names to their corresponding code', (): void => {
       expect(mapCodeBlocksToVariableNames(code)).to.eql({
         [firstVariableName]: func,
-        [secondVariableName]: assignment,
+        [secondVariableName]: assignmentWithoutLeadingSpaces,
       });
     });
   });
@@ -274,6 +263,32 @@ describe('scripts', (): void => {
             [thirdVariableName]: thirdCodeBlock,
           },
         });
+    });
+  });
+  describe('replaceVariableNamesInBulk', (): void => {
+    it('Replaces all variable names in code by a variable to key value object', (): void => {
+      const variableOne = 'hi';
+      const variableTwo = 'you';
+      const variableThree = 'mister';
+      const replacementOne = 'hello';
+      const replacementTwo = 'yauAll';
+      const replacementThree = 'mam';
+      const replacements = {
+        [variableOne]: replacementOne,
+        [variableTwo]: replacementTwo,
+        [variableThree]: replacementThree,
+      };
+      const createText = (one: string, two: string, three: string): string => `
+        const fun = function() {
+          const ${one} = [${two}, ${three}];
+          console.log(${one});
+          return ${two};
+        };`;
+      expect(replaceVariablesInBulk(
+        replacements,
+        createText(variableOne, variableTwo, variableThree),
+      ))
+        .to.equal(createText(replacementOne, replacementTwo, replacementThree));
     });
   });
   describe('combineVariablesForEachFile', (): void => {

@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { capitalizeFirstLetter } from '../../../src/utilities/strings';
-import { typeChecks } from '../../../src/utilities/typeChecks';
+import { typeChecks, isNumeric } from '../../../src/utilities/typeChecks';
 
 describe('typeChecks', (): void => {
   const typeExamples: any = {
@@ -12,6 +12,15 @@ describe('typeChecks', (): void => {
     regExp: new RegExp('', ''),
   };
   const types = Object.keys(typeExamples);
+
+  describe('isNumeric', (): void => {
+    it('Returns true if a string consists only of numbers', (): void => {
+      expect(isNumeric('1234')).to.equal(true);
+    });
+    it('Returns false if a string has any non numeric characters', (): void => {
+      expect(isNumeric('123a4')).to.equal(false);
+    });
+  });
 
   types.forEach((type: string): void => {
     const nameOfTypeCheck = `is${capitalizeFirstLetter(type)}`;

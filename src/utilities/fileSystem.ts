@@ -9,7 +9,7 @@ import {
 } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from './compile';
+import { getFileNameFromPath } from './compiler';
 
 export const writeToFile = (
   pathToFile: string,

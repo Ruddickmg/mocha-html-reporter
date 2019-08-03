@@ -25,6 +25,8 @@ export const typeChecks: TypeChecks = [
   [`is${name}`]: (obj: any): boolean => Object.prototype.toString.call(obj) === `[object ${name}]`,
 }), {} as TypeChecks);
 
+export const isNumeric = (value: string): boolean => /^[0-9]+$/i.test(`${value}`);
+
 export const {
   isArray,
   isFunction,
