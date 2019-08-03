@@ -1,5 +1,4 @@
 import { Runner } from 'mocha';
-import uuid from 'uuid/v1';
 import { getStyles } from '../parsers/styles';
 import {
   createReportHandler,
@@ -15,11 +14,7 @@ import {
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
-import {
-  Environment,
-  formatOutputFilePath,
-  getCommandLineOptions,
-} from '../parsers/formatting';
+import { Environment, formatOutputFilePath, getCommandLineOptions } from '../parsers/formatting';
 import { generateTestResultsBySuite } from '../parsers/testSuite';
 import { getHistory } from '../history/storage';
 import { compileCode } from '../utilities/compiler';

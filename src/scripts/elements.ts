@@ -2,8 +2,8 @@ import { FAILED_BUTTON_ID, PASSED_BUTTON_ID } from './constants';
 
 export const getElementById = (id: string): Element => document.getElementById(id);
 
-export const getFailedButton = () => getElementById(FAILED_BUTTON_ID);
-export const getPassedButton = () => getElementById(PASSED_BUTTON_ID);
+export const getFailedButton = (): any => getElementById(FAILED_BUTTON_ID);
+export const getPassedButton = (): any => getElementById(PASSED_BUTTON_ID);
 
 export const getElementsByClasses = (...cssClasses: string[]): Element[] => {
   const listOfElements = document.body.querySelectorAll(
@@ -17,6 +17,7 @@ export const getElementsByClasses = (...cssClasses: string[]): Element[] => {
 export const moveToElementById = (id: string): void => {
   const pixelsToMoveUp = 80;
   const pixelsToMoveRight = 0;
+  // eslint-disable-next-line no-restricted-globals
   location.href = `#${id}`;
   window.scrollBy(
     pixelsToMoveRight,
@@ -33,12 +34,14 @@ export const getChildOfElement = (id: string, childClass: string): Element => {
 
 export const addClassToElement = (cssClass: string, element: Element): void => {
   if (element) {
+    // eslint-disable-next-line no-param-reassign
     element.className = `${element.className} ${cssClass}`;
   }
 };
 
 export const removeClassFromElement = (cssClass: string, element: Element): void => {
   if (element) {
+    // eslint-disable-next-line no-param-reassign
     element.className = element.className.replace(new RegExp(cssClass, 'g'), '');
   }
 };

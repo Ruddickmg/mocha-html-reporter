@@ -15,18 +15,9 @@ import {
   deactivatePassedButton,
 } from './activation';
 import {
-  FAILED,
-  IMAGE,
-  MESSAGE,
-  PASSED,
-  SHOWING_FAILED,
-  SHOWING_PASSED,
-  STACK,
+  FAILED, IMAGE, MESSAGE, PASSED, SHOWING_FAILED, SHOWING_PASSED, STACK,
 } from './constants';
-import {
-  isShowing,
-  setVisibility,
-} from './navigation';
+import { isShowing, setVisibility } from './navigation';
 
 export const toggle = (state: string): boolean | string => {
   const result = !isShowing(state);

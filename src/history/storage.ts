@@ -1,17 +1,13 @@
-import {
-  existsSync,
-  createWriteStream,
-  createReadStream,
-} from 'fs';
-import { stringify, parse } from 'JSONStream';
+import { createReadStream, createWriteStream, existsSync } from 'fs';
+import { parse, stringify } from 'JSONStream';
 import { TestResult } from '../report/eventHandlers';
 import {
   JSON_EXTENSION,
   PATH_SEPARATOR,
   STREAM_DATA,
-  STREAM_FINISH,
-  STREAM_ERROR,
   STREAM_END,
+  STREAM_ERROR,
+  STREAM_FINISH,
 } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { getFileNameFromPath } from '../utilities/compiler';

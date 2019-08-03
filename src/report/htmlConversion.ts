@@ -5,15 +5,16 @@ import { isArray } from '../utilities/typeChecks';
 import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
 import { htmlMinifierConfiguration } from '../constants/html-minifier.config';
 import {
-  reportTemplate,
-  imageTemplate,
-  testResultTemplate,
-  testSuiteTemplate,
   addValuesToTemplate,
+  clearAllTemplateValues,
+  imageTemplate,
+  reportTemplate,
+  tableDataTemplate,
   tableHeaderTemplate,
   tableRowTemplate,
   tableTemplate,
-  tableDataTemplate, clearAllTemplateValues,
+  testResultTemplate,
+  testSuiteTemplate,
 } from '../templates/all';
 
 export const convertTestResultsToHtml = (

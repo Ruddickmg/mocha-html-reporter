@@ -1,4 +1,4 @@
-import { readFile, createWriteStream } from 'fs';
+import { createWriteStream, readFile } from 'fs';
 import { PATH_SEPARATOR } from '../constants/constants';
 import { capitalizeFirstLetter } from './strings';
 
@@ -25,7 +25,9 @@ const screenShotComparison = (() => {
   const NO_FILE_EXISTS = 'ENOENT';
   const BASE_64_ENCODING = 'base64';
   const outputFile = (name: string): string => `${outputDirectory}${PATH_SEPARATOR}${name}.png`;
-  const convertBase64ToPng = (image: string): any => PNG.sync.read(Buffer.from(image, BASE_64_ENCODING));
+  const convertBase64ToPng = (
+    image: string,
+  ): any => PNG.sync.read(Buffer.from(image, BASE_64_ENCODING));
   const convertPngToBase64 = (png: any): string => PNG.sync.write(png).toString(BASE_64_ENCODING);
   const setScreenShotDirectory = (directory: string): void => {
     outputDirectory = directory;
@@ -112,12 +114,18 @@ const screenShotComparison = (() => {
       : Promise.reject(new Error('Unable to save image, no output directory was specified.'))
   );
 
-  const getExistingImage = (name: string): Promise<any> => new Promise((resolve, reject) => readFile(
+  const getExistingImage = (name: string): Promise<any> => new Promise((
+    resolve,
+    reject,
+  ) => readFile(
     outputFile(name),
     (error: Error, buffer: any): void => ((error || !buffer) ? reject(error) : resolve(buffer)),
   ));
 
-  const compareScreenShotWithBaseline = (pngImage: any, name: string): Promise<ImageComparisons> => getExistingImage(name)
+  const compareScreenShotWithBaseline = (
+    pngImage: any,
+    name: string,
+  ): Promise<ImageComparisons> => getExistingImage(name)
     .then(comparison => compareToPreviousImage(pngImage, PNG.sync.read(comparison)))
     .catch(error => {
       if (error.code === NO_FILE_EXISTS) {

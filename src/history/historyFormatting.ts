@@ -1,14 +1,12 @@
 import { TestResult } from '../report/eventHandlers';
 import {
   convertMillisecondsToDate,
-  getMonthDayYearFromDate, millisecondsToRoundedHumanReadable,
+  getMonthDayYearFromDate,
+  millisecondsToRoundedHumanReadable,
 } from '../parsers/formatting';
 import { sortTestResultsByDate } from '../utilities/sorting';
 import { EMPTY_STRING } from '../constants/constants';
-import {
-  compose,
-  mapOverObject,
-} from '../utilities/functions';
+import { compose, mapOverObject } from '../utilities/functions';
 
 export interface TestResultsByDate {
   [date: string]: TestResult[];

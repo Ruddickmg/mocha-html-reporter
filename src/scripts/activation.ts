@@ -1,7 +1,8 @@
 import {
   addClassToElement,
   getChildOfElement,
-  getFailedButton, getPassedButton,
+  getFailedButton,
+  getPassedButton,
   removeClassFromElement,
 } from './elements';
 import { ACTIVE } from './constants';

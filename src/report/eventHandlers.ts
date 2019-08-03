@@ -4,8 +4,8 @@ import { writeToFile } from '../utilities/fileSystem';
 import { cleanAndMinify, convertHistoryToHtml, convertSuitesToHtml } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
 import { createTestResultFormatter } from '../parsers/formatting';
-import { groupTestSuitesByDate, formatHistory } from '../history/historyFormatting';
-import { addValuesToTemplate, clearAllTemplateValues } from '../templates/all';
+import { formatHistory, groupTestSuitesByDate } from '../history/historyFormatting';
+import { addValuesToTemplate } from '../templates/all';
 import { writeHistory } from '../history/storage';
 import { flattenArray } from '../utilities/arrays';
 

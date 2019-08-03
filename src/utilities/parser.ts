@@ -1,8 +1,4 @@
-import {
-  CLOSING_CURLY,
-  EMPTY_STRING,
-  OPENING_CURLY,
-} from '../constants/constants';
+import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
 import { isNumeric, isString } from './typeChecks';
 
 export interface Symbols {

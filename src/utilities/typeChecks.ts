@@ -18,10 +18,10 @@ export const typeChecks: TypeChecks = [
   'Date',
   'RegExp',
 ].reduce((
-  typeChecks: TypeChecks,
+  allTypeChecks: TypeChecks,
   name: string,
 ) => ({
-  ...typeChecks,
+  ...allTypeChecks,
   [`is${name}`]: (obj: any): boolean => Object.prototype.toString.call(obj) === `[object ${name}]`,
 }), {} as TypeChecks);
 

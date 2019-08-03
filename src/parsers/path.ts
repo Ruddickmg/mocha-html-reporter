@@ -1,4 +1,4 @@
-import { Test, Suite } from 'mocha';
+import { Suite, Test } from 'mocha';
 import { EMPTY_STRING, PATH_SEPARATOR, PERIOD } from '../constants/constants';
 
 export const getParentPath = (

@@ -1,6 +1,7 @@
 import {
   EMPTY_STRING,
-  FUNCTION_DECLARATION, IMPORT_DECLARATION,
+  FUNCTION_DECLARATION,
+  IMPORT_DECLARATION,
   NEW_LINE,
   OPEN_PARENTHESES,
   PATH_SEPARATOR,
@@ -9,10 +10,7 @@ import {
   SPACE,
   VARIABLE_DECLARATION,
 } from '../constants/constants';
-import {
-  compose,
-  mapOverObject,
-} from './functions';
+import { compose, mapOverObject } from './functions';
 import { escapedRegEx } from './regEx';
 import { getFileContents } from './fileSystem';
 import { isArray } from './typeChecks';

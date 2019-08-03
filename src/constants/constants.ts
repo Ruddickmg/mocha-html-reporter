@@ -1,4 +1,4 @@
-import { sep, resolve } from 'path';
+import { resolve, sep } from 'path';
 import { EOL } from 'os';
 
 export const PERIOD = '.';

@@ -1,14 +1,7 @@
 import {
-  toggleFailedTests,
-  toggleImage,
-  toggleMessage,
-  toggleStack,
-  togglePassedTests,
+  toggleFailedTests, toggleImage, toggleMessage, togglePassedTests, toggleStack,
 } from './toggle';
-import {
-  switchToPage,
-  moveToHistory,
-} from './navigation';
+import { moveToHistory, switchToPage } from './navigation';
 
 type PageAction = (...data: string[]) => void | boolean;
 

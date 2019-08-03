@@ -1,8 +1,5 @@
 import {
-  FAILED,
-  PASSED,
-  SHOWING_FAILED,
-  SHOWING_PASSED,
+  FAILED, PASSED, SHOWING_FAILED, SHOWING_PASSED,
 } from './constants';
 import {
   hideAllTestsOnCurrentPage,

@@ -1,14 +1,13 @@
 import { expect } from 'chai';
-import { isArray, isString, isNumber } from '../utilities/typeChecks';
-import { UUID, SUITE_UUID } from '../constants/constants';
-import { TestSuite, TestResult } from '../report/eventHandlers';
+import { isArray, isNumber, isString } from '../utilities/typeChecks';
+import { SUITE_UUID, UUID } from '../constants/constants';
+import { TestResult, TestSuite } from '../report/eventHandlers';
 
 export const generateTestResultsByPath = (
   testResults: TestResult[],
 ): TestSuite => testResults
   .reduce((testSuite, test) => {
     let lastDirectory = testSuite as TestSuite;
-    let suiteDirectory: TestSuite | TestResult[];
     const { suite } = test;
     const { path } = test;
     const buildTestResults = (directory: string): void => {
@@ -18,7 +17,7 @@ export const generateTestResultsByPath = (
       lastDirectory = lastDirectory[directory] as TestSuite;
     };
     path.forEach(buildTestResults);
-    suiteDirectory = lastDirectory[suite] as TestResult[];
+    const suiteDirectory = lastDirectory[suite] as TestResult[];
     lastDirectory[suite] = isArray(suiteDirectory)
       ? [...suiteDirectory, test]
       : [test];
@@ -48,12 +47,12 @@ export const checkTestTreeEquality = (
   } else {
     new Set(Object.keys(test1).concat(Object.keys(test2)))
       .forEach((directory: string): void => {
-        directory !== UUID
-          && directory !== SUITE_UUID
-          && checkTestTreeEquality(
+        if (directory !== UUID && directory !== SUITE_UUID) {
+          checkTestTreeEquality(
             test1[directory],
             test2[directory],
           );
+        }
       });
   }
 };

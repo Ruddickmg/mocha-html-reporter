@@ -1,18 +1,8 @@
 import {
-  addClassToElement,
-  getElementById,
-  getElementsByClasses,
-  removeClassFromElement,
+  addClassToElement, getElementById, getElementsByClasses, removeClassFromElement,
 } from './elements';
 import {
-  FAILED,
-  HIDDEN,
-  HISTORY,
-  IMAGE,
-  MESSAGE,
-  PASSED,
-  STACK,
-  TEST_DATA,
+  FAILED, HIDDEN, HISTORY, IMAGE, MESSAGE, PASSED, STACK, TEST_DATA,
 } from './constants';
 import { getCurrentPage } from './navigation';
 import { activateChildAndButton, deactivateChildAndButton } from './activation';

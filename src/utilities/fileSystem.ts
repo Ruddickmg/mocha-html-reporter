@@ -1,12 +1,7 @@
 import {
-  readFile,
-  existsSync,
-  mkdirSync,
-  createWriteStream,
+  createWriteStream, existsSync, mkdirSync, readFile,
 } from 'fs';
-import {
-  STREAM_FINISH,
-} from '../constants/constants';
+import { STREAM_FINISH } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from './compiler';
