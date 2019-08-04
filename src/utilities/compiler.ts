@@ -230,12 +230,12 @@ export const replaceVariablesInBulk = (variableReplacements: Symbols, code: stri
 export const combineVariablesForEachFile = (
   variablesForEachFile: FileCodeMappings,
 ): CodeStore => {
-  const replacementMappings: CodeStore = {};
   const codeToVariableMappings: CodeStore = {};
   const filePaths = Object.keys(variablesForEachFile);
   let fileIndex = filePaths.length;
   // eslint-disable-next-line no-plusplus
   while (fileIndex--) {
+    const replacementMappings: CodeStore = {};
     const filePath = filePaths[fileIndex];
     const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
     const codeByVariableName = variablesForEachFile[filePath];
@@ -246,7 +246,7 @@ export const combineVariablesForEachFile = (
     while (variableIndex--) {
       const variableName = variableNames[variableIndex];
       let uniqueName = variableName;
-      if (variableName.split('.')[0] !== fileNamePrefix) {
+      if (variableName.split('.')[0] === variableName) {
         uniqueName = `${fileNamePrefix}.${variableName}`;
         replacementMappings[variableName] = uniqueName;
       }
@@ -301,11 +301,12 @@ export const compileCode = async (
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-  return replaceVariablesInBulk(
+  const replaced = replaceVariablesInBulk(
     Object.keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
     }), {}),
     code,
   );
+  return replaced;
 };

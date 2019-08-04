@@ -1,7 +1,6 @@
 import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
 import { isNumeric, isString } from './typeChecks';
 import { CodeStore } from './compiler';
-import all from '../templates/all';
 
 export interface Symbols {
   [symbolName: string]: string;
@@ -68,9 +67,12 @@ export const createParser = (parseTree: ParseTree, allowedPrefixes?: CodeStore):
   let symbol: ParseTree = parseTree;
   let previousChar: string;
   return (char: string): boolean | string => {
+    const noMatchYetMade = symbol === parseTree;
     const prefixNotAllowed = allowedPrefixes
       && previousChar
+      && noMatchYetMade
       && !allowedPrefixes[previousChar];
+    previousChar = char;
     symbol = (symbol[char] || parseTree[char]) as ParseTree;
     if (!symbol || prefixNotAllowed) {
       symbol = parseTree;
@@ -82,14 +84,23 @@ export const createParser = (parseTree: ParseTree, allowedPrefixes?: CodeStore):
   };
 };
 
+const allowedDeclarationPrefixes = [' ', ';', '\n']
+  .reduce((
+    prefixes: CodeStore,
+    prefix: string,
+  ): CodeStore => ({
+    ...prefixes,
+    [prefix]: prefix,
+  }), {});
 export const variableDeclarationSymbols = buildParseTree(variableDeclarations);
-export const variableDeclarationParser = createParser(variableDeclarationSymbols, { ' ': '  ' });
+export const variableDeclarationParser = createParser(
+  variableDeclarationSymbols,
+  allowedDeclarationPrefixes,
+);
 
 const endSymbol: EndSymbol = {
   ';': true,
   '\n': true,
-  '\r': true,
-  '\n\r': true,
   '\r\n': true,
 };
 
@@ -136,13 +147,7 @@ export const parseCodeBlock = ((): Parser => {
     if (char === CLOSING_CURLY) {
       brackets -= 1;
     }
-    const finished = !!(
-      !(brackets && started) && (
-        endSymbol[char]
-        || endSymbol[seen.slice(-2)]
-        || endSymbol[seen.slice(-4)]
-      )
-    );
+    const finished = !!(!(brackets && started) && endSymbol[char]);
     if (finished) {
       result = seen;
       seen = EMPTY_STRING;
