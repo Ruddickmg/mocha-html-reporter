@@ -10,7 +10,7 @@ import {
   SPACE,
   VARIABLE_DECLARATION,
 } from '../constants/constants';
-import { compose, mapOverObject } from './functions';
+import { compose } from './functions';
 import { escapedRegEx } from './regEx';
 import { getFileContents } from './fileSystem';
 import { isArray } from './typeChecks';
@@ -21,7 +21,6 @@ import {
   variableDeclarationParser,
   variableNameParser,
 } from './parser';
-import { millisecondsToHumanReadable } from '../parsers/formatting';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;
@@ -263,24 +262,6 @@ export const combineVariablesForEachFile = (
     }
   }
   return codeToVariableMappings;
-  //
-  return Object.keys(variablesForEachFile)
-    .reduce((variableNameMappings: CodeStore, filePath: string): CodeStore => {
-      const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
-      const codeByVariableName = variablesForEachFile[filePath];
-      return Object.keys(codeByVariableName)
-        .reduce((uniqueNames: CodeStore, variableName: string): CodeStore => {
-          const uniqueName = `${fileNamePrefix}.${variableName}`;
-          replacementMappings[variableName] = uniqueName;
-          return {
-            ...uniqueNames,
-            [variableName.includes('.') ? variableName : uniqueName]: replaceVariablesInBulk(
-              replacementMappings,
-              codeByVariableName[variableName],
-            ),
-          };
-        }, variableNameMappings);
-    }, {});
 };
 
 export const combineCodeFromFilesIntoSingleString = (codeObject: CodeStore): string => {
@@ -316,26 +297,15 @@ export const compileCode = async (
   fileName: string,
   generateName: NameGenerator,
 ): Promise<string> => {
-  let startTime = Date.now();
   const codeByPath = await getCodeByPath(fileName);
-  console.log('finished getCodeByPath in ', millisecondsToHumanReadable(Date.now() - startTime));
-  startTime = Date.now();
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
-  console.log('finished mapFilePathsToCodeBlocksByVariableName in ', millisecondsToHumanReadable(Date.now() - startTime));
-  startTime = Date.now();
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
-  console.log('finished combineVariablesForEachFile in ', millisecondsToHumanReadable(Date.now() - startTime));
-  startTime = Date.now();
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-  console.log('finished combineCodeFromFilesIntoSingleString in ', millisecondsToHumanReadable(Date.now() - startTime));
-  startTime = Date.now();
-  const replaced = replaceVariablesInBulk(
+  return replaceVariablesInBulk(
     Object.keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
     }), {}),
     code,
   );
-  console.log('finished replaceVariablesInBulk in ', millisecondsToHumanReadable(Date.now() - startTime));
-  return replaced;
 };

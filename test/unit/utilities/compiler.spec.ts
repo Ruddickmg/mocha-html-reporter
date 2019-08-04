@@ -18,7 +18,6 @@ import {
   compileCode, replaceVariablesInBulk,
 } from '../../../src/utilities/compiler';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
-import { mapOverObject } from '../../../src/utilities/functions';
 import { variableNameGenerator } from '../../helpers/expectations';
 
 const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
