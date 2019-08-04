@@ -7,6 +7,7 @@ export interface TypeChecks {
   isNumber: TypeCheck;
   isDate: TypeCheck;
   isRegExp: TypeCheck;
+
   [type: string]: TypeCheck;
 }
 

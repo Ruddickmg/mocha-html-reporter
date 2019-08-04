@@ -16,6 +16,7 @@ export interface ImageComparisons {
   screenShot: string;
   baseline: string;
   difference: string;
+
   [type: string]: string;
 }
 

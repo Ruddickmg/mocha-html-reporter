@@ -126,28 +126,28 @@ describe('testResult', () => {
     it('Will convert an array into a table header row', (): void => {
       expect(convertArrayToTableRow(testResults, tableHeaderTemplate))
         .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            content: testResults
-              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-                tableHeaderTemplate,
-                { content: currentTitle },
-              )).join(NEW_LINE),
-          },
-        ));
+        tableRowTemplate,
+        {
+          content: testResults
+            .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+              tableHeaderTemplate,
+              { content: currentTitle },
+            )).join(NEW_LINE),
+        },
+      ));
     });
     it('Will convert an array into a table data row', (): void => {
       expect(convertArrayToTableRow(testResults, tableDataTemplate))
         .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            content: testResults
-              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-                tableDataTemplate,
-                { content: currentTitle },
-              )).join(NEW_LINE),
-          },
-        ));
+        tableRowTemplate,
+        {
+          content: testResults
+            .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+              tableDataTemplate,
+              { content: currentTitle },
+            )).join(NEW_LINE),
+        },
+      ));
     });
   });
   describe('convertHistoryToHtml', (): void => {
@@ -171,22 +171,22 @@ describe('testResult', () => {
       const history = formatHistory(testResults);
       expect(convertHistoryToHtml(history))
         .to.equal(addValuesToTemplate(tableTemplate, {
-          id: 'history-table',
-          content: [
-            convertArrayToTableRow(
-              [
-                { title: historyTestSuiteHeaderTitle } as TestResult,
-                ...history[historyTestSuiteHeaderTitle],
-              ],
-              tableHeaderTemplate,
-            ),
-          ].concat(Object.keys(history)
-            .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
-            .map((suiteName: string): string => convertArrayToTableRow(
-              [{ title: suiteName } as TestResult, ...history[suiteName]],
-              tableDataTemplate,
-            ))).join(NEW_LINE),
-        }));
+        id: 'history-table',
+        content: [
+          convertArrayToTableRow(
+            [
+              { title: historyTestSuiteHeaderTitle } as TestResult,
+              ...history[historyTestSuiteHeaderTitle],
+            ],
+            tableHeaderTemplate,
+          ),
+        ].concat(Object.keys(history)
+          .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
+          .map((suiteName: string): string => convertArrayToTableRow(
+            [{ title: suiteName } as TestResult, ...history[suiteName]],
+            tableDataTemplate,
+          ))).join(NEW_LINE),
+      }));
     });
   });
   describe('convertSuitesToHtml', (): void => {

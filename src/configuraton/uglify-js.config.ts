@@ -5,7 +5,7 @@ export const uglifyJsConfiguration = {
   },
   mangle: {
     toplevel: true,
-    reserved: ['window', 'document'],
+    reserved: ['window', 'document', 'Object.defineProperty'],
   },
   toplevel: true,
 };

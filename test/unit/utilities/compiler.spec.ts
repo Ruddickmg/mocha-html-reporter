@@ -15,11 +15,11 @@ import {
   getFileNameFromPath,
   replaceVariablesInCode,
   combineVariablesForEachFile,
-  renameAllVariables,
   compileCode, replaceVariablesInBulk,
 } from '../../../src/utilities/compiler';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 import { mapOverObject } from '../../../src/utilities/functions';
+import { variableNameGenerator } from '../../helpers/expectations';
 
 const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFileName = 'main.js';
@@ -292,28 +292,18 @@ describe('compiler', (): void => {
     });
   });
   describe('combineVariablesForEachFile', (): void => {
-    it('Renames variable names that are overlapping between files', (): void => {
-      const firstFileName = getFileNameFromPath(testImportFilePath);
-      const secondFileName = getFileNameFromPath(duplicateImportTestFile);
-      const expected = {
-        [`_${firstFileName}.${firstVariableName}`]: firstCodeBlock,
-        [`_${firstFileName}.${secondVariableName}`]: secondCodeBlock,
-        [`_${secondFileName}.${thirdVariableName}`]: thirdCodeBlock,
-        [`_${secondFileName}.${firstVariableName}`]: fourthCodeBlock,
+    it('Renames variables from one to another in the same file', (): void => {
+      const filePath = '/some/path/to/navigation.ts';
+      const variables = {
+        _defineProperty: 'function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
+        _fieldsBeingShown: 'var _fieldsBeingShown = (_fieldsBeingShown = {}, _defineProperty(_fieldsBeingShown, _constants.SHOWING_PASSED, true), _defineProperty(_fieldsBeingShown, _constants.SHOWING_FAILED, true), _fieldsBeingShown);',
       };
-      expect(combineVariablesForEachFile({
-        [testImportFilePath]: {
-          [firstVariableName]: firstCodeBlock,
-          [secondVariableName]: secondCodeBlock,
-        },
-        [duplicateImportTestFile]: {
-          [thirdVariableName]: thirdCodeBlock,
-          [firstVariableName]: fourthCodeBlock,
-        },
-      })).to.eql(mapOverObject((
-        codeBlock: string,
-        key: string,
-      ): string => replaceVariablesInCode(key.split('.').pop(), key, codeBlock), expected));
+      const expected = {
+        '_navigation._defineProperty': 'function _navigation._defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
+        '_navigation._fieldsBeingShown': 'var _navigation._fieldsBeingShown = (_navigation._fieldsBeingShown = {}, _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_PASSED, true), _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_FAILED, true), _navigation._fieldsBeingShown);',
+      };
+      expect(combineVariablesForEachFile({ [filePath]: variables }))
+        .to.eql(expected);
     });
   });
   describe('removeDuplicateCodeBlocks', (): void => {
@@ -339,17 +329,6 @@ describe('compiler', (): void => {
       ].join(EMPTY_STRING));
     });
   });
-  describe('renameAllVariables', (): void => {
-    it('Changes all variable symbols into alpha numeric strings', (): void => {
-      let i = 0;
-      const rename = renameAllVariables((): string => {
-        i += 1;
-        return `variable${i}`;
-      });
-      expect(rename('hi my name is bob, and my favorite activity is bob time', ['is', 'bob']))
-        .to.equal('hi my name variable1 variable2, and my favorite activity variable1 variable2 time');
-    });
-  });
   describe('combineCodeFromFilesIntoSingleString', (): void => {
     it('Compiles a list of code blocks mapped to variable names sorted in alphabetical order according to dependency', (): void => {
       expect(combineCodeFromFilesIntoSingleString({
@@ -366,14 +345,9 @@ describe('compiler', (): void => {
     });
   });
   describe('compileCode', (): void => {
-    let i = 0;
-    const rename = (): string => {
-      i += 1;
-      return `variable${i}`;
-    };
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
-      expect(await compileCode(testImportFilePath, rename))
-        .to.equal(`const variable3 = 'more testing';const variable2 = 'still testing';const variable1 = 'testing 123';const variable4 = function variable4() {\r\n  console.log(variable2, variable1, variable3);\r\n};`);
+      expect(await compileCode(testImportFilePath, variableNameGenerator()))
+        .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\r\n  console.log(variable2, variable3, variable1);\r\n};');
     });
   });
 });

@@ -1,5 +1,7 @@
 import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
 import { isNumeric, isString } from './typeChecks';
+import { CodeStore } from './compiler';
+import all from '../templates/all';
 
 export interface Symbols {
   [symbolName: string]: string;
@@ -30,47 +32,58 @@ const variableDeclarations = [
   [`${declaration} `]: declaration,
   [`\n${declaration} `]: declaration,
   [`\r\n${declaration} `]: declaration,
-  [` ${declaration} `]: declaration,
+  [`${declaration} `]: declaration,
   [`${declaration};`]: declaration,
 }), {});
 
 export const buildParseTree = (symbols: Symbols): ParseTree => {
   const parseTree: ParseTree = {};
-  Object
-    .keys(symbols)
-    .forEach((symbolName: string): void => {
-      const symbolChars = symbolName.split(EMPTY_STRING);
-      const lastChar = symbolChars.pop();
-      const lastObject = symbolChars
-        .reduce((parserStore: ParseTree, char: string): ParseTree => {
-          const pathValue = parserStore[char];
-          if (isString(pathValue)) {
-            throw new Error(`Symbol: ${pathValue} is attempting to be overwritten by: ${symbolName}, only unique symbols are allowed.`);
-          }
-          // eslint-disable-next-line no-param-reassign
-          parserStore[char] = pathValue || {} as ParseTree;
-          return parserStore[char] as ParseTree;
-        }, parseTree);
-      lastObject[lastChar] = symbols[symbolName];
-    });
+  const symbolNames = Object.keys(symbols);
+  let nameIndex = symbolNames.length;
+  // eslint-disable-next-line no-plusplus
+  while (nameIndex--) {
+    const symbolName = symbolNames[nameIndex];
+    const symbolChars = symbolName.split(EMPTY_STRING);
+    const stringLength = symbolChars.length - 1;
+    const lastChar = symbolChars[stringLength];
+    let parserStore = parseTree;
+    for (let charIndex = 0; charIndex < stringLength; charIndex += 1) {
+      const char = symbolChars[charIndex];
+      const pathValue = parserStore[char] || {};
+      if (isString(pathValue)) {
+        throw new Error(`Error in buildParseTree, Symbol: "${pathValue}" is attempting to be overwritten by: "${symbolName}", only unique symbols are allowed.`);
+      }
+      parserStore[char] = pathValue as ParseTree;
+      parserStore = pathValue as ParseTree;
+    }
+    if (parserStore[lastChar]) {
+      throw new Error(`Error in buildParseTree, Symbol: "${parserStore[lastChar]}" is attempting to be overwritten by: "${symbolName}", only unique symbols are allowed.`);
+    }
+    parserStore[lastChar] = symbols[symbolName];
+  }
   return parseTree;
 };
 
-export const variableDeclarationSymbols = buildParseTree(variableDeclarations);
-
-export const createParser = (parseTree: ParseTree): Parser => {
+export const createParser = (parseTree: ParseTree, allowedPrefixes?: CodeStore): Parser => {
   let symbol: ParseTree = parseTree;
+  let previousChar: string;
   return (char: string): boolean | string => {
+    const prefixNotAllowed = allowedPrefixes
+      && previousChar
+      && !allowedPrefixes[previousChar];
     symbol = (symbol[char] || parseTree[char]) as ParseTree;
-    if (!symbol) {
+    if (!symbol || prefixNotAllowed) {
       symbol = parseTree;
       return false;
     }
-    return isString(symbol) ? symbol as unknown as string : !!symbol;
+    return isString(symbol)
+      ? symbol as unknown as string
+      : true;
   };
 };
 
-export const variableDeclarationParser = createParser(variableDeclarationSymbols);
+export const variableDeclarationSymbols = buildParseTree(variableDeclarations);
+export const variableDeclarationParser = createParser(variableDeclarationSymbols, { ' ': '  ' });
 
 const endSymbol: EndSymbol = {
   ';': true,
@@ -139,25 +152,31 @@ export const parseCodeBlock = ((): Parser => {
   };
 })();
 
+const allowedVariableNamePrefixes = ['(', '[', ',', ' ']
+  .reduce((
+    prefixes: CodeStore,
+    prefix: string,
+  ): CodeStore => ({
+    ...prefixes,
+    [prefix]: prefix,
+  }), {});
+const allowedVariableNameSuffixes = [')', ']', '.', ';', ',', ' ', '(', '['];
+const suffixesLength = allowedVariableNameSuffixes.length;
+
 export const variableNameParser = (namesAndReplacements: Symbols): Parser => {
-  const variableKeys = Object.keys(namesAndReplacements)
-    .reduce((symbols: Symbols, declaration: string): Symbols => ({
-      ...['(', ')', '[', ']', ',']
-        .reduce((all: Symbols, delimiter: string): Symbols => ({
-          ...all,
-          [`${delimiter}${declaration} `]: `${delimiter}${namesAndReplacements[declaration]} `,
-          [` ${declaration}${delimiter}`]: `${namesAndReplacements[declaration]}${delimiter}`,
-          [`${delimiter}${declaration}${delimiter}`]: `${delimiter}${namesAndReplacements[declaration]}${delimiter}`,
-          [`${delimiter}${declaration}.`]: `${delimiter}${namesAndReplacements[declaration]}.`,
-          [`${delimiter}${declaration};`]: `${delimiter}${namesAndReplacements[declaration]};`,
-          [`${delimiter}${declaration},`]: `${delimiter}${namesAndReplacements[declaration]},`,
-        }), symbols),
-      [`(${declaration})`]: `(${namesAndReplacements[declaration]})`,
-      [` ${declaration} `]: ` ${namesAndReplacements[declaration]} `,
-      [`[${declaration}]`]: `[${namesAndReplacements[declaration]}]`,
-      [` ${declaration}.`]: ` ${namesAndReplacements[declaration]}.`,
-      [` ${declaration};`]: ` ${namesAndReplacements[declaration]};`,
-      [` ${declaration},`]: ` ${namesAndReplacements[declaration]},`,
-    }), {});
-  return createParser(buildParseTree(variableKeys));
+  const variablesMappedToReplacements: CodeStore = {};
+  const variableNames = Object.keys(namesAndReplacements);
+  let nameIndex = variableNames.length;
+  // eslint-disable-next-line no-plusplus
+  while (nameIndex--) {
+    const variableName = variableNames[nameIndex];
+    const replacement = namesAndReplacements[variableName];
+    let suffixIndex = suffixesLength;
+    // eslint-disable-next-line no-plusplus
+    while (suffixIndex--) {
+      const suffix = allowedVariableNameSuffixes[suffixIndex];
+      variablesMappedToReplacements[`${variableName}${suffix}`] = `${replacement}${suffix}`;
+    }
+  }
+  return createParser(buildParseTree(variablesMappedToReplacements), allowedVariableNamePrefixes);
 };

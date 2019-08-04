@@ -22,35 +22,35 @@ describe('parser', (): void => {
       const symbol = 'var';
       expect(buildParseTree({ ' var ': symbol }))
         .to.eql({
-          ' ': {
-            v: {
-              a: {
-                r: {
-                  ' ': symbol,
-                },
+        ' ': {
+          v: {
+            a: {
+              r: {
+                ' ': symbol,
               },
             },
           },
-        });
+        },
+      });
     });
     it('Combines multiple symbols into a symbol tree', (): void => {
       const symbolOne = 'var';
       const symbolTwo = 'vas';
       expect(buildParseTree({ ' var ': symbolOne, ' vas ': symbolTwo }))
         .to.eql({
-          ' ': {
-            v: {
-              a: {
-                r: {
-                  ' ': symbolOne,
-                },
-                s: {
-                  ' ': symbolTwo,
-                },
+        ' ': {
+          v: {
+            a: {
+              r: {
+                ' ': symbolOne,
+              },
+              s: {
+                ' ': symbolTwo,
               },
             },
           },
-        });
+        },
+      });
     });
     it('Throws an error when attempting to over write an existing symbol', (): void => {
       const existingSymbol = 'function';
@@ -58,7 +58,7 @@ describe('parser', (): void => {
       expect(buildParseTree.bind({}, {
         [existingSymbol]: existingSymbol,
         [overwritingSymbol]: overwritingSymbol,
-      })).to.throw(`Symbol: ${existingSymbol} is attempting to be overwritten by: ${overwritingSymbol}, only unique symbols are allowed.`);
+      })).to.throw();
     });
   });
   describe('createParser', (): void => {

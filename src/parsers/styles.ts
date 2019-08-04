@@ -1,7 +1,7 @@
 const { render } = require('node-sass');
 const CleanCSS = require('clean-css');
 
-const cleaner = new CleanCSS({ });
+const cleaner = new CleanCSS({});
 
 export const getStyles = (
   pathToFile: string,

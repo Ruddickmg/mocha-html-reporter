@@ -21,6 +21,7 @@ import {
   variableDeclarationParser,
   variableNameParser,
 } from './parser';
+import { millisecondsToHumanReadable } from '../parsers/formatting';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;
@@ -33,6 +34,8 @@ export interface CodeStore {
 export interface FileCodeMappings {
   [filename: string]: CodeStore;
 }
+
+export type NameGenerator = (...args: any[]) => string;
 
 const EXTENSION = '.js';
 
@@ -91,24 +94,31 @@ export const getImportLines = (text: string): string[] => text
   .split(NEW_LINE)
   .filter((line: string): boolean => line.includes('require'));
 
+export const getNameWithExtensionFromFile = compose(
+  getFileNameFromRequire,
+  addExtension,
+);
+
 export const getCodeByPath = async (file: string): Promise<CodeStore> => {
-  const seenFiles: FilesToIgnore = {};
+  const importedPaths: FilesToIgnore = {};
   const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
     const code = await getFileContents(fileName);
     const pathToFile = removeFileNameFromPath(fileName);
-    const importLines = getImportLines(code);
-    const paths = importLines
-      .map(compose(
-        getFileNameFromRequire,
-        addExtension,
-        (name: string): string => `${pathToFile}${PATH_SEPARATOR}${name}`,
-      ))
-      .filter(((path: string): boolean => {
-        const notSeenYet = !seenFiles[path];
-        seenFiles[path] = true;
-        return notSeenYet;
-      }));
-    seenFiles[fileName] = true;
+    const paths = [];
+    const lines = code.split(NEW_LINE);
+    let lineIndex = lines.length;
+    importedPaths[fileName] = true;
+    // eslint-disable-next-line no-plusplus
+    while (lineIndex--) {
+      const line = lines[lineIndex];
+      if (line.includes(IMPORT_DECLARATION)) {
+        const path = `${pathToFile}${PATH_SEPARATOR}${getNameWithExtensionFromFile(line)}`;
+        if (!importedPaths[path]) {
+          importedPaths[path] = true;
+          paths.push(path);
+        }
+      }
+    }
     return (await paths
       .reduce(async (
         allCode: Promise<CodeStore>,
@@ -141,7 +151,7 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
       parsedCode = parseCodeBlock(char) as string;
       variableName = (variableName || parseVariableName(char)) as string;
       if (parsedCode) {
-        if (!parsedCode.includes(IMPORT_DECLARATION)) {
+        if (!/require/.test(parsedCode)) {
           store[variableName as string] = `${declaration}${parsedCode}`;
         }
         declaration = false;
@@ -171,10 +181,17 @@ export const removeDuplicateCodeBlocks = (
 
 export const mapFilePathsToCodeBlocksByVariableName = (
   codeByFilePath: CodeStore,
-): FileCodeMappings => mapOverObject(
-  mapCodeBlocksToVariableNames,
-  codeByFilePath,
-);
+): FileCodeMappings => {
+  const paths = Object.keys(codeByFilePath);
+  const pathsMappedToCode: FileCodeMappings = {};
+  let pathIndex = paths.length;
+  // eslint-disable-next-line no-plusplus
+  while (pathIndex--) {
+    const path = paths[pathIndex];
+    pathsMappedToCode[path] = mapCodeBlocksToVariableNames(codeByFilePath[path]);
+  }
+  return pathsMappedToCode;
+};
 
 export const replaceVariablesInCode = (
   variableName: string | string[],
@@ -193,7 +210,6 @@ export const replaceVariablesInBulk = (variableReplacements: Symbols, code: stri
   let char: string;
   let potentialCode = EMPTY_STRING;
   let match: string | boolean;
-  let firstChar: string;
   for (let c = 0; c < length; c += 1) {
     char = code[c];
     match = parseVariableNames(char);
@@ -201,9 +217,7 @@ export const replaceVariablesInBulk = (variableReplacements: Symbols, code: stri
       if (match === true) {
         potentialCode += char;
       } else {
-        // eslint-disable-next-line prefer-destructuring
-        firstChar = potentialCode[0];
-        result += `${match[0] === firstChar ? '' : firstChar}${match}`;
+        result += match;
         potentialCode = EMPTY_STRING;
       }
     } else {
@@ -216,40 +230,58 @@ export const replaceVariablesInBulk = (variableReplacements: Symbols, code: stri
 
 export const combineVariablesForEachFile = (
   variablesForEachFile: FileCodeMappings,
-): CodeStore => Object.keys(variablesForEachFile)
-  .reduce((variableNameMappings: CodeStore, filePath: string): CodeStore => {
+): CodeStore => {
+  const replacementMappings: CodeStore = {};
+  const codeToVariableMappings: CodeStore = {};
+  const filePaths = Object.keys(variablesForEachFile);
+  let fileIndex = filePaths.length;
+  // eslint-disable-next-line no-plusplus
+  while (fileIndex--) {
+    const filePath = filePaths[fileIndex];
     const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
     const codeByVariableName = variablesForEachFile[filePath];
-    return Object.keys(codeByVariableName)
-      .reduce((uniqueNames: CodeStore, variableName: string): CodeStore => {
-        const uniqueName = `${fileNamePrefix}.${variableName}`;
-        return {
-          ...uniqueNames,
-          [variableName.includes('.') ? variableName : uniqueName]: replaceVariablesInBulk(
-            { [variableName]: uniqueName },
-            codeByVariableName[variableName],
-          ),
-        };
-      }, variableNameMappings);
-  }, {});
-
-export type NameGenerator = (...args: any[]) => string;
-export type VariableNameGenerator = (code: string, variableNames: string[]) => string;
-
-export const renameAllVariables = (
-  generateName: NameGenerator,
-): VariableNameGenerator => (
-  code: string,
-  variableNames: string[],
-): string => variableNames
-  .reduce((
-    codeWithRenamedVariables: string,
-    variableName: string,
-  ): string => replaceVariablesInCode(
-    variableName,
-    generateName(),
-    codeWithRenamedVariables,
-  ), code);
+    const variableNames = Object.keys(codeByVariableName);
+    const variableNameLength = variableNames.length;
+    let variableIndex = variableNameLength;
+    // eslint-disable-next-line no-plusplus
+    while (variableIndex--) {
+      const variableName = variableNames[variableIndex];
+      let uniqueName = variableName;
+      if (variableName.split('.')[0] !== fileNamePrefix) {
+        uniqueName = `${fileNamePrefix}.${variableName}`;
+        replacementMappings[variableName] = uniqueName;
+      }
+    }
+    variableIndex = variableNameLength;
+    // eslint-disable-next-line no-plusplus
+    while (variableIndex--) {
+      const variableName = variableNames[variableIndex];
+      codeToVariableMappings[replacementMappings[variableName]] = replaceVariablesInBulk(
+        replacementMappings,
+        codeByVariableName[variableName],
+      );
+    }
+  }
+  return codeToVariableMappings;
+  //
+  return Object.keys(variablesForEachFile)
+    .reduce((variableNameMappings: CodeStore, filePath: string): CodeStore => {
+      const fileNamePrefix = `_${getFileNameFromPath(filePath)}`;
+      const codeByVariableName = variablesForEachFile[filePath];
+      return Object.keys(codeByVariableName)
+        .reduce((uniqueNames: CodeStore, variableName: string): CodeStore => {
+          const uniqueName = `${fileNamePrefix}.${variableName}`;
+          replacementMappings[variableName] = uniqueName;
+          return {
+            ...uniqueNames,
+            [variableName.includes('.') ? variableName : uniqueName]: replaceVariablesInBulk(
+              replacementMappings,
+              codeByVariableName[variableName],
+            ),
+          };
+        }, variableNameMappings);
+    }, {});
+};
 
 export const combineCodeFromFilesIntoSingleString = (codeObject: CodeStore): string => {
   const variableNames: string[] = Object.keys(codeObject).sort();
@@ -284,15 +316,26 @@ export const compileCode = async (
   fileName: string,
   generateName: NameGenerator,
 ): Promise<string> => {
+  let startTime = Date.now();
   const codeByPath = await getCodeByPath(fileName);
+  console.log('finished getCodeByPath in ', millisecondsToHumanReadable(Date.now() - startTime));
+  startTime = Date.now();
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
+  console.log('finished mapFilePathsToCodeBlocksByVariableName in ', millisecondsToHumanReadable(Date.now() - startTime));
+  startTime = Date.now();
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
+  console.log('finished combineVariablesForEachFile in ', millisecondsToHumanReadable(Date.now() - startTime));
+  startTime = Date.now();
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-  return replaceVariablesInBulk(
+  console.log('finished combineCodeFromFilesIntoSingleString in ', millisecondsToHumanReadable(Date.now() - startTime));
+  startTime = Date.now();
+  const replaced = replaceVariablesInBulk(
     Object.keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
     }), {}),
     code,
   );
+  console.log('finished replaceVariablesInBulk in ', millisecondsToHumanReadable(Date.now() - startTime));
+  return replaced;
 };

@@ -24,6 +24,7 @@ export interface TestSuite {
 
 export interface TestResult {
   [property: string]: string | string[] | number | TestResult;
+
   duration: string | number;
   date: number;
   id: string;
