@@ -301,12 +301,13 @@ export const compileCode = async (
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
-  const replaced = replaceVariablesInBulk(
-    Object.keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
+  const variableReplacements = Object
+    .keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
-    }), {}),
+    }), {});
+  return replaceVariablesInBulk(
+    variableReplacements,
     code,
   );
-  return replaced;
 };

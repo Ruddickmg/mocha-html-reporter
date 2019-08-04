@@ -165,7 +165,7 @@ const allowedVariableNamePrefixes = ['(', '[', ',', ' ']
     ...prefixes,
     [prefix]: prefix,
   }), {});
-const allowedVariableNameSuffixes = [')', ']', '.', ';', ',', ' ', '(', '['];
+const allowedVariableNameSuffixes = [')', ']', '.', ';', ',', ' ', '(', '[', '\n', '\r'];
 const suffixesLength = allowedVariableNameSuffixes.length;
 
 export const variableNameParser = (namesAndReplacements: Symbols): Parser => {
