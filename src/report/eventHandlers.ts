@@ -2,7 +2,7 @@ import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
 import {
-  cleanAndMinify,
+  cleanAndMinifyHtml,
   convertHistoryToHtml,
   convertSuitesToHtml,
   minifyJs,
@@ -19,18 +19,18 @@ export interface Content {
 }
 
 export interface TestSuite {
-  [directory: string]: TestSuite | TestResult[] | Content;
+  [directory: string]: TestSuite | TestResult[] | Content | string;
 }
 
 export interface TestResult {
-  [property: string]: string | string[] | number | TestResult;
-
-  duration: string | number;
+  duration: number;
   date: number;
   id: string;
   image?: string;
   path: string[];
+  class?: string;
   suite: string;
+  state: string;
   suiteId: string;
   title: string;
 }
@@ -71,8 +71,9 @@ export const createTestHandler = (
   testDirectory: string,
   captureScreen: boolean,
   timeOfTest: number,
+  state: string,
 ): TestHandler => {
-  const formatTestResults = createTestResultFormatter(testDirectory, timeOfTest);
+  const formatTestResults = createTestResultFormatter(testDirectory, timeOfTest, state);
   return (
     test: Test,
   ): Promise<TestResult[]> => new Promise((resolve): void => {
@@ -103,7 +104,8 @@ export const createReportHandler = (
   generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
   const allTests = [...tests, ...await history];
-  const htmlHistory = convertHistoryToHtml(formatHistory(allTests));
+  const formattedHistory = formatHistory(allTests);
+  const htmlHistory = convertHistoryToHtml(formattedHistory);
   const testsGroupedByDate = groupTestSuitesByDate(allTests);
   const htmlSuites = convertSuitesToHtml(
     reportData,
@@ -117,7 +119,7 @@ export const createReportHandler = (
   });
   return Promise
     .all([
-      writeToFile(pathToOutputFile, cleanAndMinify(report)),
+      writeToFile(pathToOutputFile, cleanAndMinifyHtml(report)),
       writeHistory(
         pathToOutputFile,
         flattenArray(testsGroupedByDate),

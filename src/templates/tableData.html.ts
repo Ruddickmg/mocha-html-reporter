@@ -1,2 +1,1 @@
-export const tableDataTemplate = '<td id="{{id}}">{{content}}</td>';
-export default tableDataTemplate;
+export const tableDataTemplate = '<td id="{{id}}" class="{{class}}">{{content}}</td>';

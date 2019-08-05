@@ -1,6 +1,28 @@
-.table-title-header h1 {
+@import "../colors";
+
+.test-result-link {
+  border: none;
+  border-radius: 2px;
+  padding: 5px;
+  margin: 2px;
+  width: 100%;
+  height: 100%;
+}
+
+.test-result-link.passed {
+  background-color: $passed-button-color;
+}
+
+.test-result-link.failed {
+  background-color: $failed-button-color;
+}
+
+#history-table tbody tr :first-child .test-result-link {
   text-align: left;
-  font-size: 20px;
-  vertical-align: center;
-  font-weight: normal;
+  width: 100%;
+}
+
+.history-table-data {
+  padding: 1px 2px;
+  min-width: 90px;
 }

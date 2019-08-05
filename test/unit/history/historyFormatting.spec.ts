@@ -139,29 +139,29 @@ describe('historyTableFormatting', (): void => {
         ], []);
       expect(formatHistory(differentSuites))
         .to.eql({
-        [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
-          .map((
-            date: string,
-          ): TestResult => ({
-            title: date,
-          } as TestResult)),
-        [firstSuiteName]: differentSuites
-          .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-          .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
-            ...tests,
-            {
+          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+            .map((
+              date: string,
+            ): TestResult => ({
+              title: date,
+            } as TestResult)),
+          [firstSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
+            .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
+              ...tests,
+              {
+                ...test,
+                title: millisecondsToRoundedHumanReadable(test.duration as number),
+              } as TestResult,
+              { title: EMPTY_STRING } as TestResult,
+            ], []),
+          [secondSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
+            .map((test: TestResult): TestResult => ({
               ...test,
               title: millisecondsToRoundedHumanReadable(test.duration as number),
-            } as TestResult,
-            { title: EMPTY_STRING } as TestResult,
-          ], []),
-        [secondSuiteName]: differentSuites
-          .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-          .map((test: TestResult): TestResult => ({
-            ...test,
-            title: millisecondsToRoundedHumanReadable(test.duration as number),
-          })),
-      });
+            })),
+        });
     });
     it('Will format historical data to into a format parsable into an html table', (): void => {
       const firstSuiteName = 'suite #1';
@@ -174,21 +174,21 @@ describe('historyTableFormatting', (): void => {
         ], []);
       expect(formatHistory(differentSuites))
         .to.eql({
-        [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
-          .map((date: string): TestResult => ({ title: date } as TestResult)),
-        [firstSuiteName]: differentSuites
-          .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-          .map((test: TestResult): TestResult => ({
-            ...test,
-            title: millisecondsToRoundedHumanReadable(test.duration as number),
-          })),
-        [secondSuiteName]: differentSuites
-          .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-          .map((test: TestResult): TestResult => ({
-            ...test,
-            title: millisecondsToRoundedHumanReadable(test.duration as number),
-          })),
-      });
+          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+            .map((date: string): TestResult => ({ title: date } as TestResult)),
+          [firstSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
+            .map((test: TestResult): TestResult => ({
+              ...test,
+              title: millisecondsToRoundedHumanReadable(test.duration as number),
+            })),
+          [secondSuiteName]: differentSuites
+            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
+            .map((test: TestResult): TestResult => ({
+              ...test,
+              title: millisecondsToRoundedHumanReadable(test.duration as number),
+            })),
+        });
     });
   });
   describe('groupTestResultsByDate', (): void => {

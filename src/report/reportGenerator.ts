@@ -8,9 +8,9 @@ import {
   TestResult,
 } from './eventHandlers';
 import {
-  FAIL,
+  FAILED,
   FINISHED,
-  PASS,
+  PASSED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
@@ -47,17 +47,19 @@ export const reportGenerator = async (
   };
 
   const handlers: TestHandlers = {
-    [FAIL]: createTestHandler(
+    [FAILED]: createTestHandler(
       tests,
       testDir,
       takeScreenShotOnFailure,
       timeOfTest,
+      FAILED,
     ),
-    [PASS]: createTestHandler(
+    [PASSED]: createTestHandler(
       tests,
       testDir,
       screenShotEachTest,
       timeOfTest,
+      PASSED,
     ),
     [FINISHED]: createReportHandler(
       tests,

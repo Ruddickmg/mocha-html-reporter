@@ -24,10 +24,13 @@ export const historyTestSuiteHeaderTitle = 'Test Suites';
 
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
-  return Array.from(new Set(dates))
-    .sort()
-    .map(convertMillisecondsToDate)
-    .map(getMonthDayYearFromDate);
+  return Array
+    .from(new Set(
+      dates
+        .sort()
+        .map(convertMillisecondsToDate)
+        .map(getMonthDayYearFromDate),
+    ));
 };
 
 export const getEachSuiteTitle = (history: TestResult[]): string[] => Array

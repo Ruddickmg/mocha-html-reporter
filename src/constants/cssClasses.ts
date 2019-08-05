@@ -1,0 +1,10 @@
+export const TIMEOUT = 'timed-out';
+export const HISTORY_TABLE = 'history-table';
+export const TEST_RESULT_BUTTON = 'test-result-link';
+export const HISTORY_TABLE_DATA = 'history-table-data';
+export const HISTORY_TABLE_HEADER = 'history-table-header';
+export const HISTORY_TABLE_ROW = 'history-table-row';
+export const TEST_SUITE = 'test-suite';
+export const TEST_RESULT = 'test-result';
+export const HIDDEN = 'hidden';
+export const VISIBLE = 'visible';

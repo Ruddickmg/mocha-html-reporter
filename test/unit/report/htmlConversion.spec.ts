@@ -4,7 +4,7 @@ import {
   convertTestSuiteToHtml,
   convertSuitesToHtml,
   convertHistoryToHtml,
-  convertArrayToTableRow,
+  convertArrayToTableRow, convertArrayToTableHeader,
 } from '../../../src/report/htmlConversion';
 import {
   addValuesToTemplate,
@@ -15,19 +15,22 @@ import {
   tableTemplate,
   tableHeaderTemplate,
   tableDataTemplate,
-  tableRowTemplate,
+  tableRowTemplate, buttonTemplate,
 } from '../../../src/templates/all';
 import {
-  NEW_LINE,
+  NEW_LINE, PASSED,
   PATH_SEPARATOR,
 } from '../../../src/constants/constants';
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import {
   convertDateStringToMilliseconds,
-  formatDuration,
 } from '../../../src/parsers/formatting';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/history/historyFormatting';
+import {
+  HISTORY_TABLE_DATA, HISTORY_TABLE_ROW, TEST_RESULT, TEST_RESULT_BUTTON, TEST_SUITE,
+} from '../../../src/constants/cssClasses';
+import { HIDDEN } from '../../../src/scripts/constants';
 
 describe('testResult', () => {
   const image = 'test image';
@@ -41,10 +44,14 @@ describe('testResult', () => {
     title: 'world',
     duration: testDuration,
   }];
+  const state = PASSED;
+  const testResultClass = `${TEST_RESULT} ${state} ${HIDDEN}`;
+  const testSuiteClass = `${TEST_SUITE} ${state} ${HIDDEN}`;
   const mockTestResults: TestResult[] = mockTestValues
     .map(({ duration, ...rest }): TestResult => ({
-      duration: formatDuration(duration),
+      duration,
       path: pathToMockTestDirectory.split(PATH_SEPARATOR),
+      state,
       ...rest,
     }) as TestResult);
 
@@ -56,7 +63,11 @@ describe('testResult', () => {
       );
       expect(convertTestResultsToHtml(
         [{
-          title: 'whatever', duration: formatDuration(testDuration), path: [], image,
+          title: 'whatever',
+          state,
+          duration: testDuration,
+          path: [],
+          image,
         } as TestResult],
       )).to.contain(expectedAddition);
     });
@@ -65,7 +76,10 @@ describe('testResult', () => {
       const expectedResults = mockTestResults.map(
         (result: TestResult): string => addValuesToTemplate(
           testResultTemplate,
-          result as TestResult,
+          {
+            class: testResultClass,
+            ...result,
+          },
         ),
       );
 
@@ -79,6 +93,7 @@ describe('testResult', () => {
         (result: TestResult): string => addValuesToTemplate(
           testResultTemplate,
           {
+            class: testResultClass,
             image: addValuesToTemplate(imageTemplate, { image } as TestResult),
             ...result,
           } as TestResult,
@@ -95,17 +110,20 @@ describe('testResult', () => {
     it('Will convert a test suite into the desired html output', async (): Promise<void> => {
       const testResult: TestResult = {
         title,
-        duration: formatDuration(testDuration),
+        duration: testDuration,
+        state,
         image,
       } as TestResult;
       const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
       const testResultHtml = addValuesToTemplate(testResultTemplate, {
         title,
+        class: testResultClass,
         duration: testDuration,
         image: imageHtml,
       } as TestResult);
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
         title,
+        class: testSuiteClass,
         content: testResultHtml,
       });
       const testSuite = {
@@ -126,28 +144,88 @@ describe('testResult', () => {
     it('Will convert an array into a table header row', (): void => {
       expect(convertArrayToTableRow(testResults, tableHeaderTemplate))
         .to.equal(addValuesToTemplate(
-        tableRowTemplate,
-        {
-          content: testResults
-            .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-              tableHeaderTemplate,
-              { content: currentTitle },
-            )).join(NEW_LINE),
-        },
-      ));
+          tableRowTemplate,
+          {
+            content: testResults
+              .map(({
+                title: currentTitle,
+                state: resultState,
+              }: TestResult): string => addValuesToTemplate(
+                tableHeaderTemplate,
+                {
+                  class: HISTORY_TABLE_ROW,
+                  content: addValuesToTemplate(
+                    buttonTemplate,
+                    {
+                      content: currentTitle,
+                      class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                    },
+                  ),
+                },
+              )).join(NEW_LINE),
+          },
+        ));
     });
     it('Will convert an array into a table data row', (): void => {
       expect(convertArrayToTableRow(testResults, tableDataTemplate))
         .to.equal(addValuesToTemplate(
-        tableRowTemplate,
-        {
-          content: testResults
-            .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-              tableDataTemplate,
-              { content: currentTitle },
-            )).join(NEW_LINE),
-        },
-      ));
+          tableRowTemplate,
+          {
+            class: HISTORY_TABLE_ROW,
+            content: testResults
+              .map(({
+                title: currentTitle,
+                state: resultState,
+              }: TestResult): string => addValuesToTemplate(
+                tableDataTemplate,
+                {
+                  class: HISTORY_TABLE_DATA,
+                  content: addValuesToTemplate(
+                    buttonTemplate,
+                    {
+                      content: currentTitle,
+                      class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                    },
+                  ),
+                },
+              )).join(NEW_LINE),
+          },
+        ));
+    });
+  });
+  describe('convertArrayIntoTableHeader', (): void => {
+    const secondTitle = 'billy';
+    const thirdTitle = 'bob';
+    const testResults = [
+      { title: firstTitle },
+      { title: secondTitle },
+      { title: thirdTitle },
+    ] as TestResult[];
+    it('Will convert an array into a table header row', (): void => {
+      expect(convertArrayToTableHeader(testResults, tableHeaderTemplate))
+        .to.equal(addValuesToTemplate(
+          tableRowTemplate,
+          {
+            content: testResults
+              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                tableHeaderTemplate,
+                { content: currentTitle },
+              )).join(NEW_LINE),
+          },
+        ));
+    });
+    it('Will convert an array into a table data row', (): void => {
+      expect(convertArrayToTableHeader(testResults, tableDataTemplate))
+        .to.equal(addValuesToTemplate(
+          tableRowTemplate,
+          {
+            content: testResults
+              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                tableDataTemplate,
+                { content: currentTitle },
+              )).join(NEW_LINE),
+          },
+        ));
     });
   });
   describe('convertHistoryToHtml', (): void => {
@@ -171,22 +249,22 @@ describe('testResult', () => {
       const history = formatHistory(testResults);
       expect(convertHistoryToHtml(history))
         .to.equal(addValuesToTemplate(tableTemplate, {
-        id: 'history-table',
-        content: [
-          convertArrayToTableRow(
-            [
-              { title: historyTestSuiteHeaderTitle } as TestResult,
-              ...history[historyTestSuiteHeaderTitle],
-            ],
-            tableHeaderTemplate,
-          ),
-        ].concat(Object.keys(history)
-          .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
-          .map((suiteName: string): string => convertArrayToTableRow(
-            [{ title: suiteName } as TestResult, ...history[suiteName]],
-            tableDataTemplate,
-          ))).join(NEW_LINE),
-      }));
+          id: 'history-table',
+          content: [
+            convertArrayToTableHeader(
+              [
+                { title: historyTestSuiteHeaderTitle } as TestResult,
+                ...history[historyTestSuiteHeaderTitle],
+              ],
+              tableHeaderTemplate,
+            ),
+          ].concat(Object.keys(history)
+            .filter((suiteName: string): boolean => suiteName !== historyTestSuiteHeaderTitle)
+            .map((suiteName: string): string => convertArrayToTableRow(
+              [{ title: suiteName } as TestResult, ...history[suiteName]],
+              tableDataTemplate,
+            ))).join(NEW_LINE),
+        }));
     });
   });
   describe('convertSuitesToHtml', (): void => {
@@ -195,17 +273,20 @@ describe('testResult', () => {
       const testResult = {
         title,
         suite,
-        duration: formatDuration(testDuration),
+        duration: testDuration,
         image,
+        state,
       } as TestResult;
       const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
       const testResultHtml = addValuesToTemplate(testResultTemplate, {
         title,
+        class: testResultClass,
         duration: testDuration,
         image: imageHtml,
       } as TestResult);
       const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
         title,
+        class: testSuiteClass,
         content: testResultHtml,
       });
       const testSuites = [{

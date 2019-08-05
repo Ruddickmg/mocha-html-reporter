@@ -22,12 +22,12 @@ export const generateTestResultsByPath = (
       ? [...suiteDirectory, test]
       : [test];
     return testSuite;
-  }, {});
+  }, {} as TestSuite);
 
 export const generateTestResultsBySuite = (
   testResults: TestResult[],
 ): TestSuite => testResults
-  .reduce((testSuite: TestSuite, test: TestResult) => {
+  .reduce((testSuite: TestSuite, test: TestResult): TestSuite => {
     const suiteName = test.suite;
     return {
       ...testSuite,
@@ -36,7 +36,7 @@ export const generateTestResultsBySuite = (
         test,
       ],
     };
-  }, {});
+  }, {} as TestSuite);
 
 export const checkTestTreeEquality = (
   test1: any,

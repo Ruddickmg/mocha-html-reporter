@@ -15,6 +15,7 @@ import {
 } from '../constants/constants';
 import { getFilePath, getParentPath } from './path';
 import { TestResult } from '../report/eventHandlers';
+import { TIMEOUT } from '../constants/cssClasses';
 
 const { floor } = Math;
 
@@ -129,6 +130,7 @@ export const formatDuration = (
 export const createTestResultFormatter = (
   pathToTestDirectory: string,
   timeOfTest: number,
+  state: string,
 ): TestResultFormatter => {
   const suiteIds: SuiteIds = {};
   return (
@@ -140,6 +142,7 @@ export const createTestResultFormatter = (
       parent,
       duration,
       file,
+      timedOut,
     } = test;
     const suite = parent.title;
     const suiteId = suiteIds[suite] || uuid();
@@ -150,6 +153,7 @@ export const createTestResultFormatter = (
       suite,
       suiteId,
       duration,
+      state: timedOut ? TIMEOUT : state,
       date: timeOfTest,
       path: file
         ? getFilePath(file, pathToTestDirectory)

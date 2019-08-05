@@ -1,4 +1,4 @@
-export const testResultTemplate = `<li class="test-result">
+export const testResultTemplate = `<li id="{{id}}" class="{{class}}">
     <h3>{{title}}</h3>
     <h4>{{result}}</h4>
     {{image}}

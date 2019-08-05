@@ -1,7 +1,5 @@
-const { render } = require('node-sass');
-const CleanCSS = require('clean-css');
-
-const cleaner = new CleanCSS({});
+import { minifyCss } from '../report/htmlConversion';
+import { render } from 'node-sass';
 
 export const getStyles = (
   pathToFile: string,
@@ -11,8 +9,13 @@ export const getStyles = (
     'scss',
     'node_modules',
   ],
-}, (error: Error, result: any): void => (
-  error
-    ? reject(error)
-    : resolve(cleaner.minify(result.css.toString()).styles)
-)));
+}, async (error: Error, result: any): Promise<void> => {
+  try {
+    const css = await minifyCss(result.css.toString());
+    return error
+      ? reject(error)
+      : resolve(css.styles);
+  } catch (e) {
+    return reject(e);
+  }
+}));

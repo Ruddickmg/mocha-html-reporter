@@ -2,8 +2,8 @@ import { resolve, sep } from 'path';
 import { EOL } from 'os';
 
 export const PERIOD = '.';
-export const PASS = 'pass';
-export const FAIL = 'failed';
+export const PASSED = 'passed';
+export const FAILED = 'failed';
 export const FINISHED = 'end';
 export const STREAM_FINISH = 'finish';
 export const STREAM_END = 'end';
@@ -43,8 +43,8 @@ export const OPEN_PARENTHESES = '(';
 
 export default {
   PERIOD,
-  PASS,
-  FAIL,
+  PASS: PASSED,
+  FAIL: FAILED,
   FINISHED,
   PACKAGE_NAME,
   NEW_LINE,

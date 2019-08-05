@@ -12,7 +12,10 @@ import {
   removeFileName,
   convertMillisecondsToDate,
   convertDateStringToMilliseconds,
-  getMonthDayYearFromDate, millisecondsToHumanReadable, millisecondsToRoundedHumanReadable, roundToTheNearestTenth,
+  getMonthDayYearFromDate,
+  millisecondsToHumanReadable,
+  millisecondsToRoundedHumanReadable,
+  roundToTheNearestTenth,
 } from '../../../src/parsers/formatting';
 import {
   HOUR_SUFFIX,
@@ -21,7 +24,7 @@ import {
   ONE_HOUR,
   ONE_MILLISECOND,
   ONE_MINUTE,
-  ONE_SECOND,
+  ONE_SECOND, PASSED,
   PATH_SEPARATOR,
   SECOND_SUFFIX,
 } from '../../../src/constants/constants';
@@ -40,12 +43,14 @@ describe('formatting', () => {
   const mockTestValues = [{
     duration,
     file: mockDirectory,
+    state: PASSED,
     parent,
     title: firstTitle,
   }, {
     duration,
     file: mockDirectory,
     parent,
+    state: PASSED,
     title: 'world',
   }];
   describe('roundToNearestTenth', (): void => {
@@ -76,6 +81,7 @@ describe('formatting', () => {
   });
   describe('createTestResultFormatter', (): void => {
     const date = Date.now();
+    const state = PASSED;
     const expected = {
       title: firstTitle,
       suite: parentTitle,
@@ -84,9 +90,10 @@ describe('formatting', () => {
         'some',
         'other',
       ],
+      state,
       duration,
     };
-    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
     it('Will format test results correctly from the raw test data', (): void => {
       const [firstTestResult] = mockTestValues;
       const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
@@ -103,7 +110,7 @@ describe('formatting', () => {
       expect(isString(suiteId)).to.equal(true);
       expect(isString(id)).to.equal(true);
       expect(result)
-        .to.eql({ image, ...expected });
+        .to.eql({ image, state, ...expected });
     });
   });
   describe('formattingOutputFilePath', (): void => {

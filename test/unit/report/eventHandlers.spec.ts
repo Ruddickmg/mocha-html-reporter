@@ -25,6 +25,7 @@ import {
 } from '../../../src/templates/all';
 import { getFileContents } from '../../../src/utilities/fileSystem';
 import {
+  PASSED,
   PATH_TO_PACKAGE,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
@@ -35,16 +36,21 @@ import { base64NoImageString } from '../../../src/constants/base64NoImageString'
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/parsers/testSuite';
 import { getHistory } from '../../../src/history/storage';
-import { cleanAndMinify, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
+import { cleanAndMinifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
 import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
 import { compileCode } from '../../../src/utilities/compiler';
 import { getStyles } from '../../../src/parsers/styles';
+import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
+import { HIDDEN } from '../../../src/scripts/constants';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
   const fileName = 'morphius';
   const pathToMockFile = `${pathToMockHtml}/${fileName}.html`;
+  const state = PASSED;
+  const testResultClass = `${TEST_RESULT} ${state} ${HIDDEN}`;
+  const testSuiteClass = `${TEST_SUITE} ${state} ${HIDDEN}`;
   const removeAndCheckIds = (
     results: TestResult[],
   ): any => results
@@ -84,12 +90,13 @@ describe('eventHandlers', (): void => {
     it('Parses tests into the correct output', (): void => {
       const testResults: TestResult[] = [];
       const takeScreenShot = false;
-      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
       const testHandler = createTestHandler(
         testResults,
         pathToMockTestDirectory,
         takeScreenShot,
         date,
+        state,
       );
       const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test));
 
@@ -100,12 +107,13 @@ describe('eventHandlers', (): void => {
     it('Will parse a test and take a screen shot', async (): Promise<void> => {
       const testResults: TestResult[] = [];
       const takeScreenShot = true;
-      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date);
+      const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
       const testHandler = createTestHandler(
         testResults,
         pathToMockTestDirectory,
         takeScreenShot,
         date,
+        state,
       );
       const formattedResults = tests
         .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
@@ -128,6 +136,7 @@ describe('eventHandlers', (): void => {
         duration,
         image,
         date,
+        state,
         suite,
         path,
       },
@@ -155,9 +164,10 @@ describe('eventHandlers', (): void => {
         .reverse()
         .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title: suiteTitle },
+          { content, title: suiteTitle, class: testSuiteClass },
         ), addValuesToTemplate(testResultTemplate, {
           title,
+          class: testResultClass,
           duration: formatDuration(duration),
           image: addValuesToTemplate(imageTemplate, { image }),
         }));
@@ -173,7 +183,7 @@ describe('eventHandlers', (): void => {
       });
       await reportHandler();
 
-      expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinify(expected));
+      expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
     });
     it('Parses tests correctly into html output by path', async (): Promise<void> => {
       const history = getHistory(pathToMockHtml);
@@ -194,9 +204,10 @@ describe('eventHandlers', (): void => {
         .reverse()
         .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
           testSuiteTemplate,
-          { content, title: suiteTitle },
+          { content, title: suiteTitle, class: testSuiteClass },
         ), addValuesToTemplate(testResultTemplate, {
           title,
+          class: testResultClass,
           duration: formatDuration(duration),
           image: addValuesToTemplate(imageTemplate, { image }),
         }));
@@ -212,7 +223,7 @@ describe('eventHandlers', (): void => {
       });
       await reportHandler();
 
-      expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinify(expected));
+      expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
     });
     it('Will output history correctly into json', async (): Promise<void> => {
       const history = getHistory(pathToMockHtml);

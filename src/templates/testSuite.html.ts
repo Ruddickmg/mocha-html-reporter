@@ -1,4 +1,4 @@
-export const testSuiteTemplate = `<li class="test-suite">
+export const testSuiteTemplate = `<li id="{{id}}" class="{{class}}">
     <h2 class="test-suite-title">
         {{title}}
     </h2>
