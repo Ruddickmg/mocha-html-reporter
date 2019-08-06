@@ -18,6 +18,7 @@ import {
   tableRowTemplate, buttonTemplate,
 } from '../../../src/templates/all';
 import {
+  FAILED,
   NEW_LINE, PASSED,
   PATH_SEPARATOR,
 } from '../../../src/constants/constants';
@@ -44,189 +45,196 @@ describe('testResult', () => {
     title: 'world',
     duration: testDuration,
   }];
-  const state = PASSED;
-  const testResultClass = `${TEST_RESULT} ${state} ${HIDDEN}`;
-  const testSuiteClass = `${TEST_SUITE} ${state} ${HIDDEN}`;
-  const mockTestResults: TestResult[] = mockTestValues
-    .map(({ duration, ...rest }): TestResult => ({
-      duration,
-      path: pathToMockTestDirectory.split(PATH_SEPARATOR),
-      state,
-      ...rest,
-    }) as TestResult);
+  const testResultClass = (state: string): string => `${TEST_RESULT} ${state} ${HIDDEN}`;
+  const testSuiteClass = (state: string): string => `${TEST_SUITE} ${state} ${HIDDEN}`;
 
   describe('convertTestResultsToHtml', (): void => {
-    it('Will add an image if there is one present on the passed in object', async (): Promise<void> => {
-      const expectedAddition = addValuesToTemplate(
-        imageTemplate,
-        { image } as TestResult,
-      );
-      expect(convertTestResultsToHtml(
-        [{
-          title: 'whatever',
-          state,
-          duration: testDuration,
-          path: [],
-          image,
-        } as TestResult],
-      )).to.contain(expectedAddition);
-    });
-
-    it('Will add all values and return correctly formatted html output', async (): Promise<void> => {
-      const expectedResults = mockTestResults.map(
-        (result: TestResult): string => addValuesToTemplate(
-          testResultTemplate,
-          {
-            class: testResultClass,
-            ...result,
-          },
-        ),
-      );
-
-      expect(convertTestResultsToHtml(
-        mockTestResults,
-      )).to.equal(expectedResults.join(NEW_LINE));
-    });
-
-    it('Will add images to the html output', async (): Promise<void> => {
-      const expectedResults = mockTestResults.map(
-        (result: TestResult): string => addValuesToTemplate(
-          testResultTemplate,
-          {
-            class: testResultClass,
-            image: addValuesToTemplate(imageTemplate, { image } as TestResult),
-            ...result,
-          } as TestResult,
-        ),
-      );
-
-      expect(convertTestResultsToHtml(
-        mockTestResults.map((results: TestResult): TestResult => ({ image, ...results })),
-      ))
-        .to.equal(expectedResults.join(NEW_LINE));
-    });
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const mockTestResults: TestResult[] = mockTestValues
+          .map(({ duration, ...rest }): TestResult => ({
+            duration,
+            path: pathToMockTestDirectory.split(PATH_SEPARATOR),
+            state,
+            ...rest,
+          }) as TestResult);
+        it(`Will add an image if there is one present on the passed in object ${state}`, async (): Promise<void> => {
+          const expectedAddition = addValuesToTemplate(
+            imageTemplate,
+            { image } as TestResult,
+          );
+          expect(convertTestResultsToHtml(
+            [{
+              title: 'whatever',
+              state,
+              duration: testDuration,
+              path: [],
+              image,
+            } as TestResult],
+          )).to.contain(expectedAddition);
+        });
+        it(`Will add all values and return correctly formatted html output for a ${state} test`, async (): Promise<void> => {
+          const expectedResults = mockTestResults.map(
+            (result: TestResult): string => addValuesToTemplate(
+              testResultTemplate,
+              {
+                class: testResultClass(state),
+                ...result,
+              },
+            ),
+          );
+          expect(convertTestResultsToHtml(
+            mockTestResults,
+          )).to.equal(expectedResults.join(NEW_LINE));
+        });
+        it(`Will add images to the html output for a ${state} test`, async (): Promise<void> => {
+          const expectedResults = mockTestResults.map(
+            (result: TestResult): string => addValuesToTemplate(
+              testResultTemplate,
+              {
+                class: testResultClass(state),
+                image: addValuesToTemplate(imageTemplate, { image } as TestResult),
+                ...result,
+              } as TestResult,
+            ),
+          );
+          expect(convertTestResultsToHtml(
+            mockTestResults.map((results: TestResult): TestResult => ({ image, ...results })),
+          ))
+            .to.equal(expectedResults.join(NEW_LINE));
+        });
+      });
   });
   describe('convertTestSuiteToHtml', (): void => {
-    it('Will convert a test suite into the desired html output', async (): Promise<void> => {
-      const testResult: TestResult = {
-        title,
-        duration: testDuration,
-        state,
-        image,
-      } as TestResult;
-      const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
-      const testResultHtml = addValuesToTemplate(testResultTemplate, {
-        title,
-        class: testResultClass,
-        duration: testDuration,
-        image: imageHtml,
-      } as TestResult);
-      const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
-        title,
-        class: testSuiteClass,
-        content: testResultHtml,
-      });
-      const testSuite = {
-        [title]: [testResult],
-      } as TestSuite;
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        it(`Will convert a test suite into the desired html output for a ${state} test`, async (): Promise<void> => {
+          const testResult: TestResult = {
+            title,
+            duration: testDuration,
+            state,
+            image,
+          } as TestResult;
+          const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
+          const testResultHtml = addValuesToTemplate(testResultTemplate, {
+            title,
+            class: testResultClass(state),
+            duration: testDuration,
+            image: imageHtml,
+          } as TestResult);
+          const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
+            title,
+            class: testSuiteClass(state),
+            content: testResultHtml,
+          });
+          const testSuite = {
+            [title]: [testResult],
+          } as TestSuite;
 
-      expect(convertTestSuiteToHtml(testSuite)).to.equal(testSuiteHtml);
-    });
+          expect(convertTestSuiteToHtml(testSuite)).to.equal(testSuiteHtml);
+        });
+      });
   });
   describe('convertArrayIntoTableRow', (): void => {
     const secondTitle = 'billy';
     const thirdTitle = 'bob';
-    const testResults = [
-      { title: firstTitle },
-      { title: secondTitle },
-      { title: thirdTitle },
-    ] as TestResult[];
-    it('Will convert an array into a table header row', (): void => {
-      expect(convertArrayToTableRow(testResults, tableHeaderTemplate))
-        .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            content: testResults
-              .map(({
-                title: currentTitle,
-                state: resultState,
-              }: TestResult): string => addValuesToTemplate(
-                tableHeaderTemplate,
-                {
-                  class: HISTORY_TABLE_ROW,
-                  content: addValuesToTemplate(
-                    buttonTemplate,
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const testResults = [
+          { title: firstTitle, state },
+          { title: secondTitle, state },
+          { title: thirdTitle, state },
+        ] as TestResult[];
+        it(`Will convert an array into a table header row for ${state} tests`, (): void => {
+          expect(convertArrayToTableRow(testResults, tableHeaderTemplate))
+            .to.equal(addValuesToTemplate(
+              tableRowTemplate,
+              {
+                content: testResults
+                  .map(({
+                    title: currentTitle,
+                    state: resultState,
+                  }: TestResult): string => addValuesToTemplate(
+                    tableHeaderTemplate,
                     {
-                      content: currentTitle,
-                      class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                      class: HISTORY_TABLE_ROW,
+                      content: addValuesToTemplate(
+                        buttonTemplate,
+                        {
+                          content: currentTitle,
+                          class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                        },
+                      ),
                     },
-                  ),
-                },
-              )).join(NEW_LINE),
-          },
-        ));
-    });
-    it('Will convert an array into a table data row', (): void => {
-      expect(convertArrayToTableRow(testResults, tableDataTemplate))
-        .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            class: HISTORY_TABLE_ROW,
-            content: testResults
-              .map(({
-                title: currentTitle,
-                state: resultState,
-              }: TestResult): string => addValuesToTemplate(
-                tableDataTemplate,
-                {
-                  class: HISTORY_TABLE_DATA,
-                  content: addValuesToTemplate(
-                    buttonTemplate,
+                  )).join(NEW_LINE),
+              },
+            ));
+        });
+        it(`Will convert an array into a table data row for ${state} tests`, (): void => {
+          expect(convertArrayToTableRow(testResults, tableDataTemplate))
+            .to.equal(addValuesToTemplate(
+              tableRowTemplate,
+              {
+                class: HISTORY_TABLE_ROW,
+                content: testResults
+                  .map(({
+                    title: currentTitle,
+                    state: resultState,
+                  }: TestResult): string => addValuesToTemplate(
+                    tableDataTemplate,
                     {
-                      content: currentTitle,
-                      class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                      class: HISTORY_TABLE_DATA,
+                      content: addValuesToTemplate(
+                        buttonTemplate,
+                        {
+                          content: currentTitle,
+                          class: `${resultState} ${TEST_RESULT_BUTTON}`,
+                        },
+                      ),
                     },
-                  ),
-                },
-              )).join(NEW_LINE),
-          },
-        ));
-    });
+                  )).join(NEW_LINE),
+              },
+            ));
+        });
+      });
   });
   describe('convertArrayIntoTableHeader', (): void => {
     const secondTitle = 'billy';
     const thirdTitle = 'bob';
-    const testResults = [
-      { title: firstTitle },
-      { title: secondTitle },
-      { title: thirdTitle },
-    ] as TestResult[];
-    it('Will convert an array into a table header row', (): void => {
-      expect(convertArrayToTableHeader(testResults, tableHeaderTemplate))
-        .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            content: testResults
-              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-                tableHeaderTemplate,
-                { content: currentTitle },
-              )).join(NEW_LINE),
-          },
-        ));
-    });
-    it('Will convert an array into a table data row', (): void => {
-      expect(convertArrayToTableHeader(testResults, tableDataTemplate))
-        .to.equal(addValuesToTemplate(
-          tableRowTemplate,
-          {
-            content: testResults
-              .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
-                tableDataTemplate,
-                { content: currentTitle },
-              )).join(NEW_LINE),
-          },
-        ));
-    });
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const testResults = [
+          { title: firstTitle, state },
+          { title: secondTitle, state },
+          { title: thirdTitle, state },
+        ] as TestResult[];
+        it(`Will convert an array into a table header row for ${state} tests`, (): void => {
+          expect(convertArrayToTableHeader(testResults, tableHeaderTemplate))
+            .to.equal(addValuesToTemplate(
+              tableRowTemplate,
+              {
+                content: testResults
+                  .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                    tableHeaderTemplate,
+                    { content: currentTitle },
+                  )).join(NEW_LINE),
+              },
+            ));
+        });
+        it(`Will convert an array into a table data row ${state} tests`, (): void => {
+          expect(convertArrayToTableHeader(testResults, tableDataTemplate))
+            .to.equal(addValuesToTemplate(
+              tableRowTemplate,
+              {
+                content: testResults
+                  .map(({ title: currentTitle }: TestResult): string => addValuesToTemplate(
+                    tableDataTemplate,
+                    { content: currentTitle },
+                  )).join(NEW_LINE),
+              },
+            ));
+        });
+      });
   });
   describe('convertHistoryToHtml', (): void => {
     const firstSuiteName = 'suite #1';
@@ -268,40 +276,42 @@ describe('testResult', () => {
     });
   });
   describe('convertSuitesToHtml', (): void => {
-    it('Will convert a test suite into an html report', async (): Promise<void> => {
-      const suite = 'some suite';
-      const testResult = {
-        title,
-        suite,
-        duration: testDuration,
-        image,
-        state,
-      } as TestResult;
-      const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
-      const testResultHtml = addValuesToTemplate(testResultTemplate, {
-        title,
-        class: testResultClass,
-        duration: testDuration,
-        image: imageHtml,
-      } as TestResult);
-      const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
-        title,
-        class: testSuiteClass,
-        content: testResultHtml,
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        it(`Will convert a test suite into an html report for ${state} tests`, async (): Promise<void> => {
+          const suite = 'some suite';
+          const imageHtml = addValuesToTemplate(imageTemplate, { image } as TestResult);
+          const reportData = {
+            reportTitle: 'test title',
+            pageTitle: 'This is a test',
+          };
+          const testResult = {
+            title,
+            suite,
+            duration: testDuration,
+            image,
+            state,
+          } as TestResult;
+          const testResultHtml = addValuesToTemplate(testResultTemplate, {
+            title,
+            class: testResultClass(state),
+            duration: testDuration,
+            image: imageHtml,
+          } as TestResult);
+          const testSuiteHtml = addValuesToTemplate(testSuiteTemplate, {
+            title,
+            class: testSuiteClass(state),
+            content: testResultHtml,
+          });
+          const testSuites = [{
+            [title]: [testResult],
+          }] as TestSuite[];
+          const reportHtml = addValuesToTemplate(reportTemplate, {
+            suites: testSuiteHtml,
+            ...reportData,
+          });
+          expect(convertSuitesToHtml(reportData, testSuites)).to.equal(reportHtml);
+        });
       });
-      const testSuites = [{
-        [title]: [testResult],
-      }] as TestSuite[];
-      const reportData = {
-        reportTitle: 'test title',
-        pageTitle: 'This is a test',
-      };
-      const reportHtml = addValuesToTemplate(reportTemplate, {
-        suites: testSuiteHtml,
-        ...reportData,
-      });
-
-      expect(convertSuitesToHtml(reportData, testSuites)).to.equal(reportHtml);
-    });
   });
 });

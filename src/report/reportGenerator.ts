@@ -61,6 +61,7 @@ export const reportGenerator = async (
       timeOfTest,
       PASSED,
     ),
+    // TODO pass statistic/suite data through report handler, counts etc from test handler
     [FINISHED]: createReportHandler(
       tests,
       pathToOutputFile,

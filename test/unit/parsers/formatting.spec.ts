@@ -18,6 +18,7 @@ import {
   roundToTheNearestTenth,
 } from '../../../src/parsers/formatting';
 import {
+  FAILED,
   HOUR_SUFFIX,
   MILLISECOND_SUFFIX,
   MINUTE_SUFFIX,
@@ -40,19 +41,6 @@ describe('formatting', () => {
   const mockDirectory = `${pathToMockTestDirectory}/some/other/directory`;
   const parentTitle = 'I am a test suite';
   const parent = { title: parentTitle };
-  const mockTestValues = [{
-    duration,
-    file: mockDirectory,
-    state: PASSED,
-    parent,
-    title: firstTitle,
-  }, {
-    duration,
-    file: mockDirectory,
-    parent,
-    state: PASSED,
-    title: 'world',
-  }];
   describe('roundToNearestTenth', (): void => {
     it('Will round a number to the nearest tenth', (): void => {
       expect(roundToTheNearestTenth(12.56)).to.equal(12.6);
@@ -81,37 +69,52 @@ describe('formatting', () => {
   });
   describe('createTestResultFormatter', (): void => {
     const date = Date.now();
-    const state = PASSED;
-    const expected = {
-      title: firstTitle,
-      suite: parentTitle,
-      date,
-      path: [
-        'some',
-        'other',
-      ],
-      state,
-      duration,
-    };
-    const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
-    it('Will format test results correctly from the raw test data', (): void => {
-      const [firstTestResult] = mockTestValues;
-      const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const mockTestValues = [{
+          duration,
+          file: mockDirectory,
+          state: PASSED,
+          parent,
+          title: firstTitle,
+        }, {
+          duration,
+          file: mockDirectory,
+          parent,
+          state: PASSED,
+          title: 'world',
+        }];
+        const expected = {
+          title: firstTitle,
+          suite: parentTitle,
+          date,
+          path: [
+            'some',
+            'other',
+          ],
+          state,
+          duration,
+        };
+        const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
+        it(`Will format test results correctly from the raw test data for ${state} tests`, (): void => {
+          const [firstTestResult] = mockTestValues;
+          const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
 
-      expect(isString(suiteId)).to.equal(true);
-      expect(isString(id)).to.equal(true);
-      expect(result).to.eql(expected);
-    });
-    it('Will add an image to the test results', (): void => {
-      const [firstTestResult] = mockTestValues;
-      const image = '12345';
-      const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test, image);
+          expect(isString(suiteId)).to.equal(true);
+          expect(isString(id)).to.equal(true);
+          expect(result).to.eql(expected);
+        });
+        it(`Will add an image to the test results for ${state} tests`, (): void => {
+          const [firstTestResult] = mockTestValues;
+          const image = '12345';
+          const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test, image);
 
-      expect(isString(suiteId)).to.equal(true);
-      expect(isString(id)).to.equal(true);
-      expect(result)
-        .to.eql({ image, state, ...expected });
-    });
+          expect(isString(suiteId)).to.equal(true);
+          expect(isString(id)).to.equal(true);
+          expect(result)
+            .to.eql({ image, state, ...expected });
+        });
+      });
   });
   describe('formattingOutputFilePath', (): void => {
     it('Will correctly format a path to an output file', (): void => {
