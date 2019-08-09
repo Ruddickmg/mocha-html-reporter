@@ -20,7 +20,6 @@ export const generateTestResultsByPath = (
     lastDirectory[suite] = isArray(suiteDirectory)
       ? [...suiteDirectory, test]
       : [test];
-    console.log('suite', testSuite, 'test', test);
     return testSuite;
   }, {} as TestSuite);
 
