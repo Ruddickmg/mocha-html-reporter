@@ -23,7 +23,7 @@ import {
   testResultTemplate,
   imageTemplate,
 } from '../../../src/templates/all';
-import { getFileContents } from '../../../src/utilities/fileSystem';
+import { getFileContents, getHistory } from '../../../src/utilities/fileSystem';
 import {
   FAILED,
   PASSED,
@@ -36,9 +36,8 @@ import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
-import { getHistory } from '../../../src/history/storage';
 import { cleanAndMinifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
-import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
+import { formatHistory, groupTestSuitesByDate } from '../../../src/formatting/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
 import { compileCode } from '../../../src/scripts/compiler';
 import { getStyles } from '../../../src/report/styles';
@@ -152,9 +151,9 @@ describe('eventHandlers', (): void => {
           },
         ] as TestResult[];
         it(`Parses tests correctly into html output by suite for a ${state} test`, async (): Promise<void> => {
-          const history = getHistory(pathToMockHtml);
-          const styles = getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+          const history = await getHistory(pathToMockFile);
+          const styles = await getStyles(PATH_TO_STYLE_SHEET);
+          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -184,7 +183,7 @@ describe('eventHandlers', (): void => {
             scripts: minifyJs(await scripts),
             history: convertHistoryToHtml(formatHistory([
               ...testResults,
-              ...await history,
+              ...history,
             ])),
           });
           await reportHandler();
@@ -192,9 +191,9 @@ describe('eventHandlers', (): void => {
           expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
         });
         it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
-          const history = getHistory(pathToMockHtml);
-          const styles = getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+          const history = await getHistory(pathToMockFile);
+          const styles = await getStyles(PATH_TO_STYLE_SHEET);
+          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -220,11 +219,11 @@ describe('eventHandlers', (): void => {
           const expected = addValuesToTemplate(reportTemplate, {
             suites,
             ...reportData,
-            styles: await styles,
-            scripts: minifyJs(await scripts),
+            styles,
+            scripts: minifyJs(scripts),
             history: convertHistoryToHtml(formatHistory([
               ...testResults,
-              ...await history,
+              ...history,
             ])),
           });
           await reportHandler();
@@ -243,9 +242,9 @@ describe('eventHandlers', (): void => {
           path,
         },
       ] as TestResult[];
-      const history = getHistory(pathToMockHtml);
-      const styles = getStyles(PATH_TO_STYLE_SHEET);
-      const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+      const history = await getHistory(pathToMockFile);
+      const styles = await getStyles(PATH_TO_STYLE_SHEET);
+      const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,

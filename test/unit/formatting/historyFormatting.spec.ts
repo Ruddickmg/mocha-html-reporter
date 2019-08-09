@@ -6,7 +6,7 @@ import {
   removeDuplicateTestResults,
   indexTestResultsBySuite,
   TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle, groupTestSuitesByDate,
-} from '../../../src/history/historyFormatting';
+} from '../../../src/formatting/historyFormatting';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/formatting/time';
 import { EMPTY_STRING } from '../../../src/constants/constants';

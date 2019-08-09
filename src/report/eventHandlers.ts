@@ -9,10 +9,8 @@ import {
 } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
 import { createTestResultFormatter } from '../formatting/testResults';
-import { formatHistory, groupTestSuitesByDate } from '../history/historyFormatting';
+import { formatHistory, groupTestSuitesByDate } from '../formatting/historyFormatting';
 import { addValuesToTemplate } from '../templates/all';
-import { writeHistory } from '../history/storage';
-import { flattenArray } from '../utilities/arrays';
 
 export interface Content {
   [name: string]: string;
@@ -47,9 +45,9 @@ export type TestHandler = (
 export interface ReportData {
   reportTitle: string;
   pageTitle: string;
-  styles?: Promise<string>;
-  scripts?: Promise<string>;
-  history?: Promise<TestResult[]>;
+  styles?: string;
+  scripts?: string;
+  history?: TestResult[];
 }
 
 export const delayStart = (runner: Runner): void => {
@@ -103,7 +101,7 @@ export const createReportHandler = (
   }: ReportData,
   generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
-  const allTests = [...tests, ...await history];
+  const allTests = [...tests, ...history];
   const formattedHistory = formatHistory(allTests);
   const htmlHistory = convertHistoryToHtml(formattedHistory);
   const testsGroupedByDate = groupTestSuitesByDate(allTests);
@@ -114,15 +112,11 @@ export const createReportHandler = (
   );
   const report = addValuesToTemplate(htmlSuites, {
     history: htmlHistory,
-    styles: await styles,
-    scripts: minifyJs(await scripts),
+    scripts: minifyJs(scripts),
+    styles,
   });
   return Promise
     .all([
       writeToFile(pathToOutputFile, cleanAndMinifyHtml(report)),
-      writeHistory(
-        pathToOutputFile,
-        flattenArray(testsGroupedByDate),
-      ),
     ]);
 };

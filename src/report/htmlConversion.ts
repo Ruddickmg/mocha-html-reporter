@@ -9,7 +9,7 @@ import {
 } from './eventHandlers';
 import { FAILED, NEW_LINE, PASSED } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
-import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
+import { History, historyTestSuiteHeaderTitle } from '../formatting/historyFormatting';
 import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 import {
   addValuesToTemplate,

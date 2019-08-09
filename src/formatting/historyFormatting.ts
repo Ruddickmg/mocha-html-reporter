@@ -3,7 +3,7 @@ import {
   convertMillisecondsToDate,
   getMonthDayYearFromDate,
   millisecondsToRoundedHumanReadable,
-} from '../formatting/time';
+} from './time';
 import { sortTestResultsByDate } from '../utilities/sorting';
 import { EMPTY_STRING } from '../constants/constants';
 import { compose, mapOverObject } from '../utilities/functions';

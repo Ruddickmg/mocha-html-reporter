@@ -16,10 +16,11 @@ import {
 } from '../constants/constants';
 import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
 import { generateTestResultsBySuite } from '../formatting/testSuite';
-import { getHistory } from '../history/storage';
 import { compileCode } from '../scripts/compiler';
+import { getHistory } from '../utilities/fileSystem';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 import { formatOutputFilePath } from '../formatting/paths';
+import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -35,9 +36,9 @@ export const reportGenerator = async (
   } = getCommandLineOptions(environment);
   const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
-  const styles = getStyles(PATH_TO_STYLE_SHEET);
-  const history = getHistory(pathToOutputFile);
-  const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+  const styles = await getStyles(PATH_TO_STYLE_SHEET);
+  const history = await getHistory(pathToOutputFile);
+  const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',
@@ -48,14 +49,14 @@ export const reportGenerator = async (
   };
 
   const handlers: TestHandlers = {
-    [FAILED]: createTestHandler(
+    [TEST_FAILED]: createTestHandler(
       tests,
       testDir,
       takeScreenShotOnFailure,
       timeOfTest,
       FAILED,
     ),
-    [PASSED]: createTestHandler(
+    [TEST_PASSED]: createTestHandler(
       tests,
       testDir,
       screenShotEachTest,
