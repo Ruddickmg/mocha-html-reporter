@@ -12,7 +12,7 @@ import {
   pathToMockTestDirectory,
   tests,
 } from '../../helpers/expectations';
-import { createTestResultFormatter } from '../../../src/formatting/formatting';
+import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { FAILED, PASSED } from '../../../src/constants/constants';
 

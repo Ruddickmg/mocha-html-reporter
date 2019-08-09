@@ -32,7 +32,7 @@ import {
   PATH_TO_STYLE_SHEET,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
-import { createTestResultFormatter, formatDuration } from '../../../src/formatting/formatting';
+import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
@@ -44,6 +44,7 @@ import { compileCode } from '../../../src/scripts/compiler';
 import { getStyles } from '../../../src/report/styles';
 import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
 import { HIDDEN } from '../../../src/scripts/constants';
+import { formatDuration } from '../../../src/formatting/time';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;

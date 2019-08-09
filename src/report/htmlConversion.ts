@@ -30,7 +30,7 @@ import {
   HISTORY_TABLE_ROW, TEST_RESULT,
   TEST_RESULT_BUTTON, TEST_SUITE,
 } from '../constants/cssClasses';
-import { millisecondsToRoundedHumanReadable } from '../formatting/formatting';
+import { millisecondsToRoundedHumanReadable } from '../formatting/time';
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],

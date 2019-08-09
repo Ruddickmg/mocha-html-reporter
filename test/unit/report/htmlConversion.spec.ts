@@ -25,7 +25,7 @@ import {
 import { TestResult, TestSuite } from '../../../src/report/eventHandlers';
 import {
   convertDateStringToMilliseconds,
-} from '../../../src/formatting/formatting';
+} from '../../../src/formatting/time';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/history/historyFormatting';
 import {

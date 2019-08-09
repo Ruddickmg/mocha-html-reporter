@@ -11,7 +11,7 @@ import {
 } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { getFileNameFromPath } from '../scripts/compiler';
-import { removeFileName } from '../formatting/formatting';
+import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from '../utilities/logging';
 
 export const emptyHistoryError = (): string => 'Expected an array containing test results while writing to history output, received an empty array';

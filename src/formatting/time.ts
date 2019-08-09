@@ -1,43 +1,15 @@
-import uuid from 'uuid/v1';
-import { resolve } from 'path';
-import { Test } from 'mocha';
 import {
   EMPTY_STRING,
-  HOUR_SUFFIX,
-  MILLISECOND_SUFFIX,
+  HOUR_SUFFIX, MILLISECOND_SUFFIX,
   MINUTE_SUFFIX,
   ONE_HOUR,
   ONE_MILLISECOND,
   ONE_MINUTE,
   ONE_SECOND,
-  PATH_SEPARATOR,
   SECOND_SUFFIX,
 } from '../constants/constants';
-import { getFilePath, getParentPath } from '../parsers/path';
-import { TestResult } from '../report/eventHandlers';
-import { TIMEOUT } from '../constants/cssClasses';
 
 const { floor } = Math;
-
-export interface ExpectedOptions {
-  reporter?: string;
-  historyDir?: string;
-  outputDir?: string;
-  testDir?: string;
-  fileName?: string;
-  screenShotEachTest?: boolean;
-  screenShotOnFailure?: boolean;
-}
-
-export interface Environment {
-  reporterOptions: ExpectedOptions;
-}
-
-interface SuiteIds {
-  [suite: string]: string;
-}
-
-export type TestResultFormatter = (test: Test, image?: string) => TestResult;
 
 const timeRanges = [
   ONE_HOUR,
@@ -126,58 +98,3 @@ export const getMonthDayYearFromDate = (
 export const formatDuration = (
   duration: number,
 ): string => millisecondsToHumanReadable(duration);
-
-export const createTestResultFormatter = (
-  pathToTestDirectory: string,
-  timeOfTest: number,
-  state: string,
-): TestResultFormatter => {
-  const suiteIds: SuiteIds = {};
-  return (
-    test: Test,
-    image?: string,
-  ): TestResult => {
-    const {
-      title,
-      parent,
-      duration,
-      file,
-      timedOut,
-    } = test;
-    const suite = parent.title;
-    const suiteId = suiteIds[suite] || uuid();
-    suiteIds[suite] = suiteId;
-    return {
-      id: uuid(),
-      title,
-      suite,
-      suiteId,
-      duration,
-      state: timedOut ? TIMEOUT : state,
-      date: timeOfTest,
-      path: file
-        ? getFilePath(file, pathToTestDirectory)
-        : getParentPath(test),
-      ...(!!image && { image }),
-    } as TestResult;
-  };
-};
-
-export const formatOutputPath = (
-  outputDir: string,
-): string => `${resolve(process.cwd(), outputDir)}${PATH_SEPARATOR}`;
-
-export const formatOutputFilePath = (
-  outputDir: string,
-  fileName: string,
-): string => `${formatOutputPath(outputDir)}${fileName}.html`;
-
-export const getCommandLineOptions = (
-  environment?: Environment,
-): ExpectedOptions => (environment && environment.reporterOptions) || {};
-
-export const removeFileName = (pathToFile: string): string => {
-  const fileName = pathToFile.split(PATH_SEPARATOR).pop();
-  const toRemove = `${PATH_SEPARATOR}${fileName}`;
-  return pathToFile.replace(toRemove, EMPTY_STRING);
-};

@@ -1,46 +1,26 @@
 import { expect } from 'chai';
-import { Test } from 'mocha';
 import {
-  buildStringOfTruthyValues,
-  Environment,
-  ExpectedOptions,
-  formatDuration,
-  formatOutputFilePath,
-  createTestResultFormatter,
-  getAmountOfExcess,
-  getCommandLineOptions,
-  removeFileName,
-  convertMillisecondsToDate,
-  convertDateStringToMilliseconds,
-  getMonthDayYearFromDate,
-  millisecondsToHumanReadable,
-  millisecondsToRoundedHumanReadable,
   roundToTheNearestTenth,
-} from '../../../src/formatting/formatting';
+  convertDateStringToMilliseconds,
+  convertMillisecondsToDate,
+  getMonthDayYearFromDate,
+  formatDuration,
+  getAmountOfExcess,
+  millisecondsToHumanReadable,
+  millisecondsToRoundedHumanReadable, buildStringOfTruthyValues,
+} from '../../../src/formatting/time';
 import {
-  FAILED,
   HOUR_SUFFIX,
   MILLISECOND_SUFFIX,
   MINUTE_SUFFIX,
-  ONE_HOUR,
-  ONE_MILLISECOND,
+  ONE_HOUR, ONE_MILLISECOND,
   ONE_MINUTE,
-  ONE_SECOND, PASSED,
-  PATH_SEPARATOR,
+  ONE_SECOND,
   SECOND_SUFFIX,
 } from '../../../src/constants/constants';
-import { pathToMockTestDirectory } from '../../helpers/expectations';
-import { isString } from '../../../src/utilities/typeChecks';
 
-describe('formatting', () => {
+describe('time', (): void => {
   const dateString = 'August 13, 1987 23:15:30';
-  const outputDir = 'test/unit';
-  const fileName = 'testFile';
-  const firstTitle = 'hello';
-  const duration = 4;
-  const mockDirectory = `${pathToMockTestDirectory}/some/other/directory`;
-  const parentTitle = 'I am a test suite';
-  const parent = { title: parentTitle };
   describe('roundToNearestTenth', (): void => {
     it('Will round a number to the nearest tenth', (): void => {
       expect(roundToTheNearestTenth(12.56)).to.equal(12.6);
@@ -60,84 +40,11 @@ describe('formatting', () => {
         .to.equal(milliseconds);
     });
   });
-  describe('getMonthDayYearFromDate', () => {
+  describe('getMonthDayYearFromDate', (): void => {
     const monthDayYearString = '8/13/1987';
-    it('Will get a human readable version of the date with ', () => {
+    it('Will get a human readable version of the date with ', (): void => {
       expect(getMonthDayYearFromDate(new Date(dateString)))
         .to.eql(monthDayYearString);
-    });
-  });
-  describe('createTestResultFormatter', (): void => {
-    const date = Date.now();
-    [PASSED, FAILED]
-      .forEach((state: string): void => {
-        const mockTestValues = [{
-          duration,
-          file: mockDirectory,
-          state: PASSED,
-          parent,
-          title: firstTitle,
-        }, {
-          duration,
-          file: mockDirectory,
-          parent,
-          state: PASSED,
-          title: 'world',
-        }];
-        const expected = {
-          title: firstTitle,
-          suite: parentTitle,
-          date,
-          path: [
-            'some',
-            'other',
-          ],
-          state,
-          duration,
-        };
-        const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
-        it(`Will format test results correctly from the raw test data for ${state} tests`, (): void => {
-          const [firstTestResult] = mockTestValues;
-          const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test);
-
-          expect(isString(suiteId)).to.equal(true);
-          expect(isString(id)).to.equal(true);
-          expect(result).to.eql(expected);
-        });
-        it(`Will add an image to the test results for ${state} tests`, (): void => {
-          const [firstTestResult] = mockTestValues;
-          const image = '12345';
-          const { id, suiteId, ...result } = formatTestResults(firstTestResult as Test, image);
-
-          expect(isString(suiteId)).to.equal(true);
-          expect(isString(id)).to.equal(true);
-          expect(result)
-            .to.eql({ image, state, ...expected });
-        });
-      });
-  });
-  describe('formattingOutputFilePath', (): void => {
-    it('Will correctly format a path to an output file', (): void => {
-      const outputPath = formatOutputFilePath(outputDir, fileName);
-      const expectedPath = `${process.cwd()}${PATH_SEPARATOR}${outputDir}${PATH_SEPARATOR}${fileName}.html`;
-      expect(outputPath).to.equal(expectedPath);
-    });
-  });
-  describe('getCommandLineOptions', (): void => {
-    it('Will extract options from the "environment" passed in from the mocha test runner', (): void => {
-      const reporterOptions = {
-        outputDir,
-        fileName,
-        testDir: '/someOtherDirectory',
-        screenShotEachTest: true,
-        screenShotOnFailure: true,
-      } as ExpectedOptions;
-      const environment: Environment = { reporterOptions };
-      expect(getCommandLineOptions(environment))
-        .to.eql(reporterOptions);
-    });
-    it('Will return an empty object if no environment is found', (): void => {
-      expect(getCommandLineOptions()).to.eql({});
     });
   });
   describe('formatDuration', (): void => {
@@ -196,13 +103,6 @@ describe('formatting', () => {
     it(`Will parse ${MILLISECOND_SUFFIX} into a string containing minutes, hour, seconds and milliseconds`, (): void => {
       expect(formatDuration(ONE_HOUR + ONE_MINUTE + ONE_SECOND + ONE_MILLISECOND))
         .to.equal(`1 ${HOUR_SUFFIX}, 1 ${MINUTE_SUFFIX}, 1 ${SECOND_SUFFIX}, 1 ${MILLISECOND_SUFFIX}`);
-    });
-  });
-  describe('removeFileName', (): void => {
-    it('Will remove a file name from the end of a path', (): void => {
-      const path = '/some/path/to/file.html';
-      const expected = '/some/path/to';
-      expect(removeFileName(path)).to.equal(expected);
     });
   });
   describe('getAmountOfExcess', (): void => {

@@ -5,12 +5,11 @@ import {
   mkdirSync,
   readFile,
 } from 'fs';
-import { EMPTY_STRING, STREAM_ERROR, STREAM_FINISH } from '../constants/constants';
-import { removeFileName } from '../formatting/formatting';
+import { STREAM_ERROR, STREAM_FINISH } from '../constants/constants';
+import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from '../scripts/compiler';
-import { buildParseTree, createParser, parseDataFromHtml } from '../parsers/parser';
-import { DATA } from '../constants/cssClasses';
+import { parseDataFromHtml } from '../parsers/history';
 import { isString } from './typeChecks';
 
 export const writeToFile = (
