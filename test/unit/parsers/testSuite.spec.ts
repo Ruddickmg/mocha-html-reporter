@@ -14,57 +14,81 @@ import {
 } from '../../helpers/expectations';
 import { createTestResultFormatter } from '../../../src/parsers/formatting';
 import { TestResult } from '../../../src/report/eventHandlers';
+import { FAILED, PASSED } from '../../../src/constants/constants';
 
 describe('testTree', (): void => {
-  const testResultFormatter = createTestResultFormatter(pathToMockTestDirectory, expectedDate);
-  const formatTest = (test: Test): TestResult => testResultFormatter(test, expectedImage);
   describe('generateTestResultsByPath', (): void => {
-    it('Will build a tree ending with an array of test results grouped by common paths (directory or test suite\'s)', async (): Promise<void> => {
-      const testSuite = generateTestResultsByPath(tests.map(formatTest));
-      checkTestTreeEquality(testSuite, expectedTestResultsByPath);
-    });
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const testResultFormatter = createTestResultFormatter(
+          pathToMockTestDirectory,
+          expectedDate,
+          state,
+        );
+        const formatTest = (test: Test): TestResult => testResultFormatter(test, expectedImage);
+        it(`Will build a tree ending with an array of test results grouped by common paths (directory or test suite's) for ${state} tests`, async (): Promise<void> => {
+          const testSuite = generateTestResultsByPath(
+            tests
+              .map(formatTest)
+              .map((test: TestResult): TestResult => ({ ...test, state })),
+          );
+          checkTestTreeEquality(testSuite, expectedTestResultsByPath(state));
+        });
+      });
   });
   describe('generateTestResultsBySuite', (): void => {
-    it('will build a tree with an array of test results grouped by test suite', (): void => {
-      const firstSuite = 'first';
-      const secondSuite = 'second';
-      const firstTitle = 'hello';
-      const secondTitle = 'mellow';
-      const thirdTitle = 'jello';
-      const firstTest: Test = {
-        title: firstTitle,
-        parent: {
-          title: firstSuite,
-        } as Suite,
-      } as Test;
-      const secondTest: Test = {
-        title: secondTitle,
-        parent: {
-          title: secondSuite,
-        } as Suite,
-      } as Test;
-      const thirdTest: Test = {
-        title: thirdTitle,
-        parent: {
-          title: secondSuite,
-        } as Suite,
-      } as Test;
-      const testResults: Test[] = [
-        firstTest,
-        secondTest,
-        thirdTest,
-      ];
-      const testSuite = generateTestResultsBySuite(testResults.map(formatTest));
-      checkTestTreeEquality(testSuite, {
-        [firstSuite]: [
-          firstTest,
-        ].map(formatTest),
-        [secondSuite]: [
-          secondTest,
-          thirdTest,
-        ].map(formatTest),
+    [PASSED, FAILED]
+      .forEach((state: string): void => {
+        const testResultFormatter = createTestResultFormatter(
+          pathToMockTestDirectory,
+          expectedDate,
+          state,
+        );
+        const formatTest = (test: Test): TestResult => testResultFormatter(test, expectedImage);
+        it(`will build a tree with an array of test results grouped by test suite for ${state} tests`, (): void => {
+          const firstSuite = 'first';
+          const secondSuite = 'second';
+          const firstTitle = 'hello';
+          const secondTitle = 'mellow';
+          const thirdTitle = 'jello';
+          const firstTest: Test = {
+            title: firstTitle,
+            state,
+            parent: {
+              title: firstSuite,
+            } as Suite,
+          } as Test;
+          const secondTest: Test = {
+            title: secondTitle,
+            state,
+            parent: {
+              title: secondSuite,
+            } as Suite,
+          } as Test;
+          const thirdTest: Test = {
+            title: thirdTitle,
+            state,
+            parent: {
+              title: secondSuite,
+            } as Suite,
+          } as Test;
+          const testResults: Test[] = [
+            firstTest,
+            secondTest,
+            thirdTest,
+          ];
+          const testSuite = generateTestResultsBySuite(testResults.map(formatTest));
+          checkTestTreeEquality(testSuite, {
+            [firstSuite]: [
+              firstTest,
+            ].map(formatTest),
+            [secondSuite]: [
+              secondTest,
+              thirdTest,
+            ].map(formatTest),
+          });
+        });
       });
-    });
   });
 });
 

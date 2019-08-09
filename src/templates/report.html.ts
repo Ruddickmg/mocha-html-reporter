@@ -6,6 +6,9 @@ export const reportTemplate = `<!DOCTYPE html>
     <style>
         {{styles}}
     </style>
+    <script id="data">
+        { "hello": "Hello World!" }
+    </script>
     <script>
       {{scripts}}
     </script>

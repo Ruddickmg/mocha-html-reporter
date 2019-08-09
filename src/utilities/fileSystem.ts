@@ -1,10 +1,17 @@
 import {
-  createWriteStream, existsSync, mkdirSync, readFile,
+  createWriteStream,
+  createReadStream,
+  existsSync,
+  mkdirSync,
+  readFile,
 } from 'fs';
-import { STREAM_FINISH } from '../constants/constants';
+import { EMPTY_STRING, STREAM_ERROR, STREAM_FINISH } from '../constants/constants';
 import { removeFileName } from '../parsers/formatting';
 import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from './compiler';
+import { buildParseTree, createParser, parseDataFromHtml } from './parser';
+import { DATA } from '../constants/cssClasses';
+import { isString } from './typeChecks';
 
 export const writeToFile = (
   pathToFile: string,
@@ -44,3 +51,25 @@ export const getFileContents = (
       : resolve(data.toString())),
   ),
 );
+
+export const streamDataFromHtmlOutput = (
+  filePath: string,
+): Promise<any> => new Promise((
+  resolve,
+  reject,
+) => {
+  const readStream = createReadStream(filePath);
+  readStream.on('data', (fileContents: string): void => {
+    try {
+      const data = parseDataFromHtml(fileContents);
+      if (isString(data)) {
+        resolve(JSON.parse(data));
+        readStream.emit('close');
+        readStream.emit('end');
+      }
+    } catch (error) {
+      reject(error);
+    }
+  });
+  readStream.on(STREAM_ERROR, reject);
+});

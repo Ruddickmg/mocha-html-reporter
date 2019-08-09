@@ -1,6 +1,11 @@
-import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
+import {
+  CLOSING_CURLY,
+  EMPTY_STRING,
+  OPENING_CURLY,
+} from '../constants/constants';
 import { isNumeric, isString } from './typeChecks';
 import { CodeStore } from './compiler';
+import { DATA } from '../constants/cssClasses';
 
 export interface Symbols {
   [symbolName: string]: string;
@@ -185,3 +190,53 @@ export const variableNameParser = (namesAndReplacements: Symbols): Parser => {
   }
   return createParser(buildParseTree(variablesMappedToReplacements), allowedVariableNamePrefixes);
 };
+
+const dataOpeningBracket = `<script id="${DATA}">`;
+const dataClosingBracket = '<script/>';
+
+export const parseDataOpening = createParser(buildParseTree({
+  [dataOpeningBracket]: dataOpeningBracket,
+}));
+
+export const parseDataClosing = createParser(buildParseTree({
+  [dataClosingBracket]: dataClosingBracket,
+}));
+
+export const parseDataFromHtml = ((): any => {
+  let parsedData = EMPTY_STRING;
+  let potentialData: string = EMPTY_STRING;
+  let readData: boolean;
+
+  return (html: string): string | boolean => {
+    const fileContentLength = html.length;
+
+    let charIndex = 0;
+    let char: string;
+    let dataComplete: string | boolean;
+    let data: string;
+
+    // eslint-disable-next-line no-plusplus
+    for (charIndex; charIndex < fileContentLength; charIndex += 1) {
+      char = html[charIndex];
+      if (isString(parseDataOpening(char))) {
+        readData = true;
+      }
+      if (readData) {
+        dataComplete = parseDataClosing(char);
+        if (isString(dataComplete)) {
+          data = parsedData;
+          parsedData = EMPTY_STRING;
+          readData = false;
+          return data;
+        }
+        if (dataComplete) {
+          potentialData += char;
+        } else {
+          parsedData += `${potentialData}${char}`;
+          potentialData = EMPTY_STRING;
+        }
+      }
+    }
+    return false;
+  };
+})();

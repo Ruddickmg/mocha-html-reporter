@@ -2,7 +2,7 @@ import { Test } from 'mocha';
 import { PATH_TO_PACKAGE } from '../../src/constants/constants';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
 import { formatDuration } from '../../src/parsers/formatting';
-import { TestSuite } from '../../src/report/eventHandlers';
+import { TestResult, TestSuite } from '../../src/report/eventHandlers';
 import { VariableNameGenerator } from '../../src/utilities/compile';
 
 const firstDir = 'firstDirectory';
@@ -21,7 +21,7 @@ const durationThree = 3;
 export const expectedDate = Date.now();
 export const expectedImage = base64NoImageString;
 export const pathToMockTestDirectory = `${PATH_TO_PACKAGE}/test/mock`;
-export const expectedTestResultsByPath: TestSuite = {
+export const expectedTestResultsByPath = (state: string): TestSuite => ({
   [firstDir]: {
     [secondDir]: {
       [thirdDirOnTestOne]: {
@@ -32,6 +32,7 @@ export const expectedTestResultsByPath: TestSuite = {
           duration: durationOne,
           image: expectedImage,
           date: expectedDate,
+          state,
         }],
         [suiteTwo]: [{
           title: testThree,
@@ -40,6 +41,7 @@ export const expectedTestResultsByPath: TestSuite = {
           duration: durationThree,
           image: expectedImage,
           date: expectedDate,
+          state,
         }],
       },
       [thirdDirOnTestTwo]: {
@@ -50,11 +52,12 @@ export const expectedTestResultsByPath: TestSuite = {
           duration: durationTwo,
           image: expectedImage,
           date: expectedDate,
+          state,
         }],
       },
     },
   },
-} as unknown as TestSuite;
+} as unknown as TestSuite);
 
 export const tests = [{
   title: testOne,
