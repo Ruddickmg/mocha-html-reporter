@@ -1,7 +1,12 @@
 import CleanCss from 'clean-css';
 import { minify as minifyHtml } from 'html-minifier';
 import { minify as minifyJavascript } from 'uglify-js';
-import { Content, ReportData, TestResult, TestSuite } from './eventHandlers';
+import {
+  Content,
+  ReportData,
+  TestResult,
+  TestSuite,
+} from './eventHandlers';
 import { FAILED, NEW_LINE, PASSED } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
