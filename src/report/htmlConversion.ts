@@ -59,7 +59,7 @@ export const convertTestSuiteToHtml = (
   testSuite: TestSuite,
 ): string => {
   const parseSuite = (suite: TestSuite): ParsedSuite => {
-    let suiteFailed: boolean;
+    let suiteFailed = false;
     const results = Object.keys(suite)
       .map((title: string): string => {
         let content: ParsedSuite | string;
