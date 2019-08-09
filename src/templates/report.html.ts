@@ -7,7 +7,7 @@ export const reportTemplate = `<!DOCTYPE html>
         {{styles}}
     </style>
     <script id="data">
-        { "hello": "Hello World!" }
+        {{data}}
     </script>
     <script>
       {{scripts}}

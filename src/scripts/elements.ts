@@ -2,13 +2,13 @@ import { FAILED_BUTTON_ID, PASSED_BUTTON_ID } from './constants';
 
 export const getElementById = (id: string): Element => document.getElementById(id);
 
-export const getFailedButton = (): any => getElementById(FAILED_BUTTON_ID);
-export const getPassedButton = (): any => getElementById(PASSED_BUTTON_ID);
+export const getFailedButton = (): Element => getElementById(FAILED_BUTTON_ID);
+export const getPassedButton = (): Element => getElementById(PASSED_BUTTON_ID);
 
 export const getElementsByClasses = (...cssClasses: string[]): Element[] => {
   const listOfElements = document.body.querySelectorAll(
     cssClasses
-      .map(cssClass => `.${cssClass}`)
+      .map((cssClass: string): string => `.${cssClass}`)
       .join(''),
   );
   return listOfElements ? Array.from(listOfElements) : [];

@@ -5,15 +5,15 @@ import {
   getPassedButton,
   removeClassFromElement,
 } from './elements';
-import { ACTIVE } from './constants';
+import { VISIBLE } from './constants';
 
 export const activateElement = (
   element: Element,
-): void => addClassToElement(ACTIVE, element);
+): void => addClassToElement(VISIBLE, element);
 
 export const deactivateElement = (
   element: Element,
-): void => removeClassFromElement(ACTIVE, element);
+): void => removeClassFromElement(VISIBLE, element);
 
 export const activateFailedButton = () => activateElement(getFailedButton());
 export const deactivateFailedButton = () => deactivateElement(getFailedButton());

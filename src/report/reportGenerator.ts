@@ -14,11 +14,12 @@ import {
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
-import { Environment, formatOutputFilePath, getCommandLineOptions } from '../formatting/formatting';
+import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
 import { generateTestResultsBySuite } from '../formatting/testSuite';
 import { getHistory } from '../history/storage';
 import { compileCode } from '../scripts/compiler';
 import { variableNameGenerator } from '../../test/helpers/expectations';
+import { formatOutputFilePath } from '../formatting/paths';
 
 export const reportGenerator = async (
   runner: Runner,

@@ -42,7 +42,7 @@ const screenShotComparison = (() => {
     const stream = createWriteStream(path);
     stream.write(data);
     stream.end();
-    stream.on('finish', () => {
+    stream.on('finish', (): void => {
       resolve();
     });
     stream.on('error', reject);
@@ -56,7 +56,7 @@ const screenShotComparison = (() => {
       width,
       height,
     }: Coordinates,
-  ) => {
+  ): string => {
     const { width: pngWidth, height: pngHeight } = pngImage;
     const resultImage = new PNG({ width, height });
     [{ png: pngHeight, comp: height, name: 'height' }, { png: pngWidth, comp: width, name: 'width' }]
@@ -82,7 +82,7 @@ const screenShotComparison = (() => {
   const compareToPreviousImage = (
     baseline: any,
     screenShot: any,
-  ) => {
+  ): any => {
     const threshold = 0.1;
     const { width, height } = baseline;
     const difference = new PNG({ width, height });
