@@ -1,7 +1,7 @@
 import CleanCss from 'clean-css';
 import { minify as minifyHtml } from 'html-minifier';
 import { minify as minifyJavascript } from 'uglify-js';
-import { ReportData, TestResult, TestSuite } from './eventHandlers';
+import { Content, ReportData, TestResult, TestSuite } from './eventHandlers';
 import { FAILED, NEW_LINE, PASSED } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { History, historyTestSuiteHeaderTitle } from '../history/historyFormatting';
@@ -50,27 +50,43 @@ export const convertTestResultsToHtml = (
   }))
   .join(NEW_LINE);
 
+interface ParsedSuite {
+  results: string;
+  suiteFailed: boolean;
+}
+
 export const convertTestSuiteToHtml = (
   testSuite: TestSuite,
-): string => (function parseSuite(suite: TestSuite): string {
-  return Object.keys(suite)
-    .map((title: string): string => {
-      const current = suite[title];
-      const suiteFailed = isArray(current)
-        && !!(current as TestResult[]).find(({ state }: TestResult): boolean => state === FAILED);
-      return addValuesToTemplate(
-        testSuiteTemplate,
-        {
-          class: `${TEST_SUITE} ${suiteFailed ? FAILED : PASSED} ${HIDDEN}`,
-          content: isArray(current)
-            ? convertTestResultsToHtml(current as TestResult[])
-            : parseSuite(current as TestSuite),
-          title,
-        },
-      );
-    })
-    .join(NEW_LINE);
-}(testSuite));
+): string => {
+  const parseSuite = (suite: TestSuite): ParsedSuite => {
+    let suiteFailed: boolean;
+    const results = Object.keys(suite)
+      .map((title: string): string => {
+        let content: ParsedSuite | string;
+        const current = suite[title];
+        if (isArray(current)) {
+          suiteFailed = !!(current as TestResult[])
+            .find(({ state }: TestResult): boolean => state === FAILED);
+          content = convertTestResultsToHtml(current as TestResult[]);
+        } else {
+          content = parseSuite(current as TestSuite) as ParsedSuite;
+          // eslint-disable-next-line prefer-destructuring
+          suiteFailed = content.suiteFailed;
+        }
+        return addValuesToTemplate(
+          testSuiteTemplate,
+          {
+            class: `${TEST_SUITE} ${suiteFailed ? FAILED : PASSED} ${HIDDEN}`,
+            content: (content as ParsedSuite).results || content,
+            title,
+          } as Content,
+        );
+      })
+      .join(NEW_LINE);
+    return { results, suiteFailed };
+  };
+  return parseSuite(testSuite).results;
+};
 
 export const convertArrayToTableRow = (
   data: TestResult[],

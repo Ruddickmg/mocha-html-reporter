@@ -8,8 +8,7 @@ export const generateTestResultsByPath = (
 ): TestSuite => testResults
   .reduce((testSuite, test) => {
     let lastDirectory = testSuite as TestSuite;
-    const { suite } = test;
-    const { path } = test;
+    const { suite, path } = test;
     const buildTestResults = (directory: string): void => {
       if (!lastDirectory[directory]) {
         lastDirectory[directory] = {};
@@ -21,6 +20,7 @@ export const generateTestResultsByPath = (
     lastDirectory[suite] = isArray(suiteDirectory)
       ? [...suiteDirectory, test]
       : [test];
+    console.log('suite', testSuite, 'test', test);
     return testSuite;
   }, {} as TestSuite);
 

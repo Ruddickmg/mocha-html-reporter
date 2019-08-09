@@ -155,7 +155,6 @@ describe('eventHandlers', (): void => {
           const history = getHistory(pathToMockHtml);
           const styles = getStyles(PATH_TO_STYLE_SHEET);
           const scripts = compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
-          // TODO debug this, failing for failed tests for some reason
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
