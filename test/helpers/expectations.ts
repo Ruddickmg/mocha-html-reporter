@@ -1,7 +1,7 @@
 import { Test } from 'mocha';
 import { PATH_TO_PACKAGE } from '../../src/constants/constants';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
-import { formatDuration } from '../../src/parsers/formatting';
+import { formatDuration } from '../../src/formatting/formatting';
 import { TestResult, TestSuite } from '../../src/report/eventHandlers';
 import { VariableNameGenerator } from '../../src/utilities/compile';
 

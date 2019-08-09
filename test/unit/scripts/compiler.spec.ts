@@ -16,7 +16,7 @@ import {
   replaceVariablesInCode,
   combineVariablesForEachFile,
   compileCode, replaceVariablesInBulk,
-} from '../../../src/utilities/compiler';
+} from '../../../src/scripts/compiler';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 import { variableNameGenerator } from '../../helpers/expectations';
 

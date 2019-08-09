@@ -6,10 +6,10 @@ import {
   readFile,
 } from 'fs';
 import { EMPTY_STRING, STREAM_ERROR, STREAM_FINISH } from '../constants/constants';
-import { removeFileName } from '../parsers/formatting';
+import { removeFileName } from '../formatting/formatting';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from './compiler';
-import { buildParseTree, createParser, parseDataFromHtml } from './parser';
+import { getFileNameFromPath } from '../scripts/compiler';
+import { buildParseTree, createParser, parseDataFromHtml } from '../parsers/parser';
 import { DATA } from '../constants/cssClasses';
 import { isString } from './typeChecks';
 

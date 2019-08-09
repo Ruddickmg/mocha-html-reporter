@@ -1,6 +1,6 @@
 import { remove } from 'fs-extra';
 import { expect } from 'chai';
-import { mkdirSync, writeFileSync } from 'fs';
+import { mkdirSync } from 'fs';
 import {
   getHistory,
   writeHistory,
@@ -12,7 +12,7 @@ import {
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
-import { checkTestTreeEquality } from '../../../src/parsers/testSuite';
+import { checkTestTreeEquality } from '../../../src/formatting/testSuite';
 import { TestResult } from '../../../src/report/eventHandlers';
 
 describe('history', (): void => {

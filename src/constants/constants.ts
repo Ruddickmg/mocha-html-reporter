@@ -36,7 +36,6 @@ export const FUNCTION_DECLARATION = 'function';
 export const IMPORT_DECLARATION = 'require';
 export const QUOTATION_MARK = '"';
 export const SINGLE_QUOTE = '\'';
-export const SEMICOLON = ';';
 export const OPENING_CURLY = '{';
 export const CLOSING_CURLY = '}';
 export const OPEN_PARENTHESES = '(';

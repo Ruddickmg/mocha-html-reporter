@@ -10,17 +10,14 @@ import {
   SPACE,
   VARIABLE_DECLARATION,
 } from '../constants/constants';
-import { compose } from './functions';
-import { escapedRegEx } from './regEx';
-import { getFileContents } from './fileSystem';
-import { isArray } from './typeChecks';
-import {
-  parseCodeBlock,
-  parseVariableName,
-  Symbols,
-  variableDeclarationParser,
-  variableNameParser,
-} from './parser';
+import { compose } from '../utilities/functions';
+import { escapedRegEx } from '../utilities/regEx';
+import { getFileContents } from '../utilities/fileSystem';
+import { isArray } from '../utilities/typeChecks';
+import { variableDeclarationParser } from '../parsers/variableDeclaration';
+import { variableNameParser, parseVariableName } from '../parsers/variableName';
+import { parseCodeBlock } from '../parsers/code';
+import { Symbols } from '../parsers/parser';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;

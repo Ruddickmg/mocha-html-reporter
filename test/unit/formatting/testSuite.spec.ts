@@ -4,7 +4,7 @@ import {
   checkTestTreeEquality,
   generateTestResultsByPath,
   generateTestResultsBySuite,
-} from '../../../src/parsers/testSuite';
+} from '../../../src/formatting/testSuite';
 import {
   expectedDate,
   expectedImage,
@@ -12,7 +12,7 @@ import {
   pathToMockTestDirectory,
   tests,
 } from '../../helpers/expectations';
-import { createTestResultFormatter } from '../../../src/parsers/formatting';
+import { createTestResultFormatter } from '../../../src/formatting/formatting';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { FAILED, PASSED } from '../../../src/constants/constants';
 

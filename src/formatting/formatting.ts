@@ -1,5 +1,5 @@
-import { resolve } from 'path';
 import uuid from 'uuid/v1';
+import { resolve } from 'path';
 import { Test } from 'mocha';
 import {
   EMPTY_STRING,
@@ -13,7 +13,7 @@ import {
   PATH_SEPARATOR,
   SECOND_SUFFIX,
 } from '../constants/constants';
-import { getFilePath, getParentPath } from './path';
+import { getFilePath, getParentPath } from '../parsers/path';
 import { TestResult } from '../report/eventHandlers';
 import { TIMEOUT } from '../constants/cssClasses';
 

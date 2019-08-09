@@ -16,7 +16,7 @@ import {
   millisecondsToHumanReadable,
   millisecondsToRoundedHumanReadable,
   roundToTheNearestTenth,
-} from '../../../src/parsers/formatting';
+} from '../../../src/formatting/formatting';
 import {
   FAILED,
   HOUR_SUFFIX,

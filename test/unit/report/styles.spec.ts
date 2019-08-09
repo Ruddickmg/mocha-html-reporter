@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { getStyles } from '../../../src/parsers/styles';
+import { getStyles } from '../../../src/report/styles';
 
 describe('styles', (): void => {
   const mainTestStyles = '.test{background:#000}';

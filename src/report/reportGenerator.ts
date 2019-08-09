@@ -1,5 +1,5 @@
 import { Runner } from 'mocha';
-import { getStyles } from '../parsers/styles';
+import { getStyles } from './styles';
 import {
   createReportHandler,
   createTestHandler,
@@ -14,10 +14,10 @@ import {
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
-import { Environment, formatOutputFilePath, getCommandLineOptions } from '../parsers/formatting';
-import { generateTestResultsBySuite } from '../parsers/testSuite';
+import { Environment, formatOutputFilePath, getCommandLineOptions } from '../formatting/formatting';
+import { generateTestResultsBySuite } from '../formatting/testSuite';
 import { getHistory } from '../history/storage';
-import { compileCode } from '../utilities/compiler';
+import { compileCode } from '../scripts/compiler';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 
 export const reportGenerator = async (

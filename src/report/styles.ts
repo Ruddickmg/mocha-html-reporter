@@ -1,4 +1,4 @@
-import { minifyCss } from '../report/htmlConversion';
+import { minifyCss } from './htmlConversion';
 import { render } from 'node-sass';
 
 export const getStyles = (

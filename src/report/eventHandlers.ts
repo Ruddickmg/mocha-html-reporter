@@ -8,7 +8,7 @@ import {
   minifyJs,
 } from './htmlConversion';
 import { DELAY_START_PROPERTY } from '../constants/constants';
-import { createTestResultFormatter } from '../parsers/formatting';
+import { createTestResultFormatter } from '../formatting/formatting';
 import { formatHistory, groupTestSuitesByDate } from '../history/historyFormatting';
 import { addValuesToTemplate } from '../templates/all';
 import { writeHistory } from '../history/storage';

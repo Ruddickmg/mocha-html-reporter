@@ -32,16 +32,16 @@ import {
   PATH_TO_STYLE_SHEET,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
-import { createTestResultFormatter, formatDuration } from '../../../src/parsers/formatting';
+import { createTestResultFormatter, formatDuration } from '../../../src/formatting/formatting';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
-import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/parsers/testSuite';
+import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
 import { getHistory } from '../../../src/history/storage';
 import { cleanAndMinifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
 import { formatHistory, groupTestSuitesByDate } from '../../../src/history/historyFormatting';
 import { flattenArray } from '../../../src/utilities/arrays';
-import { compileCode } from '../../../src/utilities/compiler';
-import { getStyles } from '../../../src/parsers/styles';
+import { compileCode } from '../../../src/scripts/compiler';
+import { getStyles } from '../../../src/report/styles';
 import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
 import { HIDDEN } from '../../../src/scripts/constants';
 

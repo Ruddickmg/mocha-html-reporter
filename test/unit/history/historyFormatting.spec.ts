@@ -8,7 +8,7 @@ import {
   TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle, groupTestSuitesByDate,
 } from '../../../src/history/historyFormatting';
 import { TestResult } from '../../../src/report/eventHandlers';
-import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/parsers/formatting';
+import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/formatting/formatting';
 import { EMPTY_STRING } from '../../../src/constants/constants';
 
 describe('historyTableFormatting', (): void => {

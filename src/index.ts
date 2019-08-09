@@ -1,5 +1,5 @@
 import { reporters, Runner } from 'mocha';
-import { Environment } from './parsers/formatting';
+import { Environment } from './formatting/formatting';
 import { reportGenerator } from './report/reportGenerator';
 import { capitalizeFirstLetter } from './utilities/strings';
 import { logError } from './utilities/logging';
