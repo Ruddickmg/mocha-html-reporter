@@ -19,7 +19,6 @@ import {
   TestHandlers, ReportData,
 } from './eventHandlers';
 import { ReportInput, reportTemplate } from '../templates/report.html';
-import { minifyHtml } from '../formatting/minification';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -34,10 +33,11 @@ export const reportGenerator = async (
   } = getCommandLineOptions(environment);
   const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
+  const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
   const scripts = await getScripts(PATH_TO_SCRIPTS);
   const history = await getHistory(pathToOutputFile) || {};
-  const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
+
   const reportInput: ReportInput = {
     pageTitle: 'This is a test',
     styles,
@@ -52,7 +52,10 @@ export const reportGenerator = async (
   };
 
   if (!existsSync(pathToOutputFile)) {
-    await writeToFile(pathToOutputFile, minifyHtml(reportTemplate(reportInput)));
+    await writeToFile(
+      pathToOutputFile,
+      reportTemplate(reportInput),
+    );
   }
 
   const handlers: TestHandlers = {
