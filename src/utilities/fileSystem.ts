@@ -10,17 +10,23 @@ import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from '../scripts/compiler';
 import { parseDataFromHtml } from '../parsers/history';
 import { isString } from './typeChecks';
-import { TestResult } from '../report/eventHandlers';
 import {
   END_OF_STREAM,
   STREAM_DATA,
   STREAM_ERROR,
   STREAM_FINISH,
 } from '../constants/streams';
-import { from } from 'event-stream';
 import { EMPTY_STRING } from '../constants/constants';
-import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
-import { History } from '../report/eventHandlers';
+
+export const splitStringIntoChunk = (str: string, size: number): string[] => {
+  const length = Math.ceil(str.length / size);
+  const result = new Array(length);
+  for (let i = 0; i < length; i += 1) {
+    const offset = i * size;
+    result[i] = str.substring(offset, offset + size);
+  }
+  return result;
+};
 
 export const writeToFile = (
   pathToFile: string,
@@ -29,22 +35,26 @@ export const writeToFile = (
   resolve,
   reject,
 ): void => {
+  const CHUNK_SIZE = 1000;
   const pathToDirectory = removeFileName(pathToFile);
   if (!existsSync(pathToDirectory)) {
     mkdirSync(pathToDirectory);
   }
+  const chunks = splitStringIntoChunk(content, CHUNK_SIZE);
+  const amount = chunks.length;
   const writeStream = createWriteStream(pathToFile);
-  writeStream.write(content);
-  writeStream.on(STREAM_FINISH, (error: Error): void => {
-    if (error) {
-      logError(error);
-      reject(error);
-    } else {
-      logMessage(getFileNameFromPath(pathToFile), 'has been output to:', pathToFile);
-      resolve();
-    }
-  });
+  for (let chunkIndex = 0; chunkIndex < amount; chunkIndex += 1) {
+    writeStream.write(chunks[chunkIndex]);
+  }
   writeStream.end();
+  writeStream.on(STREAM_FINISH, (): void => {
+    logMessage(getFileNameFromPath(pathToFile), 'has been output to:', pathToFile);
+    resolve();
+  });
+  writeStream.on(STREAM_ERROR, (error: Error): void => {
+    logError(error);
+    reject(error);
+  });
 });
 
 export const getFileContents = (
@@ -60,25 +70,6 @@ export const getFileContents = (
       : resolve(data.toString())),
   ),
 );
-
-const surroundWithHtmlTags = (data: string): string => `${DATA_OPENING_TAGS}${data}${DATA_CLOSING_TAGS}`;
-
-export const streamingReplaceInFile = (
-  fileName: string,
-  match: string,
-  replacement: string,
-): Promise<void> => new Promise((
-  resolve,
-  reject,
-): void => {
-  const stream = createReadStream(fileName);
-  stream.pipe(
-    from(surroundWithHtmlTags(match))
-      .to(surroundWithHtmlTags(replacement)),
-  );
-  stream.on(END_OF_STREAM, resolve);
-  stream.on(STREAM_ERROR, reject);
-});
 
 export const getHistoryAsJson = (
   filePath: string,

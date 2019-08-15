@@ -4,54 +4,32 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { mkdirSync } from 'fs';
 import {
-  createReportHandler,
   createTestHandler,
   delayStart,
-  ReportData,
   handleMochaEvents,
   TestHandlers,
-  TestResult,
+  TestResult, History,
 } from '../../../src/report/eventHandlers';
 import {
   pathToMockTestDirectory,
   tests,
 } from '../../helpers/expectations';
 import {
-  addValuesToTemplate,
-  reportTemplate,
-  testSuiteTemplate,
-  testResultTemplate,
-  imageTemplate,
-} from '../../../src/templates/all';
-import { getFileContents, getHistory, getHistoryAsJson } from '../../../src/utilities/fileSystem';
-import {
   EMPTY_STRING,
-  FAILED, FINISHED,
+  FAILED,
+  FINISHED,
   PASSED,
   PATH_TO_PACKAGE,
-  PATH_TO_SCRIPTS,
-  PATH_TO_STYLE_SHEET,
   TEST_DIRECTORY,
 } from '../../../src/constants/constants';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
-import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
-import { minifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
-import { formatHistory, groupTestSuitesByDate } from '../../../src/formatting/history';
-import { flattenArray } from '../../../src/utilities/arrays';
-import { getScripts } from '../../../src/scripts/compiler';
-import { getStyles } from '../../../src/report/styles';
-import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
-import { HIDDEN } from '../../../src/scripts/constants';
-import { formatDuration } from '../../../src/formatting/time';
+import { getFileContents } from '../../../src/utilities/fileSystem';
+import { ReportInput, reportTemplate } from '../../../src/templates/report.html';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
-  const fileName = 'morphius';
-  const pathToMockFile = `${pathToMockHtml}/${fileName}.html`;
-  const testResultClass = (state: string): string => `${TEST_RESULT} ${state} ${HIDDEN}`;
-  const testSuiteClass = (state: string): string => `${TEST_SUITE} ${state} ${HIDDEN}`;
   const removeAndCheckIds = (
     results: TestResult[],
   ): any => results
@@ -113,181 +91,75 @@ describe('eventHandlers', (): void => {
   });
   describe('createTestHandler', (): void => {
     const date = Date.now();
+    const reportData = {
+      pageTitle: 'testing 123',
+      styles: EMPTY_STRING,
+      scripts: EMPTY_STRING,
+    } as ReportInput;
     [PASSED, FAILED]
       .forEach((state: string): any => {
-        it('Parses tests into the correct output', (): void => {
+        it(`Parses tests into the correct output for ${state} tests`, async (): Promise<void> => {
           const testResults: TestResult[] = [];
+          const history: History = {};
           const takeScreenShot = false;
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
           const testHandler = createTestHandler(
             testResults,
+            history,
+            reportData,
             pathToMockTestDirectory,
-            takeScreenShot,
             date,
             state,
+            takeScreenShot,
           );
           const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test));
-
-          tests.forEach((test: Test): void => testHandler(test));
-
+          await Promise.all(tests.map((test: Test): Promise<void> => testHandler(test)));
           expect(removeAndCheckIds(testResults)).to.eql(removeAndCheckIds(formattedResults));
         });
-        it('Will parse a test and take a screen shot', async (): Promise<void> => {
+        it(`Will parse a test and take a screen shot for ${state} tests`, async (): Promise<void> => {
           const testResults: TestResult[] = [];
+          const history: History = {};
           const takeScreenShot = true;
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
           const testHandler = createTestHandler(
             testResults,
+            history,
+            reportData,
             pathToMockTestDirectory,
-            takeScreenShot,
             date,
             state,
+            takeScreenShot,
           );
           const formattedResults = tests
             .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
-
-          await Promise.all(tests.map((test: Test): void => testHandler(test)));
-
+          await Promise.all(tests.map((test: Test): Promise<void> => testHandler(test)));
           expect(removeAndCheckIds(testResults)).to.eql(removeAndCheckIds(formattedResults));
         });
-      });
-  });
-  describe('createReportHandler', (): void => {
-    const title = 'best test';
-    const suite = 'a suite';
-    const path = ['some', 'cool', 'directory'];
-    const duration = 4;
-    const date = Date.now();
-    const image = 'image'; // base64NoImageString;
-    const reportData: ReportData = {
-      reportTitle: 'hello',
-      pageTitle: 'world',
-    };
-    [PASSED, FAILED]
-      .forEach((state: string): void => {
-        const testResults: TestResult[] = [
-          {
-            title,
-            duration,
-            image,
+        it('Will write output to an output file for each test', async (): Promise<void> => {
+          const testResults: TestResult[] = [];
+          const history: History = {};
+          const takeScreenShot = false;
+          const testHandler = createTestHandler(
+            testResults,
+            history,
+            reportData,
+            pathToMockTestDirectory,
             date,
             state,
-            suite,
-            path,
-          },
-        ] as TestResult[];
-        it(`Parses tests correctly into html output by suite for a ${state} test`, async (): Promise<void> => {
-          const history = await getHistory(pathToMockFile);
-          const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await getScripts(PATH_TO_SCRIPTS);
-          const reportHandler = createReportHandler(
-            testResults,
-            pathToMockFile,
-            {
-              ...reportData,
-              history,
-              scripts,
-              styles,
-            },
-            generateTestResultsBySuite,
+            takeScreenShot,
           );
-          const suites = [suite]
-            .reverse()
-            .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
-              testSuiteTemplate,
-              { content, title: suiteTitle, class: testSuiteClass(state) },
-            ), addValuesToTemplate(testResultTemplate, {
-              title,
-              class: testResultClass(state),
-              duration: formatDuration(duration),
-              image: addValuesToTemplate(imageTemplate, { image }),
-            }));
-          const expected = reportTemplate({
-            suites,
-            ...reportData,
-            styles,
-            scripts: minifyJs(scripts),
-            data: EMPTY_STRING,
-            history: convertHistoryToHtml(formatHistory([
-              ...testResults,
-              ...history,
-            ])),
-          });
-          await reportHandler();
-
-          expect(await getFileContents(pathToMockFile)).to.equal(minifyHtml(expected));
-        });
-        it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
-          const history = await getHistory(pathToMockFile);
-          const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await getScripts(PATH_TO_SCRIPTS);
-          const reportHandler = createReportHandler(
-            testResults,
-            pathToMockFile,
-            {
-              ...reportData,
-              history,
-              styles,
-              scripts,
-            },
-            generateTestResultsByPath,
-          );
-          const suites = [...path, suite]
-            .reverse()
-            .reduce((content: string, suiteTitle: string): string => addValuesToTemplate(
-              testSuiteTemplate,
-              { content, title: suiteTitle, class: testSuiteClass(state) },
-            ), addValuesToTemplate(testResultTemplate, {
-              title,
-              class: testResultClass(state),
-              duration: formatDuration(duration),
-              image: addValuesToTemplate(imageTemplate, { image }),
-            }));
-          const expected = reportTemplate({
-            suites,
-            ...reportData,
-            styles,
-            scripts: minifyJs(scripts),
-            data: JSON.stringify(history),
-            history: convertHistoryToHtml(formatHistory([
-              ...testResults,
-              ...history,
-            ])),
-          });
-          await reportHandler();
-
-          expect(await getFileContents(pathToMockFile)).to.equal(minifyHtml(expected));
+          await tests
+            .reduce((previous: Promise<void>, test: Test): Promise<void> => previous
+              .then(async (): Promise<void> => {
+                await testHandler(test);
+                expect(await getFileContents(pathToMockTestDirectory))
+                  .to
+                  .equal(reportTemplate({
+                    ...reportData,
+                    data: JSON.stringify(history),
+                  }));
+              }), Promise.resolve());
         });
       });
-    it('Will output history correctly into json', async (): Promise<void> => {
-      const testResults: TestResult[] = [
-        {
-          title,
-          duration,
-          image,
-          date,
-          suite,
-          path,
-        },
-      ] as TestResult[];
-      const history = await getHistory(pathToMockFile);
-      const styles = await getStyles(PATH_TO_STYLE_SHEET);
-      const scripts = await getScripts(PATH_TO_SCRIPTS);
-      const reportHandler = createReportHandler(
-        testResults,
-        pathToMockFile,
-        {
-          ...reportData,
-          history,
-          scripts,
-          styles,
-        },
-        generateTestResultsBySuite,
-      );
-      const expected = flattenArray(groupTestSuitesByDate(testResults));
-      await reportHandler();
-
-      expect(await getHistoryAsJson(pathToMockFile)).to.eql(expected);
-    });
   });
 });

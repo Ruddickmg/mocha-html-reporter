@@ -1,11 +1,12 @@
 import { Runner, Test } from 'mocha';
-import { streamingReplaceInFile } from '../utilities/fileSystem';
+import { writeToFile } from '../utilities/fileSystem';
 import { createTestResultFormatter } from '../formatting/testResults';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../formatting/time';
 import { FINISHED } from '../constants/constants';
 import { compose } from '../utilities/functions';
 import { DELAY_START_PROPERTY } from '../constants/mocha';
+import { reportTemplate, ReportInput } from '../templates/report.html';
 
 export interface Content {
   [name: string]: string;
@@ -57,6 +58,7 @@ export const delayStart = (runner: Runner): void => {
 export const createTestHandler = (
   tests: TestResult[],
   history: History,
+  reportData: ReportInput,
   pathToOutputFile: string,
   timeOfTest: number,
   state: string,
@@ -69,9 +71,7 @@ export const createTestHandler = (
   );
   const date = getMonthDayYearFromDate(convertMillisecondsToDate(timeOfTest));
   const data = history;
-  let current;
-  let previous = JSON.stringify(history);
-  return (test: Test): Promise<void> => new Promise(async (): Promise<void> => {
+  return async (test: Test): Promise<void> => {
     let image: string;
     if (captureScreen) {
       try {
@@ -83,14 +83,14 @@ export const createTestHandler = (
     const testResult = formatTestResult(test, image);
     tests.push(testResult);
     data[date] = tests;
-    current = JSON.stringify(data);
-    await streamingReplaceInFile(
+    return writeToFile(
       pathToOutputFile,
-      previous,
-      current,
+      reportTemplate({
+        ...reportData,
+        data: JSON.stringify(data),
+      }),
     );
-    previous = current;
-  });
+  };
 };
 
 export const handleMochaEvents = (
