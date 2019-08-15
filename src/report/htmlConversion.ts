@@ -1,5 +1,5 @@
 import CleanCss from 'clean-css';
-import { minify as minifyHtml } from 'html-minifier';
+import { minify as htmlMinifier } from 'html-minifier';
 import { minify as minifyJavascript } from 'uglify-js';
 import {
   Content,
@@ -7,9 +7,14 @@ import {
   TestResult,
   TestSuite,
 } from './eventHandlers';
-import { FAILED, NEW_LINE, PASSED } from '../constants/constants';
+import {
+  EMPTY_STRING,
+  FAILED,
+  NEW_LINE,
+  PASSED,
+} from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
-import { History, historyTestSuiteHeaderTitle } from '../formatting/historyFormatting';
+import { HistoryBySuite, historyTestSuiteHeaderTitle } from '../formatting/history';
 import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 import {
   addValuesToTemplate,
@@ -32,10 +37,13 @@ import {
   HISTORY_TABLE,
   HISTORY_TABLE_DATA,
   HISTORY_TABLE_HEADER,
-  HISTORY_TABLE_ROW, TEST_RESULT,
-  TEST_RESULT_BUTTON, TEST_SUITE,
+  HISTORY_TABLE_ROW,
+  TEST_RESULT,
+  TEST_RESULT_BUTTON,
+  TEST_SUITE,
 } from '../constants/cssClasses';
 import { millisecondsToRoundedHumanReadable } from '../formatting/time';
+import { ReportInput } from '../templates/report.html';
 
 export const convertTestResultsToHtml = (
   testResults: TestResult[],
@@ -127,7 +135,7 @@ export const convertArrayToTableHeader = (
   },
 );
 
-export const convertHistoryToHtml = (history: History): string => {
+export const convertHistoryToHtml = (history: HistoryBySuite): string => {
   const header = [
     { title: historyTestSuiteHeaderTitle },
     ...(history[historyTestSuiteHeaderTitle] || []),
@@ -158,18 +166,29 @@ export const convertHistoryToHtml = (history: History): string => {
 };
 
 export const convertSuitesToHtml = (
-  reportData: ReportData,
+  {
+    pageTitle,
+    scripts,
+    styles,
+    reportTitle,
+    history,
+  }: ReportData,
   testSuites: TestSuite[],
-): string => addValuesToTemplate(reportTemplate, {
+): string => reportTemplate({
+  pageTitle,
+  scripts,
+  styles,
+  reportTitle,
+  history: JSON.stringify(history),
+  data: EMPTY_STRING,
   suites: testSuites
     .map(convertTestSuiteToHtml)
     .join(NEW_LINE),
-  ...reportData,
-});
+} as ReportInput);
 
-export const cleanAndMinifyHtml = (
+export const minifyHtml = (
   html: string,
-): string => minifyHtml(clearAllTemplateValues(html), minifyHtmlConfiguration);
+): string => htmlMinifier(clearAllTemplateValues(html), minifyHtmlConfiguration);
 
 export const minifyJs = (prettyCode: string): string => {
   const { code, error } = minifyJavascript(prettyCode, uglifyJsConfiguration);

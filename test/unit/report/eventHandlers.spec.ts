@@ -8,13 +8,13 @@ import {
   createTestHandler,
   delayStart,
   ReportData,
-  setTestEventHandlers,
+  handleMochaEvents,
   TestHandlers,
   TestResult,
 } from '../../../src/report/eventHandlers';
 import {
   pathToMockTestDirectory,
-  tests, variableNameGenerator,
+  tests,
 } from '../../helpers/expectations';
 import {
   addValuesToTemplate,
@@ -23,9 +23,10 @@ import {
   testResultTemplate,
   imageTemplate,
 } from '../../../src/templates/all';
-import { getFileContents, getHistory } from '../../../src/utilities/fileSystem';
+import { getFileContents, getHistory, getHistoryAsJson } from '../../../src/utilities/fileSystem';
 import {
-  FAILED,
+  EMPTY_STRING,
+  FAILED, FINISHED,
   PASSED,
   PATH_TO_PACKAGE,
   PATH_TO_SCRIPTS,
@@ -36,10 +37,10 @@ import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
-import { cleanAndMinifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
-import { formatHistory, groupTestSuitesByDate } from '../../../src/formatting/historyFormatting';
+import { minifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
+import { formatHistory, groupTestSuitesByDate } from '../../../src/formatting/history';
 import { flattenArray } from '../../../src/utilities/arrays';
-import { compileCode } from '../../../src/scripts/compiler';
+import { getScripts } from '../../../src/scripts/compiler';
 import { getStyles } from '../../../src/report/styles';
 import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
 import { HIDDEN } from '../../../src/scripts/constants';
@@ -70,19 +71,44 @@ describe('eventHandlers', (): void => {
       expect(runner).to.eql({ _delay: true });
     });
   });
-  describe('setTestEventHandlers', (): void => {
+  describe('handleMochaEvents', (): void => {
+    let promise: any;
+    const action = 'doTheThing';
+    const value: Promise<void> = new Promise((resolve, reject): void => {
+      promise = { resolve, reject };
+    });
+    const on = spy();
+    const run = spy();
+    const emit = spy();
+    const handlers = {
+      [action]: (): Promise<void> => value,
+    } as unknown as TestHandlers;
+    const runner = { on, run, emit } as unknown as Runner;
+    it('Calls the run method of the test runner', (): void => {
+      handleMochaEvents(runner, handlers);
+      expect(run.called).to.equal(true);
+    });
     it('Will set the actions/handlers of the test runner event\'s', (): void => {
-      const action = 'doTheThing';
-      const on = spy();
-      const handlers = {
-        [action]: 'functionPlaceHolder',
+      handleMochaEvents(runner, handlers);
+      expect(on.calledWith(action)).to.equal(true);
+    });
+    it('Will be passed/call the action function for each action', (): void => {
+      const testActionFunction = (_: string, actionFunction: any): void => {
+        expect(actionFunction()).to.eql([value]);
       };
-      const runner = { on } as unknown;
-      setTestEventHandlers(
-        runner as Runner,
-        (handlers as unknown) as TestHandlers,
+      handleMochaEvents(
+        { ...runner, on: testActionFunction } as unknown as Runner,
+        handlers,
       );
-      expect(on.calledWith(action, handlers[action])).to.eql(true);
+    });
+    it('Will not emit finished event if there are unresolved async test promises', (): void => {
+      handleMochaEvents(runner, handlers);
+      expect(emit.calledWith(FINISHED)).to.equal(false);
+    });
+    it('Will emit finished event when all async test promises have resolved', (): void => {
+      promise.resolve();
+      handleMochaEvents(runner, handlers);
+      expect(emit.calledWith(FINISHED)).to.equal(false);
     });
   });
   describe('createTestHandler', (): void => {
@@ -153,7 +179,7 @@ describe('eventHandlers', (): void => {
         it(`Parses tests correctly into html output by suite for a ${state} test`, async (): Promise<void> => {
           const history = await getHistory(pathToMockFile);
           const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+          const scripts = await getScripts(PATH_TO_SCRIPTS);
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -176,11 +202,12 @@ describe('eventHandlers', (): void => {
               duration: formatDuration(duration),
               image: addValuesToTemplate(imageTemplate, { image }),
             }));
-          const expected = addValuesToTemplate(reportTemplate, {
+          const expected = reportTemplate({
             suites,
             ...reportData,
-            styles: await styles,
-            scripts: minifyJs(await scripts),
+            styles,
+            scripts: minifyJs(scripts),
+            data: EMPTY_STRING,
             history: convertHistoryToHtml(formatHistory([
               ...testResults,
               ...history,
@@ -188,12 +215,12 @@ describe('eventHandlers', (): void => {
           });
           await reportHandler();
 
-          expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
+          expect(await getFileContents(pathToMockFile)).to.equal(minifyHtml(expected));
         });
         it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
           const history = await getHistory(pathToMockFile);
           const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+          const scripts = await getScripts(PATH_TO_SCRIPTS);
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -216,11 +243,12 @@ describe('eventHandlers', (): void => {
               duration: formatDuration(duration),
               image: addValuesToTemplate(imageTemplate, { image }),
             }));
-          const expected = addValuesToTemplate(reportTemplate, {
+          const expected = reportTemplate({
             suites,
             ...reportData,
             styles,
             scripts: minifyJs(scripts),
+            data: JSON.stringify(history),
             history: convertHistoryToHtml(formatHistory([
               ...testResults,
               ...history,
@@ -228,7 +256,7 @@ describe('eventHandlers', (): void => {
           });
           await reportHandler();
 
-          expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
+          expect(await getFileContents(pathToMockFile)).to.equal(minifyHtml(expected));
         });
       });
     it('Will output history correctly into json', async (): Promise<void> => {
@@ -244,7 +272,7 @@ describe('eventHandlers', (): void => {
       ] as TestResult[];
       const history = await getHistory(pathToMockFile);
       const styles = await getStyles(PATH_TO_STYLE_SHEET);
-      const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+      const scripts = await getScripts(PATH_TO_SCRIPTS);
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
@@ -259,7 +287,7 @@ describe('eventHandlers', (): void => {
       const expected = flattenArray(groupTestSuitesByDate(testResults));
       await reportHandler();
 
-      expect(await getHistory(pathToMockFile)).to.eql(expected);
+      expect(await getHistoryAsJson(pathToMockFile)).to.eql(expected);
     });
   });
 });

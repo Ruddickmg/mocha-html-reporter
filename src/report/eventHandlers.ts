@@ -1,16 +1,11 @@
 import { Runner, Test } from 'mocha';
-import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
-import { writeToFile } from '../utilities/fileSystem';
-import {
-  cleanAndMinifyHtml,
-  convertHistoryToHtml,
-  convertSuitesToHtml,
-  minifyJs,
-} from './htmlConversion';
-import { DELAY_START_PROPERTY } from '../constants/constants';
+import { streamingReplaceInFile } from '../utilities/fileSystem';
 import { createTestResultFormatter } from '../formatting/testResults';
-import { formatHistory, groupTestSuitesByDate } from '../formatting/historyFormatting';
-import { addValuesToTemplate } from '../templates/all';
+import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
+import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../formatting/time';
+import { FINISHED } from '../constants/constants';
+import { compose } from '../utilities/functions';
+import { DELAY_START_PROPERTY } from '../constants/mocha';
 
 export interface Content {
   [name: string]: string;
@@ -18,6 +13,19 @@ export interface Content {
 
 export interface TestSuite {
   [directory: string]: TestSuite | TestResult[] | Content | string;
+}
+
+export interface History {
+  [date: string]: TestResult[];
+}
+
+export type TestHandler = (
+  test?: Test,
+  error?: Error,
+) => Promise<void>;
+
+export interface TestHandlers {
+  [handlerName: string]: TestHandler;
 }
 
 export interface TestResult {
@@ -33,15 +41,6 @@ export interface TestResult {
   title: string;
 }
 
-export interface TestHandlers {
-  [handlerName: string]: TestHandler;
-}
-
-export type TestHandler = (
-  test?: Test,
-  error?: Error,
-) => void;
-
 export interface ReportData {
   reportTitle: string;
   pageTitle: string;
@@ -55,68 +54,63 @@ export const delayStart = (runner: Runner): void => {
   runner[DELAY_START_PROPERTY] = true;
 };
 
-export const setTestEventHandlers = (
-  runner: Runner,
-  handlers: TestHandlers,
-): void => Object
-  .keys(handlers)
-  .forEach((
-    action: string,
-  ): Runner => runner.on(action, handlers[action]));
-
 export const createTestHandler = (
-  testResults: TestResult[],
-  testDirectory: string,
-  captureScreen: boolean,
+  tests: TestResult[],
+  history: History,
+  pathToOutputFile: string,
   timeOfTest: number,
   state: string,
+  captureScreen: boolean,
 ): TestHandler => {
-  const formatTestResults = createTestResultFormatter(testDirectory, timeOfTest, state);
-  return (
-    test: Test,
-  ): Promise<TestResult[]> => new Promise((resolve): void => {
-    const updateTests = (image?: string): void => {
-      testResults.push(formatTestResults(test, image));
-      resolve(testResults);
-    };
+  const formatTestResult = createTestResultFormatter(
+    pathToOutputFile,
+    timeOfTest,
+    state,
+  );
+  const date = getMonthDayYearFromDate(convertMillisecondsToDate(timeOfTest));
+  const data = history;
+  let current;
+  let previous = JSON.stringify(history);
+  return (test: Test): Promise<void> => new Promise(async (): Promise<void> => {
+    let image: string;
     if (captureScreen) {
-      takeScreenShot()
-        .then(updateTests)
-        .catch((): Promise<void> => handleFailedScreenShot()
-          .then(updateTests));
-    } else {
-      updateTests();
+      try {
+        image = await takeScreenShot();
+      } catch (error) {
+        image = await handleFailedScreenShot();
+      }
     }
+    const testResult = formatTestResult(test, image);
+    tests.push(testResult);
+    data[date] = tests;
+    current = JSON.stringify(data);
+    await streamingReplaceInFile(
+      pathToOutputFile,
+      previous,
+      current,
+    );
+    previous = current;
   });
 };
 
-export const createReportHandler = (
-  tests: TestResult[],
-  pathToOutputFile: string,
-  {
-    history,
-    styles,
-    scripts,
-    ...reportData
-  }: ReportData,
-  generateTestSuite: (tests: TestResult[]) => TestSuite,
-): TestHandler => async (): Promise<void[]> => {
-  const allTests = [...tests, ...history];
-  const formattedHistory = formatHistory(allTests);
-  const htmlHistory = convertHistoryToHtml(formattedHistory);
-  const testsGroupedByDate = groupTestSuitesByDate(allTests);
-  const htmlSuites = convertSuitesToHtml(
-    reportData,
-    testsGroupedByDate
-      .map(generateTestSuite),
-  );
-  const report = addValuesToTemplate(htmlSuites, {
-    history: htmlHistory,
-    scripts: minifyJs(scripts),
-    styles,
-  });
-  return Promise
-    .all([
-      writeToFile(pathToOutputFile, cleanAndMinifyHtml(report)),
-    ]);
+export const handleMochaEvents = (
+  runner: Runner,
+  handlers: TestHandlers,
+): void => {
+  const allTests: Promise<void>[] = [];
+  const addTestToCue = (testHandlerResult: Promise<void>): Promise<void>[] => {
+    allTests.push(testHandlerResult);
+    return allTests;
+  };
+  const waitForTestsBeforeFinish = async (): Promise<void> => {
+    await Promise.all(allTests);
+    runner.emit(FINISHED);
+  };
+  delayStart(runner);
+  Object
+    .keys(handlers)
+    .forEach((
+      action: string,
+    ): Runner => runner.on(action, compose(handlers[action], addTestToCue)));
+  runner.run(waitForTestsBeforeFinish); // TODO may need 'runSuite' test this.
 };

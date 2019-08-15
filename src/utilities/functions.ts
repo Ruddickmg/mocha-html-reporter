@@ -8,11 +8,14 @@ export const compose = (
   ...functions: Modifier[]
 ): any => (
   value: any,
-): any => functions
-  .reduce((
-    composed: any,
-    modifier: Modifier,
-  ) => modifier(composed), value);
+): any => {
+  const { length } = functions;
+  let result: any = value;
+  for (let i = 0; i < length; i += 1) {
+    result = functions[i](result);
+  }
+  return result;
+};
 
 export const mapOverObject = (
   modifier: Modifier,

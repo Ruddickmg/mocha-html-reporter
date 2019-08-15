@@ -6,7 +6,6 @@ export const PASSED = 'passed';
 export const FAILED = 'failed';
 export const FINISHED = 'end';
 export const PACKAGE_NAME = 'mocha-html-reporter';
-export const JSON_EXTENSION = '.json';
 export const NEW_LINE = EOL;
 export const PATH_SEPARATOR = sep;
 export const TEMPLATE_BRACES = /{{.*?}}/g;
@@ -25,7 +24,6 @@ export const ONE_MILLISECOND = 1;
 export const ONE_SECOND = 1000 * ONE_MILLISECOND;
 export const ONE_MINUTE = 60 * ONE_SECOND;
 export const ONE_HOUR = 60 * ONE_MINUTE;
-export const DELAY_START_PROPERTY = '_delay';
 export const SPACE = ' ';
 export const VARIABLE_DECLARATION = 'var';
 export const FUNCTION_DECLARATION = 'function';
@@ -35,30 +33,3 @@ export const SINGLE_QUOTE = '\'';
 export const OPENING_CURLY = '{';
 export const CLOSING_CURLY = '}';
 export const OPEN_PARENTHESES = '(';
-
-export default {
-  PERIOD,
-  PASS: PASSED,
-  FAIL: FAILED,
-  FINISHED,
-  PACKAGE_NAME,
-  NEW_LINE,
-  PATH_SEPARATOR,
-  TEMPLATE_BRACES,
-  UUID,
-  SUITE_UUID,
-  EMPTY_STRING,
-  PATH_TO_PACKAGE,
-  TEST_DIRECTORY,
-  PATH_TO_STYLE_SHEET,
-  MILLISECOND_SUFFIX,
-  SECOND_SUFFIX,
-  MINUTE_SUFFIX,
-  HOUR_SUFFIX,
-  ONE_MILLISECOND,
-  ONE_SECOND,
-  ONE_MINUTE,
-  ONE_HOUR,
-  DELAY_START_PROPERTY,
-  JSON_EXTENSION,
-};

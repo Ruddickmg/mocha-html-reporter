@@ -1,26 +1,24 @@
 import { Runner } from 'mocha';
+import { existsSync } from 'fs';
 import { getStyles } from './styles';
 import {
-  createReportHandler,
-  createTestHandler,
-  setTestEventHandlers,
-  TestHandlers,
-  TestResult,
-} from './eventHandlers';
-import {
   FAILED,
-  FINISHED,
   PASSED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
 } from '../constants/constants';
 import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
-import { generateTestResultsBySuite } from '../formatting/testSuite';
-import { compileCode } from '../scripts/compiler';
-import { getHistory } from '../utilities/fileSystem';
-import { variableNameGenerator } from '../../test/helpers/expectations';
+import { getScripts } from '../scripts/compiler';
+import { getHistory, writeToFile } from '../utilities/fileSystem';
 import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
+import {
+  createTestHandler,
+  handleMochaEvents,
+  TestResult,
+  TestHandlers,
+} from './eventHandlers';
+import { reportTemplate } from '../templates/report.html';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -37,42 +35,41 @@ export const reportGenerator = async (
   const timeOfTest = Date.now();
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const history = await getHistory(pathToOutputFile);
-  const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+  const scripts = await getScripts(PATH_TO_SCRIPTS);
+  const history = await getHistory(pathToOutputFile) || {};
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',
     pageTitle: 'This is a test',
+    data: JSON.stringify(history),
     styles,
     scripts,
-    history,
   };
+
+  if (!existsSync(pathToOutputFile)) {
+    await writeToFile(pathToOutputFile, reportTemplate(reportData));
+  }
 
   const handlers: TestHandlers = {
     [TEST_FAILED]: createTestHandler(
       tests,
+      history,
       testDir,
-      takeScreenShotOnFailure,
       timeOfTest,
       FAILED,
+      takeScreenShotOnFailure,
     ),
     [TEST_PASSED]: createTestHandler(
       tests,
+      history,
       testDir,
-      screenShotEachTest,
       timeOfTest,
       PASSED,
-    ),
-    // TODO pass statistic/suite data through report handler, counts etc from test handler
-    [FINISHED]: createReportHandler(
-      tests,
-      pathToOutputFile,
-      reportData,
-      generateTestResultsBySuite,
+      screenShotEachTest,
     ),
   };
 
-  setTestEventHandlers(runner, handlers);
+  handleMochaEvents(runner, handlers);
 };
 
 export default reportGenerator;

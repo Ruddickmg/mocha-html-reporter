@@ -17,6 +17,10 @@ import {
   STREAM_ERROR,
   STREAM_FINISH,
 } from '../constants/streams';
+import { from } from 'event-stream';
+import { EMPTY_STRING } from '../constants/constants';
+import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
+import { History } from '../report/eventHandlers';
 
 export const writeToFile = (
   pathToFile: string,
@@ -57,10 +61,28 @@ export const getFileContents = (
   ),
 );
 
-export const getHistory = (
-  filePath: string,
+const surroundWithHtmlTags = (data: string): string => `${DATA_OPENING_TAGS}${data}${DATA_CLOSING_TAGS}`;
 
-): Promise<TestResult[]> => new Promise((
+export const streamingReplaceInFile = (
+  fileName: string,
+  match: string,
+  replacement: string,
+): Promise<void> => new Promise((
+  resolve,
+  reject,
+): void => {
+  const stream = createReadStream(fileName);
+  stream.pipe(
+    from(surroundWithHtmlTags(match))
+      .to(surroundWithHtmlTags(replacement)),
+  );
+  stream.on(END_OF_STREAM, resolve);
+  stream.on(STREAM_ERROR, reject);
+});
+
+export const getHistoryAsJson = (
+  filePath: string,
+): Promise<string> => new Promise((
   resolve,
   reject,
 ): void => {
@@ -71,7 +93,7 @@ export const getHistory = (
       readStream.on(STREAM_DATA, (fileContents: string): void => {
         const parsedData = parseDataFromHtml(fileContents);
         if (isString(parsedData)) {
-          data = JSON.parse(parsedData as string);
+          data = parsedData as string;
           readStream.destroy();
           resolve(data);
         }
@@ -82,6 +104,12 @@ export const getHistory = (
       reject(error);
     }
   } else {
-    resolve([]);
+    resolve(EMPTY_STRING);
   }
 });
+
+export const getHistory = async (fileName: string): Promise<History> => (
+  existsSync(fileName)
+    ? JSON.parse(await getHistoryAsJson(fileName))
+    : {}
+);

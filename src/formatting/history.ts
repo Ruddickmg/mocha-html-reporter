@@ -1,4 +1,3 @@
-import { TestResult } from '../report/eventHandlers';
 import {
   convertMillisecondsToDate,
   getMonthDayYearFromDate,
@@ -7,6 +6,7 @@ import {
 import { sortTestResultsByDate } from '../utilities/sorting';
 import { EMPTY_STRING } from '../constants/constants';
 import { compose, mapOverObject } from '../utilities/functions';
+import { TestResult } from '../report/eventHandlers';
 
 export interface TestResultsByDate {
   [date: string]: TestResult[];
@@ -16,7 +16,7 @@ export interface TestResultsBySuite {
   [suite: string]: TestResult;
 }
 
-export interface History {
+export interface HistoryBySuite {
   [suiteName: string]: TestResult[];
 }
 
@@ -80,22 +80,25 @@ export const groupTestSuitesByDate = (testResults: TestResult[]): TestResult[][]
     .map((date: string): TestResult[] => testResultsWithDuplicatesRemoved[date]);
 };
 
-export const formatHistory = (history: TestResult[]): History => {
+const formatHistoryByDate = compose(
+  sortTestResultsByDate,
+  removeDuplicateTestResults,
+  indexTestResultsBySuite,
+);
+
+export const formatHistory = (history: TestResult[]): HistoryBySuite => {
   const emptyTest = { title: EMPTY_STRING } as TestResult;
   const dates = getEachRunDate(history);
   const suites = getEachSuiteTitle(history);
   const historyByDate = collectTestResultsByDate(history);
-  const suiteAndDateMatrix = mapOverObject(
-    compose(sortTestResultsByDate, removeDuplicateTestResults, indexTestResultsBySuite),
-    historyByDate,
-  );
+  const suiteAndDateMatrix = mapOverObject(formatHistoryByDate, historyByDate);
 
   return dates.reduce((
-    formattedHistory: History,
+    formattedHistory: HistoryBySuite,
     dateString: string,
-  ): History => {
+  ): HistoryBySuite => {
     const results = suiteAndDateMatrix[dateString];
-    return suites.reduce((formattedSuite: History, suiteName: string): History => {
+    return suites.reduce((formattedSuite: HistoryBySuite, suiteName: string): HistoryBySuite => {
       const result = results[suiteName];
       const test = result
         ? { ...result, title: millisecondsToRoundedHumanReadable(result.duration) }

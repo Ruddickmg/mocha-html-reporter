@@ -5,8 +5,11 @@ import {
   getEachSuiteTitle,
   removeDuplicateTestResults,
   indexTestResultsBySuite,
-  TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle, groupTestSuitesByDate,
-} from '../../../src/formatting/historyFormatting';
+  TestResultsByDate,
+  formatHistory,
+  historyTestSuiteHeaderTitle,
+  groupTestSuitesByDate,
+} from '../../../src/formatting/history';
 import { TestResult } from '../../../src/report/eventHandlers';
 import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/formatting/time';
 import { EMPTY_STRING } from '../../../src/constants/constants';

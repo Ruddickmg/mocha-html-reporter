@@ -27,7 +27,7 @@ import {
   convertDateStringToMilliseconds,
 } from '../../../src/formatting/time';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
-import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/formatting/historyFormatting';
+import { formatHistory, historyTestSuiteHeaderTitle } from '../../../src/formatting/history';
 import {
   HISTORY_TABLE_DATA, HISTORY_TABLE_ROW, TEST_RESULT, TEST_RESULT_BUTTON, TEST_SUITE,
 } from '../../../src/constants/cssClasses';
