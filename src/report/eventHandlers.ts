@@ -6,7 +6,7 @@ import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../formattin
 import { FINISHED } from '../constants/constants';
 import { compose } from '../utilities/functions';
 import { DELAY_START_PROPERTY } from '../constants/mocha';
-import { reportTemplate, ReportInput } from '../templates/report.html';
+import { reportTemplate } from '../templates/report.html';
 
 export interface Content {
   [name: string]: string;
@@ -43,11 +43,12 @@ export interface TestResult {
 }
 
 export interface ReportData {
-  reportTitle: string;
+  pathToOutputFile: string;
+  timeOfTest: number;
   pageTitle: string;
-  styles?: string;
-  scripts?: string;
-  history?: TestResult[];
+  styles: string;
+  scripts: string;
+  history: History;
 }
 
 export const delayStart = (runner: Runner): void => {
@@ -57,12 +58,14 @@ export const delayStart = (runner: Runner): void => {
 
 export const createTestHandler = (
   tests: TestResult[],
-  history: History,
-  reportData: ReportInput,
-  pathToOutputFile: string,
-  timeOfTest: number,
   state: string,
   captureScreen: boolean,
+  {
+    pathToOutputFile,
+    timeOfTest,
+    history,
+    ...reportData
+  }: ReportData,
 ): TestHandler => {
   const formatTestResult = createTestResultFormatter(
     pathToOutputFile,
@@ -97,13 +100,13 @@ export const handleMochaEvents = (
   runner: Runner,
   handlers: TestHandlers,
 ): void => {
-  const allTests: Promise<void>[] = [];
+  const tests: Promise<void>[] = [];
   const addTestToCue = (testHandlerResult: Promise<void>): Promise<void>[] => {
-    allTests.push(testHandlerResult);
-    return allTests;
+    tests.push(testHandlerResult);
+    return tests;
   };
   const waitForTestsBeforeFinish = async (): Promise<void> => {
-    await Promise.all(allTests);
+    await Promise.all(tests);
     runner.emit(FINISHED);
   };
   delayStart(runner);

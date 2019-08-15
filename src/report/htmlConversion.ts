@@ -1,6 +1,3 @@
-import CleanCss from 'clean-css';
-import { minify as htmlMinifier } from 'html-minifier';
-import { minify as minifyJavascript } from 'uglify-js';
 import {
   Content,
   ReportData,
@@ -15,10 +12,8 @@ import {
 } from '../constants/constants';
 import { isArray } from '../utilities/typeChecks';
 import { HistoryBySuite, historyTestSuiteHeaderTitle } from '../formatting/history';
-import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 import {
   addValuesToTemplate,
-  clearAllTemplateValues,
   imageTemplate,
   reportTemplate,
   tableDataTemplate,
@@ -29,9 +24,6 @@ import {
   testSuiteTemplate,
   buttonTemplate,
 } from '../templates/all';
-import { uglifyJsConfiguration } from '../configuraton/uglify-js.config';
-import { logError } from '../utilities/logging';
-import { cleanCssConfiguration } from '../configuraton/clean-css.config';
 import {
   HIDDEN,
   HISTORY_TABLE,
@@ -185,18 +177,3 @@ export const convertSuitesToHtml = (
     .map(convertTestSuiteToHtml)
     .join(NEW_LINE),
 } as ReportInput);
-
-export const minifyHtml = (
-  html: string,
-): string => htmlMinifier(clearAllTemplateValues(html), minifyHtmlConfiguration);
-
-export const minifyJs = (prettyCode: string): string => {
-  const { code, error } = minifyJavascript(prettyCode, uglifyJsConfiguration);
-  if (error) {
-    logError('Error in minification,', error);
-  }
-  return code;
-};
-
-export const minifyCss = (css: string): Promise<any> => new CleanCss(cleanCssConfiguration)
-  .minify(css);

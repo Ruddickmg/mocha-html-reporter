@@ -1,5 +1,5 @@
 import { render } from 'node-sass';
-import { minifyCss } from './htmlConversion';
+import { minifyCss } from '../formatting/minification';
 
 interface CssResults {
   css: string;

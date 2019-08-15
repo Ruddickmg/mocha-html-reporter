@@ -22,4 +22,7 @@ describe('strings', (): void => {
       expect(capitalizeFirstLetter(oneCharWord)).to.equal(capitalized);
     });
   });
+  describe('splitStringIntoChunks', (): void => {
+    // TODO!
+  });
 });

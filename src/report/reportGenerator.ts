@@ -16,9 +16,10 @@ import {
   createTestHandler,
   handleMochaEvents,
   TestResult,
-  TestHandlers,
+  TestHandlers, ReportData,
 } from './eventHandlers';
-import { reportTemplate } from '../templates/report.html';
+import { ReportInput, reportTemplate } from '../templates/report.html';
+import { minifyHtml } from '../formatting/minification';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -28,7 +29,6 @@ export const reportGenerator = async (
   const {
     screenShotEachTest,
     screenShotOnFailure,
-    testDir,
     outputDir,
     fileName,
   } = getCommandLineOptions(environment);
@@ -38,34 +38,35 @@ export const reportGenerator = async (
   const scripts = await getScripts(PATH_TO_SCRIPTS);
   const history = await getHistory(pathToOutputFile) || {};
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
-  const reportData = {
-    reportTitle: 'test title',
+  const reportInput: ReportInput = {
     pageTitle: 'This is a test',
-    data: JSON.stringify(history),
     styles,
     scripts,
+    data: JSON.stringify(history),
+  };
+  const reportData: ReportData = {
+    ...reportInput,
+    pathToOutputFile,
+    history,
+    timeOfTest,
   };
 
   if (!existsSync(pathToOutputFile)) {
-    await writeToFile(pathToOutputFile, reportTemplate(reportData));
+    await writeToFile(pathToOutputFile, minifyHtml(reportTemplate(reportInput)));
   }
 
   const handlers: TestHandlers = {
     [TEST_FAILED]: createTestHandler(
       tests,
-      history,
-      testDir,
-      timeOfTest,
       FAILED,
       takeScreenShotOnFailure,
+      reportData,
     ),
     [TEST_PASSED]: createTestHandler(
       tests,
-      history,
-      testDir,
-      timeOfTest,
       PASSED,
       screenShotEachTest,
+      reportData,
     ),
   };
 

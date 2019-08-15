@@ -17,16 +17,7 @@ import {
   STREAM_FINISH,
 } from '../constants/streams';
 import { EMPTY_STRING } from '../constants/constants';
-
-export const splitStringIntoChunk = (str: string, size: number): string[] => {
-  const length = Math.ceil(str.length / size);
-  const result = new Array(length);
-  for (let i = 0; i < length; i += 1) {
-    const offset = i * size;
-    result[i] = str.substring(offset, offset + size);
-  }
-  return result;
-};
+import { splitStringIntoChunks } from './strings';
 
 export const writeToFile = (
   pathToFile: string,
@@ -40,7 +31,7 @@ export const writeToFile = (
   if (!existsSync(pathToDirectory)) {
     mkdirSync(pathToDirectory);
   }
-  const chunks = splitStringIntoChunk(content, CHUNK_SIZE);
+  const chunks = splitStringIntoChunks(content, CHUNK_SIZE);
   const amount = chunks.length;
   const writeStream = createWriteStream(pathToFile);
   for (let chunkIndex = 0; chunkIndex < amount; chunkIndex += 1) {

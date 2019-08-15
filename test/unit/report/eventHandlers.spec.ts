@@ -8,7 +8,7 @@ import {
   delayStart,
   handleMochaEvents,
   TestHandlers,
-  TestResult, History,
+  TestResult, History, ReportData,
 } from '../../../src/report/eventHandlers';
 import {
   pathToMockTestDirectory,
@@ -26,10 +26,12 @@ import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { getFileContents } from '../../../src/utilities/fileSystem';
-import { ReportInput, reportTemplate } from '../../../src/templates/report.html';
+import { reportTemplate } from '../../../src/templates/report.html';
+import { wait } from '../../../src/utilities/promises';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
+  const TIME_TO_RESOLVE = 10;
   const removeAndCheckIds = (
     results: TestResult[],
   ): any => results
@@ -50,11 +52,8 @@ describe('eventHandlers', (): void => {
     });
   });
   describe('handleMochaEvents', (): void => {
-    let promise: any;
+    const value: Promise<void> = new Promise((): void => {});
     const action = 'doTheThing';
-    const value: Promise<void> = new Promise((resolve, reject): void => {
-      promise = { resolve, reject };
-    });
     const on = spy();
     const run = spy();
     const emit = spy();
@@ -79,14 +78,31 @@ describe('eventHandlers', (): void => {
         handlers,
       );
     });
-    it('Will not emit finished event if there are unresolved async test promises', (): void => {
-      handleMochaEvents(runner, handlers);
+    it('Will not emit finished event if there are unresolved async test promises', async (): Promise<void> => {
+      const actionFunction = (_: string, fn: any): void => fn(value);
+      const testEmit = async (fn: () => Promise<void>): Promise<void> => fn();
+      handleMochaEvents({
+        ...runner,
+        run: testEmit,
+        on: actionFunction,
+      } as unknown as Runner, handlers);
+      await wait(TIME_TO_RESOLVE);
       expect(emit.calledWith(FINISHED)).to.equal(false);
     });
-    it('Will emit finished event when all async test promises have resolved', (): void => {
-      promise.resolve();
-      handleMochaEvents(runner, handlers);
-      expect(emit.calledWith(FINISHED)).to.equal(false);
+    it('Will emit finished event when all async test promises have resolved', async (): Promise<void> => {
+      const resolvedPromise: Promise<void> = Promise.resolve();
+      const resolvedHandlers = {
+        [action]: (): Promise<void> => resolvedPromise,
+      } as unknown as TestHandlers;
+      const actionFunction = (_: string, fn: any): void => fn(resolvedPromise);
+      const testEmit = async (fn: () => Promise<void>): Promise<void> => fn();
+      handleMochaEvents({
+        ...runner,
+        run: testEmit,
+        on: actionFunction,
+      } as unknown as Runner, resolvedHandlers);
+      await wait(TIME_TO_RESOLVE);
+      expect(emit.calledWith(FINISHED)).to.equal(true);
     });
   });
   describe('createTestHandler', (): void => {
@@ -95,7 +111,9 @@ describe('eventHandlers', (): void => {
       pageTitle: 'testing 123',
       styles: EMPTY_STRING,
       scripts: EMPTY_STRING,
-    } as ReportInput;
+      timeOfTest: date,
+      pathToOutputFile: pathToMockTestDirectory,
+    } as ReportData;
     [PASSED, FAILED]
       .forEach((state: string): any => {
         it(`Parses tests into the correct output for ${state} tests`, async (): Promise<void> => {
@@ -105,12 +123,12 @@ describe('eventHandlers', (): void => {
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
           const testHandler = createTestHandler(
             testResults,
-            history,
-            reportData,
-            pathToMockTestDirectory,
-            date,
             state,
             takeScreenShot,
+            {
+              history,
+              ...reportData,
+            },
           );
           const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test));
           await Promise.all(tests.map((test: Test): Promise<void> => testHandler(test)));
@@ -123,12 +141,12 @@ describe('eventHandlers', (): void => {
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
           const testHandler = createTestHandler(
             testResults,
-            history,
-            reportData,
-            pathToMockTestDirectory,
-            date,
             state,
             takeScreenShot,
+            {
+              history,
+              ...reportData,
+            },
           );
           const formattedResults = tests
             .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
@@ -141,12 +159,12 @@ describe('eventHandlers', (): void => {
           const takeScreenShot = false;
           const testHandler = createTestHandler(
             testResults,
-            history,
-            reportData,
-            pathToMockTestDirectory,
-            date,
             state,
             takeScreenShot,
+            {
+              history,
+              ...reportData,
+            },
           );
           await tests
             .reduce((previous: Promise<void>, test: Test): Promise<void> => previous

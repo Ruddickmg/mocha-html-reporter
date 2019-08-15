@@ -18,7 +18,7 @@ import { variableDeclarationParser } from '../parsers/variableDeclaration';
 import { variableNameParser, parseVariableName } from '../parsers/variableName';
 import { parseCodeBlock } from '../parsers/code';
 import { Symbols } from '../parsers/parser';
-import { minifyJs } from '../report/htmlConversion';
+import { minifyJs } from '../formatting/minification';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 
 export interface FilesToIgnore {
