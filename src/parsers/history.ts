@@ -1,4 +1,4 @@
-import { EMPTY_STRING } from '../constants/constants';
+import { EMPTY_STRING } from '../constants/punctuation';
 import { isString } from '../utilities/typeChecks';
 import { buildParseTree, createParser } from './parser';
 import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';

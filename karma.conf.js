@@ -6,9 +6,10 @@ module.exports = function (config) {
     singleRun: true,
     frameworks: ['mocha', 'chai', 'karma-typescript'],
     files: [
-      { pattern: 'test/scripts/**/*.spec.ts' },
-      { pattern: 'src/scripts/**/*.ts' },
-      { pattern: 'src/constants/script.ts' },
+      { pattern: 'src/utilities/**/!(fileSystem|imageComparison|screenshots)*.ts' },
+      { pattern: 'src/constants/**/!(fileSystem)*.ts' },
+      { pattern: 'src/scripts/**/!(compiler)*.ts' },
+      { pattern: 'test/unit/scripts/**/!(compiler)*.spec.ts' },
     ],
     preprocessors: {
       '**/*.ts': ['karma-typescript'],

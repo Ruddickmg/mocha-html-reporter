@@ -1,12 +1,15 @@
 import { Suite, Test } from 'mocha';
-import { EMPTY_STRING, PATH_SEPARATOR, PERIOD } from '../constants/constants';
+import { EMPTY_STRING, PERIOD } from '../constants/punctuation';
+import { PATH_SEPARATOR } from '../constants/fileSystem';
 
 export const getParentPath = (
   { parent, title }: Test | Suite,
-): string[] => (parent ? [
-  ...getParentPath(parent as Test | Suite),
-  title,
-] : [title]);
+): string[] => (
+  parent ? [
+    ...getParentPath(parent as Test | Suite),
+    title,
+  ] : [title]
+);
 
 export const getFilePath = (
   path: string,

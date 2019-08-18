@@ -1,47 +1,60 @@
-import { FAILED_BUTTON_ID, PASSED_BUTTON_ID } from './constants';
+import { isArray } from '../utilities/typeChecks';
+import {
+  BUTTON_TAG,
+  IMAGE_TAG,
+  TABLE_DATA_TAG,
+  TABLE_HEADER_TAG,
+  TABLE_ROW_TAG,
+  TABLE_TAG,
+} from '../constants/html';
+
+export interface ElementProperties {
+  [property: string]: string;
+}
+
+export type ElementCreator = (
+  properties?: ElementProperties,
+  content?: string | Element[],
+) => Element;
 
 export const getElementById = (id: string): Element => document.getElementById(id);
 
-export const getFailedButton = (): Element => getElementById(FAILED_BUTTON_ID);
-export const getPassedButton = (): Element => getElementById(PASSED_BUTTON_ID);
-
-export const getElementsByClasses = (...cssClasses: string[]): Element[] => {
-  const listOfElements = document.body.querySelectorAll(
-    cssClasses
-      .map((cssClass: string): string => `.${cssClass}`)
-      .join(''),
-  );
-  return listOfElements ? Array.from(listOfElements) : [];
-};
-
-export const moveToElementById = (id: string): void => {
-  const pixelsToMoveUp = 80;
-  const pixelsToMoveRight = 0;
-  // eslint-disable-next-line no-restricted-globals
-  location.href = `#${id}`;
-  window.scrollBy(
-    pixelsToMoveRight,
-    -pixelsToMoveUp,
-  );
-};
-
-export const getChildOfElement = (id: string, childClass: string): Element => {
+export const replaceElementById = (id: string, replacement: Element): Element => {
   const element = getElementById(id);
-  return element
-    ? element.getElementsByClassName(childClass)[0]
-    : {} as Element;
+  const parent = element.parentNode;
+  parent.replaceChild(replacement, element);
+  return replacement;
 };
 
-export const addClassToElement = (cssClass: string, element: Element): void => {
-  if (element) {
-    // eslint-disable-next-line no-param-reassign
-    element.className = `${element.className} ${cssClass}`;
+export const elementCreator = (
+  tagName: string,
+): ElementCreator => (
+  properties?: ElementProperties,
+  content?: string | Element[],
+): Element => {
+  const element = document.createElement(tagName);
+  if (properties) {
+    Object.keys(properties)
+      .forEach((property: string): void => {
+        element.setAttribute(property, properties[property]);
+      });
   }
+  if (content) {
+    if (isArray(content)) {
+      (content as Element[])
+        .forEach((childElement: Element): void => {
+          element.appendChild(childElement);
+        });
+    } else {
+      element.innerHTML = content as string;
+    }
+  }
+  return element;
 };
 
-export const removeClassFromElement = (cssClass: string, element: Element): void => {
-  if (element) {
-    // eslint-disable-next-line no-param-reassign
-    element.className = element.className.replace(new RegExp(cssClass, 'g'), '');
-  }
-};
+export const createButton = elementCreator(BUTTON_TAG);
+export const createImage = elementCreator(IMAGE_TAG);
+export const createTable = elementCreator(TABLE_TAG);
+export const createTableData = elementCreator(TABLE_DATA_TAG);
+export const createTableRow = elementCreator(TABLE_ROW_TAG);
+export const createTableHeader = elementCreator(TABLE_HEADER_TAG);

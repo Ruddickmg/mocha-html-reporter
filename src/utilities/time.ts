@@ -1,13 +1,14 @@
 import {
-  EMPTY_STRING,
-  HOUR_SUFFIX, MILLISECOND_SUFFIX,
+  HOUR_SUFFIX,
+  MILLISECOND_SUFFIX,
   MINUTE_SUFFIX,
   ONE_HOUR,
   ONE_MILLISECOND,
   ONE_MINUTE,
   ONE_SECOND,
   SECOND_SUFFIX,
-} from '../constants/constants';
+} from '../constants/time';
+import { EMPTY_STRING } from '../constants/punctuation';
 
 const { floor } = Math;
 

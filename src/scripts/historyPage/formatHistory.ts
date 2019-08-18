@@ -2,25 +2,17 @@ import {
   convertMillisecondsToDate,
   getMonthDayYearFromDate,
   millisecondsToRoundedHumanReadable,
-} from './time';
-import { sortTestResultsByDate } from '../utilities/sorting';
-import { EMPTY_STRING } from '../constants/constants';
-import { compose, mapOverObject } from '../utilities/functions';
-import { TestResult } from '../report/eventHandlers';
-
-export interface TestResultsByDate {
-  [date: string]: TestResult[];
-}
-
-export interface TestResultsBySuite {
-  [suite: string]: TestResult;
-}
-
-export interface HistoryBySuite {
-  [suiteName: string]: TestResult[];
-}
-
-export const historyTestSuiteHeaderTitle = 'Test Suites';
+} from '../../utilities/time';
+import { sortTestResultsByDate } from '../../utilities/sorting';
+import { compose, mapOverObject } from '../../utilities/functions';
+import {
+  HistoryByDate,
+  HistoryBySuite,
+  TestResult,
+  TestResultsBySuite,
+} from '../../types/report';
+import { EMPTY_STRING } from '../../constants/punctuation';
+import { HISTORY_TABLE_TITLE } from '../../constants/html';
 
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
@@ -36,8 +28,8 @@ export const getEachRunDate = (history: TestResult[]): string[] => {
 export const getEachSuiteTitle = (history: TestResult[]): string[] => Array
   .from(new Set(history.map(({ suite }: TestResult): string => suite).sort()));
 
-export const collectTestResultsByDate = (history: TestResult[]): TestResultsByDate => history
-  .reduce((tests: TestResultsByDate, test: TestResult): TestResultsByDate => {
+export const collectHistoryByDate = (history: TestResult[]): HistoryByDate => history
+  .reduce((tests: HistoryByDate, test: TestResult): HistoryByDate => {
     const dateString = getMonthDayYearFromDate(convertMillisecondsToDate(test.date));
     const testsOnSameDay = tests[dateString] || [];
     return {
@@ -74,7 +66,7 @@ export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite
 export const groupTestSuitesByDate = (testResults: TestResult[]): TestResult[][] => {
   const testResultsWithDuplicatesRemoved = mapOverObject(
     removeDuplicateTestResults,
-    collectTestResultsByDate(testResults),
+    collectHistoryByDate(testResults),
   );
   return Object.keys(testResultsWithDuplicatesRemoved)
     .map((date: string): TestResult[] => testResultsWithDuplicatesRemoved[date]);
@@ -86,12 +78,26 @@ const formatHistoryByDate = compose(
   indexTestResultsBySuite,
 );
 
-export const formatHistory = (history: TestResult[]): HistoryBySuite => {
+const getAllUniqueSuiteNames = (history: HistoryByDate): string[] => Array
+  .from(
+    Object
+      .keys(history)
+      .reduce((set: Set<string>, date: string): Set<string> => new Set([
+        ...Array.from(set),
+        ...history[date].map(({ suite }: TestResult): string => suite),
+      ]), new Set()),
+  ).sort();
+
+export const formatHistory = (history: HistoryByDate): HistoryBySuite => {
   const emptyTest = { title: EMPTY_STRING } as TestResult;
-  const dates = getEachRunDate(history);
-  const suites = getEachSuiteTitle(history);
-  const historyByDate = collectTestResultsByDate(history);
-  const suiteAndDateMatrix = mapOverObject(formatHistoryByDate, historyByDate);
+  const dates = Object.keys(history)
+    .sort((dateOne: string, dateTwo: string): number => {
+      const [{ date: first }] = history[dateOne];
+      const [{ date: second }] = history[dateTwo];
+      return first - second;
+    });
+  const suites = getAllUniqueSuiteNames(history);
+  const suiteAndDateMatrix = mapOverObject(formatHistoryByDate, history);
 
   return dates.reduce((
     formattedHistory: HistoryBySuite,
@@ -110,7 +116,7 @@ export const formatHistory = (history: TestResult[]): HistoryBySuite => {
       };
     }, formattedHistory);
   }, {
-    [historyTestSuiteHeaderTitle]: dates
+    [HISTORY_TABLE_TITLE]: dates
       .map((date: string): TestResult => ({ title: date } as TestResult)),
   });
 };

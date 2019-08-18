@@ -4,7 +4,7 @@ import {
   PACKAGE_NAME,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from '../../../src/constants/constants';
+} from '../../../src/constants/fileSystem';
 import {
   getFileContents,
   writeToFile,

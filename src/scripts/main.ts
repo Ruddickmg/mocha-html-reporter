@@ -1,8 +1,6 @@
-import {
-  toggleFailedTests, toggleImage, toggleMessage, togglePassedTests, toggleStack,
-} from './toggle';
-import { moveToHistory, switchToPage } from './navigation';
-import { getElementById } from './elements';
+import { replaceElementById } from './elements';
+import { HISTORY_TABLE } from '../constants/cssIdentifiers';
+import { getHistoryTable } from './historyPage/getHistory';
 
 type PageAction = (...data: string[]) => void | boolean;
 
@@ -10,19 +8,14 @@ interface PageActions {
   [method: string]: PageAction;
 }
 
-export default ((binding: PageActions): void => {
-  const publicMethods: PageActions = {
-    toggleMessage,
-    toggleImage,
-    toggleStack,
-    toggleFailedTests,
-    togglePassedTests,
-    switchToPage,
-    moveToHistory,
-  };
-  console.log('it works!', JSON.parse(getElementById('data').innerHTML));
-  Object.keys(publicMethods)
+export default ((binding: Window): void => {
+  const publicMethods: PageActions = {};
+  const methodNames: string[] = Object.keys(publicMethods);
+  const historyTable: Element = getHistoryTable();
+  replaceElementById(HISTORY_TABLE, historyTable);
+  methodNames
     .forEach((methodName: string): void => {
+      // @ts-ignore
       // eslint-disable-next-line no-param-reassign
       binding[methodName] = publicMethods[methodName];
     });

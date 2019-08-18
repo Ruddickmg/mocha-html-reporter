@@ -1,18 +1,17 @@
 import { expect } from 'chai';
 import {
-  collectTestResultsByDate,
+  collectHistoryByDate,
   getEachRunDate,
   getEachSuiteTitle,
   removeDuplicateTestResults,
   indexTestResultsBySuite,
-  TestResultsByDate,
   formatHistory,
-  historyTestSuiteHeaderTitle,
   groupTestSuitesByDate,
-} from '../../../src/formatting/history';
-import { TestResult } from '../../../src/report/eventHandlers';
-import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/formatting/time';
-import { EMPTY_STRING } from '../../../src/constants/constants';
+} from '../../../../src/scripts/historyPage/formatHistory';
+import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../../src/utilities/time';
+import { EMPTY_STRING } from '../../../../src/constants/punctuation';
+import { HistoryByDate, TestResult } from '../../../../src/types/report';
+import { HISTORY_TABLE_TITLE } from '../../../../src/constants/html';
 
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';
@@ -64,15 +63,15 @@ describe('historyTableFormatting', (): void => {
       ]);
     });
   });
-  describe('collectTestResultsByDate', (): void => {
+  describe('collectHistoryByDate', (): void => {
     it('Creates an object containing test results indexed by date', (): void => {
-      expect(collectTestResultsByDate(testResults)).to.eql(
+      expect(collectHistoryByDate(testResults)).to.eql(
         datesAsMonthDayYear
           .reduce((
-            resultsByDate: TestResultsByDate,
+            resultsByDate: HistoryByDate,
             date: string,
             index: number,
-          ): TestResultsByDate => ({
+          ): HistoryByDate => ({
             ...resultsByDate,
             [date]: [testResults[index]],
           }), {}),
@@ -87,17 +86,17 @@ describe('historyTableFormatting', (): void => {
         ...testResults,
         testOnSameDay,
       ];
-      const expected: TestResultsByDate = datesAsMonthDayYear
+      const expected: HistoryByDate = datesAsMonthDayYear
         .reduce((
-          resultsByDate: TestResultsByDate,
+          resultsByDate: HistoryByDate,
           date: string,
           index: number,
-        ): TestResultsByDate => ({
+        ): HistoryByDate => ({
           ...resultsByDate,
           [date]: [testResults[index]],
         }), {});
       expected[duplicateMonthDayYear] = [...expected[duplicateMonthDayYear], testOnSameDay];
-      expect(collectTestResultsByDate(results)).to.eql(expected);
+      expect(collectHistoryByDate(results)).to.eql(expected);
     });
   });
   describe('removeDuplicateTestResults', (): void => {
@@ -142,7 +141,7 @@ describe('historyTableFormatting', (): void => {
         ], []);
       expect(formatHistory(differentSuites))
         .to.eql({
-          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+          [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
             .map((
               date: string,
             ): TestResult => ({
@@ -177,7 +176,7 @@ describe('historyTableFormatting', (): void => {
         ], []);
       expect(formatHistory(differentSuites))
         .to.eql({
-          [historyTestSuiteHeaderTitle]: getEachRunDate(testResults)
+          [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
             .map((date: string): TestResult => ({ title: date } as TestResult)),
           [firstSuiteName]: differentSuites
             .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
@@ -194,7 +193,7 @@ describe('historyTableFormatting', (): void => {
         });
     });
   });
-  describe('groupTestResultsByDate', (): void => {
+  describe('groupHistoryByDate', (): void => {
     it('Groups an array of test results into arrays of test results run on the same date', (): void => {
       const firstSuiteName = 'suite #1';
       const secondSuiteName = 'suite #2';

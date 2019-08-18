@@ -7,7 +7,7 @@ import {
 } from 'fs';
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from '../scripts/compiler';
+import { getFileNameFromPath } from '../formatting/scriptCompiler';
 import { parseDataFromHtml } from '../parsers/history';
 import { isString } from './typeChecks';
 import {
@@ -16,7 +16,7 @@ import {
   STREAM_ERROR,
   STREAM_FINISH,
 } from '../constants/streams';
-import { EMPTY_STRING } from '../constants/constants';
+import { EMPTY_STRING } from '../constants/punctuation';
 import { splitStringIntoChunks } from './strings';
 
 export const writeToFile = (

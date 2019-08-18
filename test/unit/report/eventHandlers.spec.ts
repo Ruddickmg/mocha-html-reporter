@@ -4,30 +4,25 @@ import { expect } from 'chai';
 import { spy } from 'sinon';
 import { mkdirSync } from 'fs';
 import {
-  createTestHandler,
+  initializeTestHandlerFactory,
   delayStart,
   handleMochaEvents,
-  TestHandlers,
-  TestResult, History, ReportData,
 } from '../../../src/report/eventHandlers';
-import {
-  pathToMockTestDirectory,
-  tests,
-} from '../../helpers/expectations';
-import {
-  EMPTY_STRING,
-  FAILED,
-  FINISHED,
-  PASSED,
-  PATH_TO_PACKAGE,
-  TEST_DIRECTORY,
-} from '../../../src/constants/constants';
+import { pathToMockTestDirectory, tests } from '../../helpers/expectations';
+import { EMPTY_STRING } from '../../../src/constants/punctuation';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
 import { isString } from '../../../src/utilities/typeChecks';
 import { getFileContents } from '../../../src/utilities/fileSystem';
-import { reportTemplate } from '../../../src/templates/report.html';
+import { reportTemplate } from '../../../src/report/reportTemplate';
 import { wait } from '../../../src/utilities/promises';
+import { ReportData, TestHandlers, TestResult } from '../../../src/types/report';
+import { PATH_TO_PACKAGE, TEST_DIRECTORY } from '../../../src/constants/fileSystem';
+import {
+  TEST_FAILED,
+  TEST_FINISHED,
+  TEST_PASSED,
+} from '../../../src/constants/mocha';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
@@ -87,7 +82,7 @@ describe('eventHandlers', (): void => {
         on: actionFunction,
       } as unknown as Runner, handlers);
       await wait(TIME_TO_RESOLVE);
-      expect(emit.calledWith(FINISHED)).to.equal(false);
+      expect(emit.calledWith(TEST_FINISHED)).to.equal(false);
     });
     it('Will emit finished event when all async test promises have resolved', async (): Promise<void> => {
       const resolvedPromise: Promise<void> = Promise.resolve();
@@ -102,7 +97,7 @@ describe('eventHandlers', (): void => {
         on: actionFunction,
       } as unknown as Runner, resolvedHandlers);
       await wait(TIME_TO_RESOLVE);
-      expect(emit.calledWith(FINISHED)).to.equal(true);
+      expect(emit.calledWith(TEST_FINISHED)).to.equal(true);
     });
   });
   describe('createTestHandler', (): void => {
@@ -114,21 +109,22 @@ describe('eventHandlers', (): void => {
       timeOfTest: date,
       pathToOutputFile: pathToMockTestDirectory,
     } as ReportData;
-    [PASSED, FAILED]
+    [TEST_PASSED, TEST_FAILED]
       .forEach((state: string): any => {
         it(`Parses tests into the correct output for ${state} tests`, async (): Promise<void> => {
           const testResults: TestResult[] = [];
-          const history: History = {};
+          const history = {};
           const takeScreenShot = false;
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
-          const testHandler = createTestHandler(
+          const testHandler = initializeTestHandlerFactory(
             testResults,
-            state,
-            takeScreenShot,
             {
               history,
               ...reportData,
             },
+          )(
+            state,
+            takeScreenShot,
           );
           const formattedResults = tests.map((test: Test): TestResult => formatTestResults(test));
           await Promise.all(tests.map((test: Test): Promise<void> => testHandler(test)));
@@ -136,17 +132,18 @@ describe('eventHandlers', (): void => {
         });
         it(`Will parse a test and take a screen shot for ${state} tests`, async (): Promise<void> => {
           const testResults: TestResult[] = [];
-          const history: History = {};
+          const history = {};
           const takeScreenShot = true;
           const formatTestResults = createTestResultFormatter(pathToMockTestDirectory, date, state);
-          const testHandler = createTestHandler(
+          const testHandler = initializeTestHandlerFactory(
             testResults,
-            state,
-            takeScreenShot,
             {
               history,
               ...reportData,
             },
+          )(
+            state,
+            takeScreenShot,
           );
           const formattedResults = tests
             .map((test: Test): TestResult => formatTestResults(test, base64NoImageString));
@@ -155,16 +152,17 @@ describe('eventHandlers', (): void => {
         });
         it('Will write output to an output file for each test', async (): Promise<void> => {
           const testResults: TestResult[] = [];
-          const history: History = {};
+          const history = {};
           const takeScreenShot = false;
-          const testHandler = createTestHandler(
+          const testHandler = initializeTestHandlerFactory(
             testResults,
-            state,
-            takeScreenShot,
             {
               history,
               ...reportData,
             },
+          )(
+            state,
+            takeScreenShot,
           );
           await tests
             .reduce((previous: Promise<void>, test: Test): Promise<void> => previous

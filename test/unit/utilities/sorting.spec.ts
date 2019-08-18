@@ -4,7 +4,7 @@ import {
   sortNumbersIncrementing,
   sortTestResultsByDate,
 } from '../../../src/utilities/sorting';
-import { TestResult } from '../../../src/report/eventHandlers';
+import { TestResult } from '../../../src/types/report';
 
 describe('sorting', (): void => {
   const decrementing = [5, 4, 3, 2, 1];

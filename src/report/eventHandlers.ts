@@ -2,70 +2,34 @@ import { Runner, Test } from 'mocha';
 import { writeToFile } from '../utilities/fileSystem';
 import { createTestResultFormatter } from '../formatting/testResults';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
-import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../formatting/time';
-import { FINISHED } from '../constants/constants';
+import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../utilities/time';
 import { compose } from '../utilities/functions';
-import { DELAY_START_PROPERTY } from '../constants/mocha';
-import { reportTemplate } from '../templates/report.html';
-
-export interface Content {
-  [name: string]: string;
-}
-
-export interface TestSuite {
-  [directory: string]: TestSuite | TestResult[] | Content | string;
-}
-
-export interface History {
-  [date: string]: TestResult[];
-}
-
-export type TestHandler = (
-  test?: Test,
-  error?: Error,
-) => Promise<void>;
-
-export interface TestHandlers {
-  [handlerName: string]: TestHandler;
-}
-
-export interface TestResult {
-  duration: number;
-  date: number;
-  id: string;
-  image?: string;
-  path: string[];
-  class?: string;
-  suite: string;
-  state: string;
-  suiteId: string;
-  title: string;
-}
-
-export interface ReportData {
-  pathToOutputFile: string;
-  timeOfTest: number;
-  pageTitle: string;
-  styles: string;
-  scripts: string;
-  history: History;
-}
+import { DELAY_START_PROPERTY, TEST_FINISHED } from '../constants/mocha';
+import { reportTemplate } from './reportTemplate';
+import {
+  ReportData,
+  TestHandler,
+  TestHandlerFactory,
+  TestHandlers,
+  TestResult,
+} from '../types/report';
 
 export const delayStart = (runner: Runner): void => {
   // eslint-disable-next-line no-param-reassign
   runner[DELAY_START_PROPERTY] = true;
 };
 
-export const createTestHandler = (
+export const initializeTestHandlerFactory = (
   tests: TestResult[],
-  state: string,
-  captureScreen: boolean,
   {
     pathToOutputFile,
     timeOfTest,
     history,
     ...reportData
   }: ReportData,
+): TestHandlerFactory => (
+  state: string,
+  captureScreen: boolean,
 ): TestHandler => {
   const formatTestResult = createTestResultFormatter(
     pathToOutputFile,
@@ -107,7 +71,7 @@ export const handleMochaEvents = (
   };
   const waitForTestsBeforeFinish = async (): Promise<void> => {
     await Promise.all(tests);
-    runner.emit(FINISHED);
+    runner.emit(TEST_FINISHED);
   };
   delayStart(runner);
   Object

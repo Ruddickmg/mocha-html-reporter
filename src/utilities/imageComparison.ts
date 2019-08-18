@@ -1,5 +1,5 @@
 import { createWriteStream, readFile } from 'fs';
-import { PATH_SEPARATOR } from '../constants/constants';
+import { PATH_SEPARATOR } from '../constants/fileSystem';
 import { capitalizeFirstLetter } from './strings';
 
 const { PNG } = require('pngjs');
@@ -16,7 +16,6 @@ export interface ImageComparisons {
   screenShot: string;
   baseline: string;
   difference: string;
-
   [type: string]: string;
 }
 

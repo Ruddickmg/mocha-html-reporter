@@ -1,9 +1,9 @@
 import { Test } from 'mocha';
 import { expect } from 'chai';
-import { FAILED, PASSED } from '../../../src/constants/constants';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
 import { isString } from '../../../src/utilities/typeChecks';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
+import { TEST_FAILED, TEST_PASSED } from '../../../src/constants/mocha';
 
 describe('testResults', (): void => {
   const parentTitle = 'I am a test suite';
@@ -13,19 +13,19 @@ describe('testResults', (): void => {
   const mockDirectory = `${pathToMockTestDirectory}/some/other/directory`;
   describe('createTestResultFormatter', (): void => {
     const date = Date.now();
-    [PASSED, FAILED]
+    [TEST_PASSED, TEST_FAILED]
       .forEach((state: string): void => {
         const mockTestValues = [{
           duration,
           file: mockDirectory,
-          state: PASSED,
+          state,
           parent,
           title: firstTitle,
         }, {
           duration,
           file: mockDirectory,
           parent,
-          state: PASSED,
+          state,
           title: 'world',
         }];
         const expected = {

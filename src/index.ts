@@ -3,19 +3,20 @@ import { Environment } from './parsers/commandLineOptions';
 import { reportGenerator } from './report/reportGenerator';
 import { capitalizeFirstLetter } from './utilities/strings';
 import { logError } from './utilities/logging';
+import { EMPTY_STRING } from './constants/punctuation';
 
 interface Reporters {
   [reporterName: string]: any;
 }
 
 export function mochaHtmlReporter(runner: Runner, options: Environment): void {
-  const consoleReporter = capitalizeFirstLetter(options.reporterOptions.reporter);
+  const consoleReporter = capitalizeFirstLetter(options.reporterOptions.reporter || EMPTY_STRING);
   const {
     Base,
     [consoleReporter]: Reporter,
   }: Reporters = reporters;
   reportGenerator(runner, options)
-    .catch((error: Error): void => logError('Something went wrong with the report generator', error));
+    .catch((error: Error): void => logError('Something went wrong with the report generator:', error));
   Base.call(this, runner, options);
   if (Reporter) {
     // eslint-disable-next-line no-new

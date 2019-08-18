@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { EMPTY_STRING } from '../../../src/constants/constants';
+import { EMPTY_STRING } from '../../../src/constants/punctuation';
 import { parseCodeBlock } from '../../../src/parsers/code';
 
 describe('code', (): void => {

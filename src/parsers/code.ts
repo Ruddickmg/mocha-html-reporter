@@ -1,4 +1,4 @@
-import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
+import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/punctuation';
 import { Parser } from './parser';
 
 interface EndSymbol {

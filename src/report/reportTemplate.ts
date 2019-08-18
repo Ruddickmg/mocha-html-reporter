@@ -1,12 +1,6 @@
 import { minifyHtml } from '../formatting/minification';
 import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
-
-export interface ReportInput {
-  data: string;
-  styles: string;
-  scripts: string;
-  pageTitle: string;
-}
+import { ReportInput } from '../types/report';
 
 const dataTags = `${DATA_OPENING_TAGS}${DATA_CLOSING_TAGS}`;
 

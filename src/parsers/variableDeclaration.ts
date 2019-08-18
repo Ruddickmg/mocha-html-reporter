@@ -1,5 +1,7 @@
-import { CodeStore } from '../scripts/compiler';
+import { CodeStore } from '../formatting/scriptCompiler';
 import { buildParseTree, createParser, Symbols } from './parser';
+import { NEW_LINE } from '../constants/fileSystem';
+import { SPACE } from '../constants/punctuation';
 
 const VARIABLE_DECLARATION = 'var';
 const CONST_DECLARATION = 'const';
@@ -20,7 +22,7 @@ const variableDeclarations = [
   [`${declaration};`]: declaration,
 }), {});
 
-const allowedDeclarationPrefixes = [' ', ';', '\n']
+const allowedDeclarationPrefixes = [SPACE, ';', NEW_LINE]
   .reduce((
     prefixes: CodeStore,
     prefix: string,

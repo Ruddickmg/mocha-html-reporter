@@ -1,0 +1,12 @@
+export const VARIABLE_DECLARATION = 'var';
+export const FUNCTION_DECLARATION = 'function';
+export const IMPORT_DECLARATION = 'require';
+export const PERIOD = '.';
+export const EMPTY_STRING = '';
+export const SPACE = ' ';
+export const SEMICOLON = ';';
+export const QUOTATION_MARK = '"';
+export const SINGLE_QUOTE = '\'';
+export const OPENING_CURLY = '{';
+export const CLOSING_CURLY = '}';
+export const OPEN_PARENTHESES = '(';

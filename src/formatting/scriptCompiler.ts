@@ -2,14 +2,12 @@ import {
   EMPTY_STRING,
   FUNCTION_DECLARATION,
   IMPORT_DECLARATION,
-  NEW_LINE,
   OPEN_PARENTHESES,
-  PATH_SEPARATOR,
   QUOTATION_MARK,
   SINGLE_QUOTE,
   SPACE,
   VARIABLE_DECLARATION,
-} from '../constants/constants';
+} from '../constants/punctuation';
 import { compose } from '../utilities/functions';
 import { escapedRegEx } from '../utilities/regEx';
 import { getFileContents } from '../utilities/fileSystem';
@@ -18,8 +16,9 @@ import { variableDeclarationParser } from '../parsers/variableDeclaration';
 import { variableNameParser, parseVariableName } from '../parsers/variableName';
 import { parseCodeBlock } from '../parsers/code';
 import { Symbols } from '../parsers/parser';
-import { minifyJs } from '../formatting/minification';
+import { minifyJs } from './minification';
 import { variableNameGenerator } from '../../test/helpers/expectations';
+import { NEW_LINE, PATH_SEPARATOR } from '../constants/fileSystem';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;

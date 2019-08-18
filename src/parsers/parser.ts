@@ -1,6 +1,6 @@
-import { EMPTY_STRING } from '../constants/constants';
+import { EMPTY_STRING } from '../constants/punctuation';
 import { isString } from '../utilities/typeChecks';
-import { CodeStore } from '../scripts/compiler';
+import { CodeStore } from '../formatting/scriptCompiler';
 
 export interface Symbols {
   [symbolName: string]: string;

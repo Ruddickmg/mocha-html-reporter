@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import { isArray, isNumber, isString } from '../utilities/typeChecks';
-import { SUITE_UUID, UUID } from '../constants/constants';
-import { TestResult, TestSuite } from '../report/eventHandlers';
+import { SUITE_UUID, UUID } from '../constants/tests';
+import { TestResult, TestSuite } from '../types/report';
 
 export const generateTestResultsByPath = (
   testResults: TestResult[],

@@ -1,9 +1,8 @@
 import { Test } from 'mocha';
-import { PATH_TO_PACKAGE } from '../../src/constants/constants';
+import { PATH_TO_PACKAGE } from '../../src/constants/fileSystem';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
-import { formatDuration } from '../../src/formatting/formatting';
-import { TestResult, TestSuite } from '../../src/report/eventHandlers';
-import { VariableNameGenerator } from '../../src/utilities/compile';
+import { NameGenerator } from '../../src/formatting/scriptCompiler';
+import { TestSuite } from '../../src/types/report';
 
 const firstDir = 'firstDirectory';
 const secondDir = 'secondDirectory';
@@ -112,7 +111,7 @@ export const tests = [{
   },
 }] as unknown as Test[];
 
-export const variableNameGenerator = (): VariableNameGenerator => {
+export const variableNameGenerator = (): NameGenerator => {
   let n = 0;
   return (): string => {
     n += 1;

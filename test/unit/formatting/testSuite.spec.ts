@@ -13,12 +13,12 @@ import {
   tests,
 } from '../../helpers/expectations';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
-import { TestResult } from '../../../src/report/eventHandlers';
-import { FAILED, PASSED } from '../../../src/constants/constants';
+import { TestResult } from '../../../src/types/report';
+import { TEST_PASSED, TEST_FAILED } from '../../../src/constants/mocha';
 
 describe('testTree', (): void => {
   describe('generateTestResultsByPath', (): void => {
-    [PASSED, FAILED]
+    [TEST_PASSED, TEST_FAILED]
       .forEach((state: string): void => {
         const testResultFormatter = createTestResultFormatter(
           pathToMockTestDirectory,
@@ -37,7 +37,7 @@ describe('testTree', (): void => {
       });
   });
   describe('generateTestResultsBySuite', (): void => {
-    [PASSED, FAILED]
+    [TEST_PASSED, TEST_FAILED]
       .forEach((state: string): void => {
         const testResultFormatter = createTestResultFormatter(
           pathToMockTestDirectory,

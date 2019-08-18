@@ -1,8 +1,8 @@
 import uuid from 'uuid/v1';
 import { Test } from 'mocha';
-import { TestResult } from '../report/eventHandlers';
-import { TIMEOUT } from '../constants/cssClasses';
+import { TIMEOUT } from '../constants/cssIdentifiers';
 import { getFilePath, getParentPath } from '../parsers/path';
+import { TestResult } from '../types/report';
 
 interface SuiteIds {
   [suite: string]: string;

@@ -1,30 +1,26 @@
 import { Runner } from 'mocha';
 import { existsSync } from 'fs';
 import { getStyles } from './styles';
-import {
-  FAILED,
-  PASSED,
-  PATH_TO_SCRIPTS,
-  PATH_TO_STYLE_SHEET,
-} from '../constants/constants';
 import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
-import { getScripts } from '../scripts/compiler';
+import { getScripts } from '../formatting/scriptCompiler';
 import { getHistory, writeToFile } from '../utilities/fileSystem';
 import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
+import { handleMochaEvents, initializeTestHandlerFactory } from './eventHandlers';
+import { reportTemplate } from './reportTemplate';
 import {
-  createTestHandler,
-  handleMochaEvents,
+  ReportData,
+  ReportInput,
+  TestHandlerFactory,
+  TestHandlers,
   TestResult,
-  TestHandlers, ReportData,
-} from './eventHandlers';
-import { ReportInput, reportTemplate } from '../templates/report.html';
+} from '../types/report';
+import { PATH_TO_SCRIPTS, PATH_TO_STYLE_SHEET } from '../constants/fileSystem';
 
 export const reportGenerator = async (
   runner: Runner,
   environment: Environment,
 ): Promise<void> => {
-  const tests: TestResult[] = [];
   const {
     screenShotEachTest,
     screenShotOnFailure,
@@ -32,12 +28,12 @@ export const reportGenerator = async (
     fileName,
   } = getCommandLineOptions(environment);
   const timeOfTest = Date.now();
+  const tests: TestResult[] = [];
   const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
   const scripts = await getScripts(PATH_TO_SCRIPTS);
   const history = await getHistory(pathToOutputFile) || {};
-
   const reportInput: ReportInput = {
     pageTitle: 'This is a test',
     styles,
@@ -50,6 +46,10 @@ export const reportGenerator = async (
     history,
     timeOfTest,
   };
+  const createTestHandler: TestHandlerFactory = initializeTestHandlerFactory(
+    tests,
+    reportData,
+  );
 
   if (!existsSync(pathToOutputFile)) {
     await writeToFile(
@@ -60,16 +60,12 @@ export const reportGenerator = async (
 
   const handlers: TestHandlers = {
     [TEST_FAILED]: createTestHandler(
-      tests,
-      FAILED,
+      TEST_FAILED,
       takeScreenShotOnFailure,
-      reportData,
     ),
     [TEST_PASSED]: createTestHandler(
-      tests,
-      PASSED,
+      TEST_PASSED,
       screenShotEachTest,
-      reportData,
     ),
   };
 
