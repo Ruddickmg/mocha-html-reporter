@@ -1,7 +1,8 @@
-import { CodeStore } from '../formatting/scriptCompiler';
-import { buildParseTree, createParser, Symbols } from './parser';
+import { buildParseTree, createParser } from './parser';
 import { NEW_LINE } from '../constants/fileSystem';
 import { SPACE } from '../constants/punctuation';
+import { Symbols } from '../types/parsers';
+import { CodeStore } from '../types/formatting';
 
 const VARIABLE_DECLARATION = 'var';
 const CONST_DECLARATION = 'const';

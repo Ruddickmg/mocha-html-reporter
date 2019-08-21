@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import { writeFileSync, mkdirSync } from 'fs';
 import {
-  PACKAGE_NAME,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
 } from '../../../src/constants/fileSystem';

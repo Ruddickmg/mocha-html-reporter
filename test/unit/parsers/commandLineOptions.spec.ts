@@ -1,5 +1,6 @@
 import { expect } from 'chai';
-import { Environment, ExpectedOptions, getCommandLineOptions } from '../../../src/parsers/commandLineOptions';
+import { getCommandLineOptions } from '../../../src/parsers/commandLineOptions';
+import { Environment, ExpectedOptions } from '../../../src/types/parsers';
 
 describe('commandLineOptions', (): void => {
   const outputDir = 'test/unit';

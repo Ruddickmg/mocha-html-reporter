@@ -19,11 +19,11 @@ export type ElementCreator = (
 
 export const getElementById = (id: string): Element => document.getElementById(id);
 
-export const replaceElementById = (id: string, replacement: Element): Element => {
+export const replaceElementById = (id: string, replacement: Element): void => {
   const element = getElementById(id);
-  const parent = element.parentNode;
-  parent.replaceChild(replacement, element);
-  return replacement;
+  if (element) {
+    element.parentNode.replaceChild(replacement, element);
+  }
 };
 
 export const elementCreator = (

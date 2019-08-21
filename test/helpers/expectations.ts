@@ -1,8 +1,8 @@
 import { Test } from 'mocha';
 import { PATH_TO_PACKAGE } from '../../src/constants/fileSystem';
 import { base64NoImageString } from '../../src/constants/base64NoImageString';
-import { NameGenerator } from '../../src/formatting/scriptCompiler';
 import { TestSuite } from '../../src/types/report';
+import { NameGenerator } from '../../src/types/formatting';
 
 const firstDir = 'firstDirectory';
 const secondDir = 'secondDirectory';

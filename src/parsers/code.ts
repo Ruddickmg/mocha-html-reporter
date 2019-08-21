@@ -1,5 +1,5 @@
 import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/punctuation';
-import { Parser } from './parser';
+import { Parser } from '../types/parsers';
 
 interface EndSymbol {
   [symbol: string]: boolean;

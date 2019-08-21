@@ -17,12 +17,14 @@ describe('elements', (): void => {
     });
   });
   describe('replaceElementById', (): void => {
-    const createDiv = elementCreator(tag);
-    const element = createDiv({ id });
-    const replacement = createDiv({ id });
-    document.appendChild(element);
-    replaceElementById(id, replacement);
-    expect(document.getElementById(id)).to.equal(replacement);
+    it('Will replace an element with a new element by the old element\'s id', (): void => {
+      const createDiv = elementCreator(tag);
+      const element = createDiv({ id });
+      const replacement = createDiv({ id });
+      document.body.appendChild(element);
+      replaceElementById(id, replacement);
+      expect(document.getElementById(id)).to.equal(replacement);
+    });
   });
   describe('createElement', (): void => {
     it('Will create an element "creator" with the specified tag', (): void => {

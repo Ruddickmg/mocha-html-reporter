@@ -1,16 +1,7 @@
 import { EMPTY_STRING } from '../constants/punctuation';
 import { isString } from '../utilities/typeChecks';
-import { CodeStore } from '../formatting/scriptCompiler';
-
-export interface Symbols {
-  [symbolName: string]: string;
-}
-
-export interface ParseTree {
-  [symbol: string]: ParseTree | string;
-}
-
-export type Parser = (char: string) => string | boolean;
+import { Parser, ParseTree, Symbols } from '../types/parsers';
+import { CodeStore } from '../types/formatting';
 
 export const buildParseTree = (symbols: Symbols): ParseTree => {
   const parseTree: ParseTree = {};

@@ -1,9 +1,9 @@
 import { reporters, Runner } from 'mocha';
-import { Environment } from './parsers/commandLineOptions';
 import { reportGenerator } from './report/reportGenerator';
 import { capitalizeFirstLetter } from './utilities/strings';
 import { logError } from './utilities/logging';
 import { EMPTY_STRING } from './constants/punctuation';
+import { Environment } from './types/parsers';
 
 interface Reporters {
   [reporterName: string]: any;

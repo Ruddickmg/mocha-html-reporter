@@ -3,12 +3,7 @@ import { Test } from 'mocha';
 import { TIMEOUT } from '../constants/cssIdentifiers';
 import { getFilePath, getParentPath } from '../parsers/path';
 import { TestResult } from '../types/report';
-
-interface SuiteIds {
-  [suite: string]: string;
-}
-
-export type TestResultFormatter = (test: Test, image?: string) => TestResult;
+import { SuiteIds, TestResultFormatter } from '../types/formatting';
 
 export const createTestResultFormatter = (
   pathToTestDirectory: string,

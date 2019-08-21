@@ -1,12 +1,11 @@
-import { CodeStore } from '../formatting/scriptCompiler';
 import {
   buildParseTree,
   createParser,
-  Parser,
-  Symbols,
 } from './parser';
 import { EMPTY_STRING } from '../constants/punctuation';
 import { isNumeric } from '../utilities/typeChecks';
+import { CodeStore } from '../types/formatting';
+import { Parser, Symbols } from '../types/parsers';
 
 const allowedVariableNamePrefixes = ['(', '[', ',', ' ']
   .reduce((

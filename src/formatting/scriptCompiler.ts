@@ -15,24 +15,16 @@ import { isArray } from '../utilities/typeChecks';
 import { variableDeclarationParser } from '../parsers/variableDeclaration';
 import { variableNameParser, parseVariableName } from '../parsers/variableName';
 import { parseCodeBlock } from '../parsers/code';
-import { Symbols } from '../parsers/parser';
 import { minifyJs } from './minification';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 import { NEW_LINE, PATH_SEPARATOR } from '../constants/fileSystem';
-
-export interface FilesToIgnore {
-  [fileName: string]: boolean;
-}
-
-export interface CodeStore {
-  [identifier: string]: string;
-}
-
-export interface FileCodeMappings {
-  [filename: string]: CodeStore;
-}
-
-export type NameGenerator = (...args: any[]) => string;
+import {
+  CodeStore,
+  FileCodeMappings,
+  FilesToIgnore,
+  NameGenerator,
+} from '../types/formatting';
+import { Symbols } from '../types/parsers';
 
 const EXTENSION = '.js';
 

@@ -1,7 +1,7 @@
 import { Runner } from 'mocha';
 import { existsSync } from 'fs';
 import { getStyles } from './styles';
-import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
+import { getCommandLineOptions } from '../parsers/commandLineOptions';
 import { getScripts } from '../formatting/scriptCompiler';
 import { getHistory, writeToFile } from '../utilities/fileSystem';
 import { formatOutputFilePath } from '../formatting/paths';
@@ -16,6 +16,7 @@ import {
   TestResult,
 } from '../types/report';
 import { PATH_TO_SCRIPTS, PATH_TO_STYLE_SHEET } from '../constants/fileSystem';
+import { Environment } from '../types/parsers';
 
 export const reportGenerator = async (
   runner: Runner,

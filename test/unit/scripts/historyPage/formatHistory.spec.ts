@@ -126,73 +126,73 @@ describe('historyTableFormatting', (): void => {
         .to.eql(indexedBySuite);
     });
   });
-  describe('formatHistory', (): void => {
-    it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
-      const firstSuiteName = 'suite #1';
-      const secondSuiteName = 'suite #2';
-      const differentSuites = testResults
-        .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
-          ...results,
-          ...(index % 2 === 0 ? [{
-            ...test,
-            suite: firstSuiteName,
-          }] : []),
-          { ...test, suite: secondSuiteName, duration: index },
-        ], []);
-      expect(formatHistory(differentSuites))
-        .to.eql({
-          [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
-            .map((
-              date: string,
-            ): TestResult => ({
-              title: date,
-            } as TestResult)),
-          [firstSuiteName]: differentSuites
-            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-            .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
-              ...tests,
-              {
-                ...test,
-                title: millisecondsToRoundedHumanReadable(test.duration as number),
-              } as TestResult,
-              { title: EMPTY_STRING } as TestResult,
-            ], []),
-          [secondSuiteName]: differentSuites
-            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-            .map((test: TestResult): TestResult => ({
-              ...test,
-              title: millisecondsToRoundedHumanReadable(test.duration as number),
-            })),
-        });
-    });
-    it('Will format historical data to into a format parsable into an html table', (): void => {
-      const firstSuiteName = 'suite #1';
-      const secondSuiteName = 'suite #2';
-      const differentSuites = testResults
-        .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
-          ...results,
-          { ...test, suite: firstSuiteName, duration: index },
-          { ...test, suite: secondSuiteName, duration: index },
-        ], []);
-      expect(formatHistory(differentSuites))
-        .to.eql({
-          [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
-            .map((date: string): TestResult => ({ title: date } as TestResult)),
-          [firstSuiteName]: differentSuites
-            .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-            .map((test: TestResult): TestResult => ({
-              ...test,
-              title: millisecondsToRoundedHumanReadable(test.duration as number),
-            })),
-          [secondSuiteName]: differentSuites
-            .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-            .map((test: TestResult): TestResult => ({
-              ...test,
-              title: millisecondsToRoundedHumanReadable(test.duration as number),
-            })),
-        });
-    });
-  });
+  // describe('formatHistory', (): void => {
+  //   it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
+  //     const firstSuiteName = 'suite #1';
+  //     const secondSuiteName = 'suite #2';
+  //     const differentSuites = testResults
+  //       .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
+  //         ...results,
+  //         ...(index % 2 === 0 ? [{
+  //           ...test,
+  //           suite: firstSuiteName,
+  //         }] : []),
+  //         { ...test, suite: secondSuiteName, duration: index },
+  //       ], []);
+  //     expect(formatHistory(differentSuites))
+  //       .to.eql({
+  //         [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
+  //           .map((
+  //             date: string,
+  //           ): TestResult => ({
+  //             title: date,
+  //           } as TestResult)),
+  //         [firstSuiteName]: differentSuites
+  //           .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
+  //           .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
+  //             ...tests,
+  //             {
+  //               ...test,
+  //               title: millisecondsToRoundedHumanReadable(test.duration as number),
+  //             } as TestResult,
+  //             { title: EMPTY_STRING } as TestResult,
+  //           ], []),
+  //         [secondSuiteName]: differentSuites
+  //           .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
+  //           .map((test: TestResult): TestResult => ({
+  //             ...test,
+  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
+  //           })),
+  //       });
+  //   });
+  //   it('Will format historical data to into a format parsable into an html table', (): void => {
+  //     const firstSuiteName = 'suite #1';
+  //     const secondSuiteName = 'suite #2';
+  //     const differentSuites = testResults
+  //       .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
+  //         ...results,
+  //         { ...test, suite: firstSuiteName, duration: index },
+  //         { ...test, suite: secondSuiteName, duration: index },
+  //       ], []);
+  //     expect(formatHistory(differentSuites))
+  //       .to.eql({
+  //         [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
+  //           .map((date: string): TestResult => ({ title: date } as TestResult)),
+  //         [firstSuiteName]: differentSuites
+  //           .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
+  //           .map((test: TestResult): TestResult => ({
+  //             ...test,
+  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
+  //           })),
+  //         [secondSuiteName]: differentSuites
+  //           .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
+  //           .map((test: TestResult): TestResult => ({
+  //             ...test,
+  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
+  //           })),
+  //       });
+  //   });
+  // });
   describe('groupHistoryByDate', (): void => {
     it('Groups an array of test results into arrays of test results run on the same date', (): void => {
       const firstSuiteName = 'suite #1';
