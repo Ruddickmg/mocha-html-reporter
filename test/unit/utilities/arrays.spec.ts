@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { flattenArray, quickMerge } from '../../../src/utilities/arrays';
+import { flattenArray, getIndexOfMinValue, quickMerge } from '../../../src/utilities/arrays';
 
 describe('arrays', (): void => {
   describe('flattenArray', (): void => {
@@ -14,6 +14,15 @@ describe('arrays', (): void => {
     const merged = [...arrOne, ...arrTwo];
     it('Will merge two arrays', (): void => {
       expect(quickMerge(arrOne, arrTwo)).to.eql(merged);
+    });
+  });
+  describe('getIndexOfMaxValue', (): void => {
+    it('Will get the index of the lowest number in an array', (): void => {
+      const indexOfLowestValue = 4;
+      const lowestNumber = -20;
+      const arr = [1, 2, 1, 10, 4, -1, 3];
+      arr[indexOfLowestValue] = lowestNumber;
+      expect(getIndexOfMinValue(arr)).to.equal(indexOfLowestValue);
     });
   });
 });

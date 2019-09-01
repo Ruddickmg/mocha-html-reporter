@@ -1,1 +1,2 @@
 // TODO write tests for variable declaration parsing
+import { expect } from 'chai';

@@ -1,6 +1,6 @@
 import {
   convertMillisecondsToDate,
-  getMonthDayYearFromDate,
+  convertDateIntoMonthDayYear,
   millisecondsToRoundedHumanReadable,
 } from '../../utilities/time';
 import { sortTestResultsByDate } from '../../utilities/sorting';
@@ -21,7 +21,7 @@ export const getEachRunDate = (history: TestResult[]): string[] => {
       dates
         .sort()
         .map(convertMillisecondsToDate)
-        .map(getMonthDayYearFromDate),
+        .map(convertDateIntoMonthDayYear),
     ));
 };
 
@@ -30,7 +30,7 @@ export const getEachSuiteTitle = (history: TestResult[]): string[] => Array
 
 export const collectHistoryByDate = (history: TestResult[]): HistoryByDate => history
   .reduce((tests: HistoryByDate, test: TestResult): HistoryByDate => {
-    const dateString = getMonthDayYearFromDate(convertMillisecondsToDate(test.date));
+    const dateString = convertDateIntoMonthDayYear(convertMillisecondsToDate(test.date));
     const testsOnSameDay = tests[dateString] || [];
     return {
       ...tests,
@@ -62,15 +62,6 @@ export const indexTestResultsBySuite = (tests: TestResult[]): TestResultsBySuite
     ...testResultsBySuite,
     [test.suite]: test,
   }), {});
-
-export const groupTestSuitesByDate = (testResults: TestResult[]): TestResult[][] => {
-  const testResultsWithDuplicatesRemoved = mapOverObject(
-    removeDuplicateTestResults,
-    collectHistoryByDate(testResults),
-  );
-  return Object.keys(testResultsWithDuplicatesRemoved)
-    .map((date: string): TestResult[] => testResultsWithDuplicatesRemoved[date]);
-};
 
 const formatHistoryByDate = compose(
   sortTestResultsByDate,

@@ -7,6 +7,7 @@ import { cleanCssConfiguration } from '../configuraton/clean-css.config';
 import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 
 export const minifyJs = (unMinifiedCode: string): string => {
+  console.log('unminified: ', unMinifiedCode, '\n');
   const { code, error } = minifyJavascript(unMinifiedCode, uglifyJsConfiguration);
   if (error) {
     logError('Error in javascript minification,', error);
@@ -15,6 +16,15 @@ export const minifyJs = (unMinifiedCode: string): string => {
 };
 
 export const minifyCss = (css: string): Promise<any> => new CleanCss(cleanCssConfiguration)
-  .minify(css);
+  .minify(css)
+  .catch((error: Error): void => logError('Error in css minification', error));
 
-export const minifyHtml = (html: string): string => minify(html, minifyHtmlConfiguration);
+export const minifyHtml = (html: string): string => {
+  let minifiedHtml = '';
+  try {
+    minifiedHtml = minify(html, minifyHtmlConfiguration);
+  } catch (error) {
+    logError('Error in html minification', error);
+  }
+  return minifiedHtml;
+};

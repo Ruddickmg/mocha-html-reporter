@@ -41,28 +41,25 @@ export const convertArrayToHistoryTableHeader = (
   data.map(convertTestResultToHistoryTableHeader),
 );
 
-export const createHistoryTable = (history: HistoryBySuite): Element => {
-  const headers = convertArrayToHistoryTableHeader([
-    { title: HISTORY_TABLE_TITLE } as TestResult,
-    ...(history[HISTORY_TABLE_TITLE] || []),
-  ]);
-  return createTable(
-    { id: HISTORY_TABLE },
-    [
-      headers,
-      ...Object.keys(history)
-        .filter((testSuiteName: string): boolean => testSuiteName !== HISTORY_TABLE_TITLE)
-        .map((testSuiteName: string): Element => {
-          const testSuite = history[testSuiteName] || [];
-          const testWithId = testSuite.find(({ suiteId }: TestResult): boolean => !!suiteId);
-          const suiteId = testWithId && testWithId.suiteId;
-          return convertArrayToTableRow(
-            [
-              { title: testSuiteName, id: suiteId },
-              ...testSuite,
-            ] as TestResult[],
-          );
-        }),
-    ],
-  );
-};
+export const createHistoryTable = (history: HistoryBySuite): Element => createTable(
+  { id: HISTORY_TABLE },
+  [
+    convertArrayToHistoryTableHeader([
+      { title: HISTORY_TABLE_TITLE } as TestResult,
+      ...(history[HISTORY_TABLE_TITLE] || []),
+    ]),
+    ...Object.keys(history)
+      .filter((testSuiteName: string): boolean => testSuiteName !== HISTORY_TABLE_TITLE)
+      .map((testSuiteName: string): Element => {
+        const testSuite = history[testSuiteName] || [];
+        const testWithId = testSuite.find(({ suiteId }: TestResult): boolean => !!suiteId);
+        const suiteId = testWithId && testWithId.suiteId;
+        return convertArrayToTableRow(
+          [
+            { title: testSuiteName, id: suiteId },
+            ...testSuite,
+          ] as TestResult[],
+        );
+      }),
+  ],
+);

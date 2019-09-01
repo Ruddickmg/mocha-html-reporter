@@ -6,9 +6,12 @@ import {
   removeDuplicateTestResults,
   indexTestResultsBySuite,
   formatHistory,
-  groupTestSuitesByDate,
 } from '../../../../src/scripts/historyPage/formatHistory';
-import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../../src/utilities/time';
+import {
+  convertDateStringToMilliseconds,
+  convertDateIntoMonthDayYear,
+  millisecondsToRoundedHumanReadable,
+} from '../../../../src/utilities/time';
 import { EMPTY_STRING } from '../../../../src/constants/punctuation';
 import { HistoryByDate, TestResult } from '../../../../src/types/report';
 import { HISTORY_TABLE_TITLE } from '../../../../src/constants/html';
@@ -16,12 +19,13 @@ import { HISTORY_TABLE_TITLE } from '../../../../src/constants/html';
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';
   const duplicateMonthDayYear = '8/16/1987';
-  const testResults = [
+  const dates = [
     'August 13, 1987 23:15:30',
     'August 14, 1987 23:15:30',
     'August 15, 1987 23:15:30',
     duplicateDateString,
-  ].map((dateString: string): TestResult => ({
+  ];
+  const testResults = dates.map((dateString: string): TestResult => ({
     title: dateString,
     date: convertDateStringToMilliseconds(dateString),
   }) as TestResult);
@@ -126,111 +130,88 @@ describe('historyTableFormatting', (): void => {
         .to.eql(indexedBySuite);
     });
   });
-  // describe('formatHistory', (): void => {
-  //   it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
-  //     const firstSuiteName = 'suite #1';
-  //     const secondSuiteName = 'suite #2';
-  //     const differentSuites = testResults
-  //       .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
-  //         ...results,
-  //         ...(index % 2 === 0 ? [{
-  //           ...test,
-  //           suite: firstSuiteName,
-  //         }] : []),
-  //         { ...test, suite: secondSuiteName, duration: index },
-  //       ], []);
-  //     expect(formatHistory(differentSuites))
-  //       .to.eql({
-  //         [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
-  //           .map((
-  //             date: string,
-  //           ): TestResult => ({
-  //             title: date,
-  //           } as TestResult)),
-  //         [firstSuiteName]: differentSuites
-  //           .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-  //           .reduce((tests: TestResult[], test: TestResult): TestResult[] => [
-  //             ...tests,
-  //             {
-  //               ...test,
-  //               title: millisecondsToRoundedHumanReadable(test.duration as number),
-  //             } as TestResult,
-  //             { title: EMPTY_STRING } as TestResult,
-  //           ], []),
-  //         [secondSuiteName]: differentSuites
-  //           .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-  //           .map((test: TestResult): TestResult => ({
-  //             ...test,
-  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
-  //           })),
-  //       });
-  //   });
-  //   it('Will format historical data to into a format parsable into an html table', (): void => {
-  //     const firstSuiteName = 'suite #1';
-  //     const secondSuiteName = 'suite #2';
-  //     const differentSuites = testResults
-  //       .reduce((results: TestResult[], test: TestResult, index: number): TestResult[] => [
-  //         ...results,
-  //         { ...test, suite: firstSuiteName, duration: index },
-  //         { ...test, suite: secondSuiteName, duration: index },
-  //       ], []);
-  //     expect(formatHistory(differentSuites))
-  //       .to.eql({
-  //         [HISTORY_TABLE_TITLE]: getEachRunDate(testResults)
-  //           .map((date: string): TestResult => ({ title: date } as TestResult)),
-  //         [firstSuiteName]: differentSuites
-  //           .filter(({ suite }: TestResult): boolean => suite === firstSuiteName)
-  //           .map((test: TestResult): TestResult => ({
-  //             ...test,
-  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
-  //           })),
-  //         [secondSuiteName]: differentSuites
-  //           .filter(({ suite }: TestResult): boolean => suite === secondSuiteName)
-  //           .map((test: TestResult): TestResult => ({
-  //             ...test,
-  //             title: millisecondsToRoundedHumanReadable(test.duration as number),
-  //           })),
-  //       });
-  //   });
-  // });
-  describe('groupHistoryByDate', (): void => {
-    it('Groups an array of test results into arrays of test results run on the same date', (): void => {
-      const firstSuiteName = 'suite #1';
-      const secondSuiteName = 'suite #2';
-      const groupedByDate: TestResult[][] = [];
-      const differentSuites = testResults
-        .reduce((results: TestResult[], test: TestResult): TestResult[] => {
-          const testsOnSameDate = [
-            { ...test, suite: firstSuiteName },
-            { ...test, suite: secondSuiteName },
-          ];
-          groupedByDate.push(testsOnSameDate);
-          return [...results, ...testsOnSameDate];
-        }, []);
-      expect(groupTestSuitesByDate(differentSuites))
-        .to.eql(groupedByDate);
-    });
-    it('Removes Duplicate test runs for the same date', (): void => {
-      const firstSuiteName = 'suite #1';
-      const secondSuiteName = 'suite #2';
-      const groupedByDate: TestResult[][] = [];
-      testResults
-        .forEach((test: TestResult): void => {
-          groupedByDate.push([
-            { ...test, suite: firstSuiteName },
-            { ...test, suite: secondSuiteName },
-          ]);
+  describe('formatHistory', (): void => {
+    const firstSuiteName = 'suite #1';
+    const secondSuiteName = 'suite #2';
+    const [firstResult, secondResult] = testResults;
+    const firstTestResult = {
+      ...firstResult,
+      suite: firstSuiteName,
+      duration: 14,
+      title: millisecondsToRoundedHumanReadable(14),
+    } as TestResult;
+    const secondTestResult = {
+      ...secondResult,
+      suite: secondSuiteName,
+      duration: 1234,
+      title: millisecondsToRoundedHumanReadable(1234),
+    } as TestResult;
+    it('Will include "empty test" placeholders for test runs that exist on one day but not others', (): void => {
+      const differentSuites = [firstTestResult, secondTestResult];
+      const omitIfDivisibleBy = 2;
+      const historyByDate = dates
+        .reduce((byDate: HistoryByDate, date: string, index: number): HistoryByDate => {
+          const dateInMs = convertDateStringToMilliseconds(date);
+          const dateString = convertDateIntoMonthDayYear(new Date(date));
+          return {
+            ...byDate,
+            [dateString]: index % omitIfDivisibleBy === 0
+              ? differentSuites
+                .map((result: TestResult): TestResult => ({ ...result, date: dateInMs }))
+              : [{ ...firstTestResult, date: dateInMs }],
+          };
+        }, {} as HistoryByDate);
+      expect(formatHistory(historyByDate))
+        .to.eql({
+          [HISTORY_TABLE_TITLE]: dates
+            .map((date: string): TestResult => ({
+              title: convertDateIntoMonthDayYear(new Date(date)),
+            } as TestResult)),
+          [firstSuiteName]: dates
+            .map((date: string): TestResult => ({
+              ...firstTestResult,
+              date: convertDateStringToMilliseconds(date),
+            })),
+          [secondSuiteName]: dates
+            .map((date: string, index: number): TestResult => (
+              index % omitIfDivisibleBy === 0
+                ? {
+                  ...secondTestResult,
+                  date: convertDateStringToMilliseconds(date),
+                }
+                : { title: EMPTY_STRING } as TestResult
+            )),
         });
-      const duplicates = testResults
-        .reduce((results: TestResult[], test: TestResult): TestResult[] => [
-          ...results,
-          { ...test, suite: firstSuiteName },
-          { ...test, suite: firstSuiteName },
-          { ...test, suite: secondSuiteName },
-          { ...test, suite: secondSuiteName },
-        ], []);
-      expect(groupTestSuitesByDate(duplicates))
-        .to.eql(groupedByDate);
+    });
+    it('Will format historical data to into a format parsable into an html table', (): void => {
+      const differentSuites = [firstTestResult, secondTestResult];
+      const historyByDate = dates
+        .reduce((byDate: HistoryByDate, date: string): HistoryByDate => {
+          const dateInMs = convertDateStringToMilliseconds(date);
+          const dateString = convertDateIntoMonthDayYear(new Date(date));
+          return {
+            ...byDate,
+            [dateString]: differentSuites
+              .map((result: TestResult): TestResult => ({ ...result, date: dateInMs })),
+          };
+        }, {} as HistoryByDate);
+      expect(formatHistory(historyByDate))
+        .to.eql({
+          [HISTORY_TABLE_TITLE]: dates
+            .map((date: string): TestResult => ({
+              title: convertDateIntoMonthDayYear(new Date(date)),
+            } as TestResult)),
+          [firstSuiteName]: dates
+            .map((date: string): TestResult => ({
+              ...firstTestResult,
+              date: convertDateStringToMilliseconds(date),
+            })),
+          [secondSuiteName]: dates
+            .map((date: string): TestResult => ({
+              ...secondTestResult,
+              date: convertDateStringToMilliseconds(date),
+            })),
+        });
     });
   });
 });

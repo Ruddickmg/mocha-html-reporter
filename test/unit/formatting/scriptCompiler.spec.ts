@@ -16,7 +16,7 @@ import {
   replaceVariablesInCode,
   combineVariablesForEachFile,
   compileCode,
-  replaceVariablesInBulk,
+  replaceVariablesInBulk, getPathFromRequire, isImportLine,
 } from '../../../src/formatting/scriptCompiler';
 import { EMPTY_STRING } from '../../../src/constants/punctuation';
 import { variableNameGenerator } from '../../helpers/expectations';
@@ -31,6 +31,7 @@ const testImportFilePathThree = `${rootPath}testFileThree.js`;
 const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.js`;
 const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.js`;
 const circularImportTestFile = `${rootPath}circularImport.js`;
+const punctuationTestFile = `${rootPath}punctuation.js`;
 const secondCircularImportFile = `${rootPath}secondCircularImport.js`;
 const firstVariableName = 'someFunk';
 const secondVariableName = 'someVariable';
@@ -159,11 +160,31 @@ describe('scriptCompiler', (): void => {
       const line = `var x = require("${text}");`;
       expect(getTextBetweenMarkers(line, ['"', '\''])).to.equal(text);
     });
+    it('Will only match an opening bracket with it\'s corresponding closing bracket when only one bracket is specified', (): void => {
+      expect(getTextBetweenMarkers('var brackets = \'"\';', '\''))
+        .to.equal('"');
+    });
+    it('Will only match an opening bracket with it\'s corresponding closing bracket when more than one bracket is specified', (): void => {
+      expect(getTextBetweenMarkers('var brackets = "\'";', ['\'', '"']))
+        .to.equal('\'');
+    });
+    it('Will not match escaped characters', (): void => {
+      expect(getTextBetweenMarkers('var brackets = \'\\\'\';', '\''))
+        .to.equal('\\\'');
+    });
   });
   describe('addTsExtension', (): void => {
     it('Add a .js extension to the end of a string', (): void => {
       const text = 'hello';
       expect(addExtension(text)).to.equal(`${text}.js`);
+    });
+  });
+  describe('getPathFromRequire', (): void => {
+    it('Will get a file path from a require declaration', (): void => {
+      const filePath = '/path/to/file.js';
+      const path = `require("${filePath}")`;
+      expect(getPathFromRequire(path))
+        .to.equal(filePath);
     });
   });
   describe('getFileNameFromRequire', (): void => {
@@ -358,6 +379,21 @@ describe('scriptCompiler', (): void => {
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
       expect(await compileCode(testImportFilePath, variableNameGenerator()))
         .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\r\n  console.log(variable2, variable3, variable1);\r\n};');
+    });
+    it('can parse files with punctuation in string declarations', async (): Promise<void> => {
+      expect(await compileCode(punctuationTestFile, variableNameGenerator()))
+        .to.equal(`var variable7 = '';var variable10 = 'function';var variable9 = 'require';var variable2 = '{';var CLOSING_CURLY = '}';var variable1 = '(';var variable8 = '.';var variable4 = '"';var variable5 = '\'';var variable6 = ' ';var variable11 = 'var';`);
+    });
+  });
+  describe('isImportLine', (): void => {
+    it('Will return true if a line contains an import declaration', (): void => {
+      expect(isImportLine('var hello = require("something");')).to.equal(true);
+    });
+    it('Will return false if a line does not contain an import declaration', (): void => {
+      expect(isImportLine('var hello = "hello"')).to.equal(false);
+    });
+    it('Will return false if a line contains the word "require" but it is not an import declaration', (): void => {
+      expect(isImportLine('var hello = "require"')).to.equal(false);
     });
   });
 });

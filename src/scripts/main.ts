@@ -1,6 +1,6 @@
 import { replaceElementById } from './elements';
 import { HISTORY_TABLE } from '../constants/cssIdentifiers';
-import { getHistoryTable } from './historyPage/getHistory';
+import { getHistoryTable } from './historyPage/history';
 
 type PageAction = (...data: string[]) => void | boolean;
 
@@ -13,6 +13,7 @@ export default ((binding: Window): void => {
   const methodNames: string[] = Object.keys(publicMethods);
   const historyTable: Element = getHistoryTable();
   replaceElementById(HISTORY_TABLE, historyTable);
+  console.log('working!');
   methodNames
     .forEach((methodName: string): void => {
       // @ts-ignore

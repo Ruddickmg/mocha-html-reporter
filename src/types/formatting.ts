@@ -1,7 +1,7 @@
 import { Test } from 'mocha';
 import { TestResult } from './report';
 
-export interface FilesToIgnore {
+export interface BooleanMapping {
   [fileName: string]: boolean;
 }
 

@@ -1,3 +1,4 @@
+import { join } from 'path';
 import {
   EMPTY_STRING,
   FUNCTION_DECLARATION,
@@ -21,33 +22,70 @@ import { NEW_LINE, PATH_SEPARATOR } from '../constants/fileSystem';
 import {
   CodeStore,
   FileCodeMappings,
-  FilesToIgnore,
+  BooleanMapping,
   NameGenerator,
 } from '../types/formatting';
 import { Symbols } from '../types/parsers';
+import { getIndexOfMinValue } from '../utilities/arrays';
 
 const EXTENSION = '.js';
+const INVALID_INDEX = -1;
+const ESCAPE_STRING = '\\';
+
+// TODO: test this function
+export const getIndexOfNonEscapedSymbol = (symbol: string, text: string): number => text
+  .split('')
+  .findIndex((
+    value: string,
+    index: number,
+  ): boolean => text[index - 1] !== ESCAPE_STRING && value === symbol);
 
 export const getTextBetweenMarkers = (
-  text: string,
+  text: string = '',
   opening: string[] | string,
   closing: string[] | string = opening,
 ): string => {
-  const openingSymbol = isArray(opening)
-    ? (opening as string[]).find(((symbol: string): string => text.split(symbol)[1]))
-    : opening as string;
-  const closingSymbol: string = isArray(closing)
-    ? (closing as string[]).find(((symbol: string): string => text.split(symbol)[0]))
-    : closing as string;
-  return text
-    .split(openingSymbol)[1]
-    .split(closingSymbol)[0];
+  const { length } = text;
+  let openingSymbol = opening;
+  let closingSymbol = closing;
+  if (isArray(opening)) {
+    const index = getIndexOfMinValue(
+      (opening as string[])
+        .map((symbol: string): number => text.indexOf(symbol))
+        .map((currentIndex: number): number => (
+          currentIndex > INVALID_INDEX || text[currentIndex - 1] === ESCAPE_STRING
+            ? currentIndex
+            : length
+        )),
+    );
+    openingSymbol = opening[index];
+    closingSymbol = closing[index];
+  }
+  const firstIndex = getIndexOfNonEscapedSymbol(
+    openingSymbol as string,
+    text,
+  );
+  if (firstIndex !== INVALID_INDEX) {
+    const result = text.slice(firstIndex + 1);
+    const secondIndex = getIndexOfNonEscapedSymbol(
+      closingSymbol as string,
+      result,
+    );
+    if (secondIndex) {
+      return result.slice(0, secondIndex);
+    }
+  }
+  return '';
 };
 
 export const addExtension = (name: string): string => `${name}${EXTENSION}`;
+
+export const getPathFromRequire = (
+  code: string,
+): string => getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE]);
 export const getFileNameFromRequire = (
   code: string,
-): string => getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE])
+): string => getPathFromRequire(code)
   .split(PATH_SEPARATOR)
   .pop();
 
@@ -88,8 +126,10 @@ export const getNameWithExtensionFromFile = compose(
   addExtension,
 );
 
+export const isImportLine = (line: string): boolean => line.includes(`${IMPORT_DECLARATION}(`);
+
 export const getCodeByPath = async (file: string): Promise<CodeStore> => {
-  const importedPaths: FilesToIgnore = {};
+  const importedPaths: BooleanMapping = {};
   const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
     const code = await getFileContents(fileName);
     const pathToFile = removeFileNameFromPath(fileName);
@@ -100,8 +140,9 @@ export const getCodeByPath = async (file: string): Promise<CodeStore> => {
     // eslint-disable-next-line no-plusplus
     while (lineIndex--) {
       const line = lines[lineIndex];
-      if (line.includes(IMPORT_DECLARATION)) {
-        const path = `${pathToFile}${PATH_SEPARATOR}${getNameWithExtensionFromFile(line)}`;
+      if (isImportLine(line)) {
+        const pathFromFile = getPathFromRequire(line);
+        const path = addExtension(join(pathToFile, pathFromFile));
         if (!importedPaths[path]) {
           importedPaths[path] = true;
           paths.push(path);
@@ -140,7 +181,7 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
       parsedCode = parseCodeBlock(char) as string;
       variableName = (variableName || parseVariableName(char)) as string;
       if (parsedCode) {
-        if (!/require/.test(parsedCode)) {
+        if (!/require\(/.test(parsedCode)) {
           store[variableName as string] = `${declaration}${parsedCode}`;
         }
         declaration = false;
@@ -302,6 +343,13 @@ export const compileCode = async (
   );
 };
 
-export const getScripts = async (fileName: string): Promise<string> => minifyJs(
-  await compileCode(fileName, variableNameGenerator()),
-);
+export const getScripts = async (fileName: string): Promise<string> => {
+  try {
+    return minifyJs(
+      await compileCode(fileName, variableNameGenerator()),
+    );
+  } catch (error) {
+    console.log('error in getScripts', error);
+    return null;
+  }
+};

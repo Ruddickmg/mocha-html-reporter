@@ -92,7 +92,7 @@ export const convertDateStringToMilliseconds = (
   dateString: string,
 ): number => (new Date(dateString)).getTime();
 
-export const getMonthDayYearFromDate = (
+export const convertDateIntoMonthDayYear = (
   date: Date,
 ): string => `${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear()}`;
 

@@ -3,7 +3,7 @@ import {
   roundToTheNearestTenth,
   convertDateStringToMilliseconds,
   convertMillisecondsToDate,
-  getMonthDayYearFromDate,
+  convertDateIntoMonthDayYear,
   formatDuration,
   getAmountOfExcess,
   millisecondsToHumanReadable,
@@ -44,7 +44,7 @@ describe('time', (): void => {
   describe('getMonthDayYearFromDate', (): void => {
     const monthDayYearString = '8/13/1987';
     it('Will get a human readable version of the date with ', (): void => {
-      expect(getMonthDayYearFromDate(new Date(dateString)))
+      expect(convertDateIntoMonthDayYear(new Date(dateString)))
         .to.eql(monthDayYearString);
     });
   });

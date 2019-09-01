@@ -2,7 +2,7 @@ import { Runner, Test } from 'mocha';
 import { writeToFile } from '../utilities/fileSystem';
 import { createTestResultFormatter } from '../formatting/testResults';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
-import { convertMillisecondsToDate, getMonthDayYearFromDate } from '../utilities/time';
+import { convertMillisecondsToDate, convertDateIntoMonthDayYear } from '../utilities/time';
 import { compose } from '../utilities/functions';
 import { DELAY_START_PROPERTY, TEST_FINISHED } from '../constants/mocha';
 import { reportTemplate } from './reportTemplate';
@@ -36,7 +36,7 @@ export const initializeTestHandlerFactory = (
     timeOfTest,
     state,
   );
-  const date = getMonthDayYearFromDate(convertMillisecondsToDate(timeOfTest));
+  const date = convertDateIntoMonthDayYear(convertMillisecondsToDate(timeOfTest));
   const data = history;
   return async (test: Test): Promise<void> => {
     let image: string;
