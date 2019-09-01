@@ -1,8 +1,8 @@
 import { join } from 'path';
 import {
-  EMPTY_STRING,
+  EMPTY_STRING, ESCAPE_STRING,
   FUNCTION_DECLARATION,
-  IMPORT_DECLARATION,
+  IMPORT_DECLARATION, INVALID_INDEX,
   OPEN_PARENTHESES,
   QUOTATION_MARK,
   SINGLE_QUOTE,
@@ -29,8 +29,6 @@ import { Symbols } from '../types/parsers';
 import { getIndexOfMinValue } from '../utilities/arrays';
 
 const EXTENSION = '.js';
-const INVALID_INDEX = -1;
-const ESCAPE_STRING = '\\';
 
 // TODO: test this function
 export const getIndexOfNonEscapedSymbol = (symbol: string, text: string): number => text
@@ -183,6 +181,7 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
       if (parsedCode) {
         if (!/require\(/.test(parsedCode)) {
           store[variableName as string] = `${declaration}${parsedCode}`;
+          parsedCode = null;
         }
         declaration = false;
         variableName = false;

@@ -13,13 +13,29 @@ describe('code', (): void => {
     const closingBracketInString = 'var SOMETHING_ELSE = \'}\';';
     const bracketInString = `var SOMETHING = '{';\n${closingBracketInString}`;
     const assignment = `       var ${secondVariableName} = 'some other thing';`;
-    []
-      .forEach((specialChar: string): any => it(
-        'Won\'t parse special keywords/characters that are inside a strings',
-        (): void => {
-
-        },
-      ));
+    const postEscape = 'var OPENING_CURLY = \'{\';';
+    const preEscape = `var QUOTATION_MARK = '"';\nexports.QUOTATION_MARK = QUOTATION_MARK;\nvar SINGLE_QUOTE = '\\'';\nexports.SINGLE_QUOTE = SINGLE_QUOTE;\n${postEscape}`;
+    const escapedEscapeString = 'var ESCAPE_STRING = \'\\\\\';';
+    it('Won\'t parse escaped string chars', (): void => {
+      expect(
+        preEscape
+          .split(EMPTY_STRING)
+          .reduce((
+            _: string,
+            char: string,
+          ): string | boolean => parseCodeBlock(char), EMPTY_STRING),
+      ).to.equal(postEscape);
+    });
+    it('Won\'t parse escaped escape strings', (): void => {
+      expect(
+        escapedEscapeString
+          .split(EMPTY_STRING)
+          .reduce((
+            _: string,
+            char: string,
+          ): string | boolean => parseCodeBlock(char), EMPTY_STRING),
+      ).to.equal(escapedEscapeString);
+    });
     it('Won\'t parse opening and curly brackets that are within strings', (): void => {
       expect(
         bracketInString

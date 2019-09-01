@@ -382,7 +382,11 @@ describe('scriptCompiler', (): void => {
     });
     it('can parse files with punctuation in string declarations', async (): Promise<void> => {
       expect(await compileCode(punctuationTestFile, variableNameGenerator()))
-        .to.equal(`var variable7 = '';var variable10 = 'function';var variable9 = 'require';var variable2 = '{';var CLOSING_CURLY = '}';var variable1 = '(';var variable8 = '.';var variable4 = '"';var variable5 = '\'';var variable6 = ' ';var variable11 = 'var';`);
+        .to.equal(`var variable5 = '}';var variable10 = '';var variable1 = '\\\\';var variable13 = 'function';var variable12 = 'require';var variable2 = -1;var variable6 = '{';var variable4 = '(';var variable11 = '.';var variable8 = '"';var variable3 = ';';var variable7 = '\\'';var variable9 = ' ';var variable14 = 'var';`);
+    });
+    it('will compile scripts into working code', async (): Promise<void> => {
+      expect(await compileCode('/var/www/root/mocha-html-reporter/dist/scripts/main.js', variableNameGenerator()))
+        .to.equal('');
     });
   });
   describe('isImportLine', (): void => {

@@ -3,7 +3,7 @@
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.OPEN_PARENTHESES = exports.CLOSING_CURLY = exports.OPENING_CURLY = exports.SINGLE_QUOTE = exports.QUOTATION_MARK = exports.SEMICOLON = exports.SPACE = exports.EMPTY_STRING = exports.PERIOD = exports.IMPORT_DECLARATION = exports.FUNCTION_DECLARATION = exports.VARIABLE_DECLARATION = void 0;
+exports.ESCAPE_STRING = exports.INVALID_INDEX = exports.OPEN_PARENTHESES = exports.CLOSING_CURLY = exports.OPENING_CURLY = exports.SINGLE_QUOTE = exports.QUOTATION_MARK = exports.SPACE = exports.EMPTY_STRING = exports.PERIOD = exports.IMPORT_DECLARATION = exports.FUNCTION_DECLARATION = exports.VARIABLE_DECLARATION = void 0;
 var VARIABLE_DECLARATION = 'var';
 exports.VARIABLE_DECLARATION = VARIABLE_DECLARATION;
 var FUNCTION_DECLARATION = 'function';
@@ -16,8 +16,6 @@ var EMPTY_STRING = '';
 exports.EMPTY_STRING = EMPTY_STRING;
 var SPACE = ' ';
 exports.SPACE = SPACE;
-var SEMICOLON = ';';
-exports.SEMICOLON = SEMICOLON;
 var QUOTATION_MARK = '"';
 exports.QUOTATION_MARK = QUOTATION_MARK;
 var SINGLE_QUOTE = '\'';
@@ -28,3 +26,9 @@ var CLOSING_CURLY = '}';
 exports.CLOSING_CURLY = CLOSING_CURLY;
 var OPEN_PARENTHESES = '(';
 exports.OPEN_PARENTHESES = OPEN_PARENTHESES;
+var SEMICOLON = ';';
+exports.SEMICOLON = SEMICOLON;
+var INVALID_INDEX = -1;
+exports.INVALID_INDEX = INVALID_INDEX;
+var ESCAPE_STRING = '\\';
+exports.ESCAPE_STRING = ESCAPE_STRING;

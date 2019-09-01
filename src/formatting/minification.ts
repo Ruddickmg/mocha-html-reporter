@@ -7,7 +7,7 @@ import { cleanCssConfiguration } from '../configuraton/clean-css.config';
 import { minifyHtmlConfiguration } from '../configuraton/html-minifier.config';
 
 export const minifyJs = (unMinifiedCode: string): string => {
-  console.log('unminified: ', unMinifiedCode, '\n');
+  console.log('un-minified code: ', unMinifiedCode);
   const { code, error } = minifyJavascript(unMinifiedCode, uglifyJsConfiguration);
   if (error) {
     logError('Error in javascript minification,', error);
