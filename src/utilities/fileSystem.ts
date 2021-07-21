@@ -9,7 +9,7 @@ import {
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from '../scripts/compiler';
-import { parseDataFromHtml } from '../parsers/history';
+import { htmlDataParser } from '../parsers/history';
 import { isString } from './typeChecks';
 import { TestResult } from '../report/eventHandlers';
 import {
@@ -66,10 +66,12 @@ export const getHistory = (
 ): void => {
   if (existsSync(filePath)) {
     try {
+      const parseDataFromHtml = htmlDataParser();
       const readStream = createReadStream(filePath);
       let data: any = [];
       readStream.on(STREAM_DATA, (fileContents: string): void => {
-        const parsedData = parseDataFromHtml(fileContents);
+        const parsedData = parseDataFromHtml(fileContents.toString());
+        console.log('parsed data', parsedData);
         if (isString(parsedData)) {
           data = JSON.parse(parsedData as string);
           readStream.destroy();

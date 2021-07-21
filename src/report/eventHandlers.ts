@@ -111,6 +111,7 @@ export const createReportHandler = (
       .map(generateTestSuite),
   );
   const report = addValuesToTemplate(htmlSuites, {
+    data: JSON.stringify(allTests),
     history: htmlHistory,
     scripts: minifyJs(scripts),
     styles,

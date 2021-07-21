@@ -181,6 +181,7 @@ describe('eventHandlers', (): void => {
             ...reportData,
             styles: await styles,
             scripts: minifyJs(await scripts),
+            data: JSON.stringify(testResults),
             history: convertHistoryToHtml(formatHistory([
               ...testResults,
               ...history,
@@ -220,6 +221,7 @@ describe('eventHandlers', (): void => {
             suites,
             ...reportData,
             styles,
+            data: JSON.stringify(testResults),
             scripts: minifyJs(scripts),
             history: convertHistoryToHtml(formatHistory([
               ...testResults,

@@ -1,3 +1,5 @@
+import {DATA_CLOSING_TAGS, DATA_OPENING_TAGS} from "../constants/html";
+
 export const reportTemplate = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -6,9 +8,7 @@ export const reportTemplate = `<!DOCTYPE html>
     <style>
         {{styles}}
     </style>
-    <script id="data">
-        {{data}}
-    </script>
+    ${DATA_OPENING_TAGS}{{data}}${DATA_CLOSING_TAGS}
     <script>
       {{scripts}}
     </script>

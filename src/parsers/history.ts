@@ -11,13 +11,16 @@ export const parseDataClosing = createParser(buildParseTree({
   [DATA_CLOSING_TAGS]: DATA_CLOSING_TAGS,
 }));
 
-export const parseDataFromHtml = ((): any => {
+export const htmlDataParser = ((): any => {
   let parsedData = EMPTY_STRING;
   let potentialData: string = EMPTY_STRING;
   let readData: boolean;
 
   return (html: string): string | boolean => {
     const fileContentLength = html.length;
+
+    console.log('initial potential', potentialData);
+    console.log('html', html);
 
     let charIndex = 0;
     let char: string;
@@ -28,7 +31,9 @@ export const parseDataFromHtml = ((): any => {
     for (charIndex; charIndex < fileContentLength; charIndex += 1) {
       char = html[charIndex];
       if (readData) {
+        console.log('char', char, 'data', potentialData);
         dataComplete = parseDataClosing(char);
+        console.log('completed', dataComplete);
         if (isString(dataComplete)) {
           data = parsedData;
           parsedData = EMPTY_STRING;
@@ -38,14 +43,18 @@ export const parseDataFromHtml = ((): any => {
         if (dataComplete) {
           potentialData += char;
         } else {
+          console.log('parsedData pre', parsedData);
           parsedData += `${potentialData}${char}`;
+          console.log('parsedData post', parsedData);
           potentialData = EMPTY_STRING;
         }
       }
-      if (isString(parseDataOpening(char))) {
+      const parsed = parseDataOpening(char);
+      if (isString(parsed)) {
+        console.log('parsed', parsed);
         readData = true;
       }
     }
     return false;
   };
-})();
+});
