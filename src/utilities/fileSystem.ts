@@ -71,7 +71,6 @@ export const getHistory = (
       let data: any = [];
       readStream.on(STREAM_DATA, (fileContents: string): void => {
         const parsedData = parseDataFromHtml(fileContents.toString());
-        console.log('parsed data', parsedData);
         if (isString(parsedData)) {
           data = JSON.parse(parsedData as string);
           readStream.destroy();

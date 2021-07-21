@@ -6,7 +6,9 @@ import { tableHeaderTemplate } from './tableHeader.html';
 import { tableTemplate } from './table.html';
 import { tableRowTemplate } from './tableRow.html';
 import { TEMPLATE_BRACES } from '../constants/constants';
-import { Content, ReportData, TestResult } from '../report/eventHandlers';
+import {
+  Content, Data, ReportData, TestResult,
+} from '../report/eventHandlers';
 import { tableDataTemplate } from './tableData.html';
 import { buttonTemplate } from './button';
 
@@ -40,11 +42,13 @@ export const clearAllTemplateValues = (
 
 export const addValuesToTemplate = (
   template: string,
-  values: TestResult | ReportData | Content,
+  values: TestResult | ReportData | Content | Data,
 ): string => template.replace(
   TEMPLATE_BRACES,
   (match: string): string => {
     const label = match.slice(2, -2);
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-ignore
     return (values[label] || match) as string;
   },
 );

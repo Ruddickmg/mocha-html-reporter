@@ -1,4 +1,5 @@
 import { expect } from 'chai';
+import { describe } from 'mocha';
 import {
   roundToTheNearestTenth,
   convertDateStringToMilliseconds,
@@ -7,7 +8,7 @@ import {
   formatDuration,
   getAmountOfExcess,
   millisecondsToHumanReadable,
-  millisecondsToRoundedHumanReadable, buildStringOfTruthyValues,
+  millisecondsToRoundedHumanReadable, buildStringOfTruthyValues, removeTimeZoneOffset,
 } from '../../../src/formatting/time';
 import {
   HOUR_SUFFIX,
@@ -33,11 +34,24 @@ describe('time', (): void => {
         .to.equal(date.toDateString());
     });
   });
+  describe('remove timezone offset', (): void => {
+    it('removes the timezone offset allowing for more accurate date conversion', () => {
+      const date = new Date();
+      const milliseconds = date.getTime();
+      const timeZoneOffset = date.getTimezoneOffset() * ONE_MINUTE;
+      expect(removeTimeZoneOffset(date).getTime())
+        .eql(milliseconds - timeZoneOffset);
+    });
+  });
   describe('convertDateStringToMilliseconds', (): void => {
-    const milliseconds = new Date(dateString).getTime();
-    it(`Will convert the date ${dateString} to it's millisecond equivalent ${milliseconds}`, (): void => {
+    const milliseconds = removeTimeZoneOffset(new Date(dateString)).getTime();
+    it(`Will convert the date ${dateString} to it's millisecond equivalent, minus the timezone offset ${milliseconds}`, (): void => {
       expect(convertDateStringToMilliseconds(dateString))
         .to.equal(milliseconds);
+    });
+    it('Will convert data to and from milliseconds', () => {
+      expect(convertMillisecondsToDate(convertDateStringToMilliseconds(dateString)).toISOString())
+        .to.equal('1987-08-13T23:15:30.000Z');
     });
   });
   describe('getMonthDayYearFromDate', (): void => {

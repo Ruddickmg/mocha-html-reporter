@@ -20,6 +20,10 @@ export interface TestSuite {
   [directory: string]: TestSuite | TestResult[] | Content | string;
 }
 
+export interface Data {
+  data: string;
+}
+
 export interface TestResult {
   duration: number;
   date: number;

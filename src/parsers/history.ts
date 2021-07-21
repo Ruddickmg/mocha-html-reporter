@@ -19,9 +19,6 @@ export const htmlDataParser = ((): any => {
   return (html: string): string | boolean => {
     const fileContentLength = html.length;
 
-    console.log('initial potential', potentialData);
-    console.log('html', html);
-
     let charIndex = 0;
     let char: string;
     let dataComplete: string | boolean;
@@ -31,9 +28,7 @@ export const htmlDataParser = ((): any => {
     for (charIndex; charIndex < fileContentLength; charIndex += 1) {
       char = html[charIndex];
       if (readData) {
-        console.log('char', char, 'data', potentialData);
         dataComplete = parseDataClosing(char);
-        console.log('completed', dataComplete);
         if (isString(dataComplete)) {
           data = parsedData;
           parsedData = EMPTY_STRING;
@@ -43,15 +38,12 @@ export const htmlDataParser = ((): any => {
         if (dataComplete) {
           potentialData += char;
         } else {
-          console.log('parsedData pre', parsedData);
           parsedData += `${potentialData}${char}`;
-          console.log('parsedData post', parsedData);
           potentialData = EMPTY_STRING;
         }
       }
       const parsed = parseDataOpening(char);
       if (isString(parsed)) {
-        console.log('parsed', parsed);
         readData = true;
       }
     }

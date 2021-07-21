@@ -1,4 +1,4 @@
-import {DATA_CLOSING_TAGS, DATA_OPENING_TAGS} from "../constants/html";
+import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
 
 export const reportTemplate = `<!DOCTYPE html>
 <html lang="en">

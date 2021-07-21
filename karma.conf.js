@@ -1,7 +1,4 @@
 module.exports = function (config) {
-  process.on('infrastructure_error', (error) => {
-    console.error('infrastructure_error', error);
-  });
   config.set({
     logLevel: config.LOG_ERROR,
     basePath: '.',

@@ -1,6 +1,6 @@
 require('@babel/polyfill');
 require('@babel/register')({
-  extensions: ['.js', '.ts'],
+  extensions: ['.ts'],
   presets: [
     '@babel/preset-env',
     '@babel/preset-typescript',
