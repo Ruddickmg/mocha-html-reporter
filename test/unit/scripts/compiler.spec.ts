@@ -14,13 +14,12 @@ import {
   mapFilePathsToCodeBlocksByVariableName,
   getFileNameFromPath,
   replaceVariablesInCode,
-  combineVariablesForEachFile,
-  compileCode, replaceVariablesInBulk,
+  compileCode, replaceVariablesInBulk, combineVariablesForEachFile,
 } from '../../../src/scripts/compiler';
 import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
 import { variableNameGenerator } from '../../helpers/expectations';
 
-const rootPath = '/var/www/root/mocha-html-reporter/test/helpers/compileFiles/';
+const rootPath = '/var/www/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFileName = 'main.js';
 const testImportFilePath = `${rootPath}${testImportFileName}`;
 const testImportFilePathOne = `${rootPath}testFileOne.js`;
@@ -265,30 +264,30 @@ describe('compiler', (): void => {
     });
   });
   describe('replaceVariableNamesInBulk', (): void => {
-    // it('Replaces all variable names in code by a variable to key value object', (): void => {
-    //   const variableOne = 'hi';
-    //   const variableTwo = 'you';
-    //   const variableThree = 'mister';
-    //   const replacementOne = 'hello';
-    //   const replacementTwo = 'yauAll';
-    //   const replacementThree = 'mam';
-    //   const replacements = {
-    //     [variableOne]: replacementOne,
-    //     [variableTwo]: replacementTwo,
-    //     [variableThree]: replacementThree,
-    //   };
-    //   const createText = (one: string, two: string, three: string): string => `
-    //     const fun = function() {
-    //       const ${one} = [${two}, ${three}];
-    //       console.log(${one});
-    //       return ${two};
-    //     };`;
-    //   expect(replaceVariablesInBulk(
-    //     replacements,
-    //     createText(variableOne, variableTwo, variableThree),
-    //   ))
-    //     .to.equal(createText(replacementOne, replacementTwo, replacementThree));
-    // });
+    it('Replaces all variable names in code by a variable to key value object', (): void => {
+      const variableOne = 'hi';
+      const variableTwo = 'you';
+      const variableThree = 'mister';
+      const replacementOne = 'hello';
+      const replacementTwo = 'yauAll';
+      const replacementThree = 'mam';
+      const replacements = {
+        [variableOne]: replacementOne,
+        [variableTwo]: replacementTwo,
+        [variableThree]: replacementThree,
+      };
+      const createText = (one: string, two: string, three: string): string => `
+        const fun = function() {
+          const ${one} = [${two}, ${three}];
+          console.log(${one});
+          return ${two};
+        };`;
+      expect(replaceVariablesInBulk(
+        replacements,
+        createText(variableOne, variableTwo, variableThree),
+      ))
+        .to.equal(createText(replacementOne, replacementTwo, replacementThree));
+    });
     it('Will not replace properties of objects that share a name with the variable name', (): void => {
       const replacement = '_main.getElementById';
       const testCode = 'const getElementById = function () { return document.getElementById };';
@@ -299,21 +298,21 @@ describe('compiler', (): void => {
       expect(replaceVariablesInBulk(replacements, testCode)).to.equal(expected);
     });
   });
-  // describe('combineVariablesForEachFile', (): void => {
-  //   it('Renames variables from one to another in the same file', (): void => {
-  //     const filePath = '/some/path/to/navigation.ts';
-  //     const variables = {
-  //       _defineProperty: 'function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
-  //       _fieldsBeingShown: 'var _fieldsBeingShown = (_fieldsBeingShown = {}, _defineProperty(_fieldsBeingShown, _constants.SHOWING_PASSED, true), _defineProperty(_fieldsBeingShown, _constants.SHOWING_FAILED, true), _fieldsBeingShown);',
-  //     };
-  //     const expected = {
-  //       '_navigation._defineProperty': 'function _navigation._defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
-  //       '_navigation._fieldsBeingShown': 'var _navigation._fieldsBeingShown = (_navigation._fieldsBeingShown = {}, _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_PASSED, true), _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_FAILED, true), _navigation._fieldsBeingShown);',
-  //     };
-  //     expect(combineVariablesForEachFile({ [filePath]: variables }))
-  //       .to.eql(expected);
-  //   });
-  // });
+  describe('combineVariablesForEachFile', (): void => {
+    it('Renames variables from one to another in the same file', (): void => {
+      const filePath = '/some/path/to/navigation.ts';
+      const variables = {
+        _defineProperty: 'function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
+        _fieldsBeingShown: 'var _fieldsBeingShown = (_fieldsBeingShown = {}, _defineProperty(_fieldsBeingShown, _constants.SHOWING_PASSED, true), _defineProperty(_fieldsBeingShown, _constants.SHOWING_FAILED, true), _fieldsBeingShown);',
+      };
+      const expected = {
+        '_navigation._defineProperty': 'function _navigation._defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
+        '_navigation._fieldsBeingShown': 'var _navigation._fieldsBeingShown = (_navigation._fieldsBeingShown = {}, _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_PASSED, true), _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_FAILED, true), _navigation._fieldsBeingShown);',
+      };
+      expect(combineVariablesForEachFile({ [filePath]: variables }))
+        .to.eql(expected);
+    });
+  });
   describe('removeDuplicateCodeBlocks', (): void => {
     it('Will remove duplicate blocks of code from a string', (): void => {
       expect(removeDuplicateCodeBlocks({
@@ -355,7 +354,7 @@ describe('compiler', (): void => {
   describe('compileCode', (): void => {
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
       expect(await compileCode(testImportFilePath, variableNameGenerator()))
-        .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\r\n  console.log(variable2, variable3, variable1);\r\n};');
+        .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\n  console.log(variable2, variable3, variable1);\n};');
     });
   });
 });

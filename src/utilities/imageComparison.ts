@@ -127,8 +127,8 @@ const screenShotComparison = (() => {
     pngImage: any,
     name: string,
   ): Promise<ImageComparisons> => getExistingImage(name)
-    .then(comparison => compareToPreviousImage(pngImage, PNG.sync.read(comparison)))
-    .catch(error => {
+    .then((comparison) => compareToPreviousImage(pngImage, PNG.sync.read(comparison)))
+    .catch((error) => {
       if (error.code === NO_FILE_EXISTS) {
         return saveToDirectory(pngImage, name);
       }

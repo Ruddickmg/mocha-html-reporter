@@ -1,23 +1,16 @@
 {
     "compilerOptions": {
-      "paths": {
-        "*": [
-          "types/*"
-        ]
-      },
       "baseUrl": ".",
       "module": "system",
       "noImplicitAny": true,
       "removeComments": true,
       "preserveConstEnums": true,
-      "outFile": "dist/tsc.js",
       "sourceMap": true
     },
     "include": [
-        "src/**/*"
+        "**/*.ts"
     ],
     "exclude": [
         "node_modules",
-        "**/*.spec.ts"
     ]
 }

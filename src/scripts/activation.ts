@@ -25,4 +25,4 @@ export const activateChildAndButton = (id: string, childClass: string) => [child
   .forEach((cssClass: string): void => activateElement(getChildOfElement(id, cssClass)));
 
 export const deactivateChildAndButton = (id: string, childClass: string): void => [childClass, `${childClass}-button`]
-  .forEach(cssClass => deactivateElement(getChildOfElement(id, cssClass)));
+  .forEach((cssClass) => deactivateElement(getChildOfElement(id, cssClass)));

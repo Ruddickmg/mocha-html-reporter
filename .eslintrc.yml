@@ -23,6 +23,7 @@ globals:
   Atomics: readonly
   SharedArrayBuffer: readonly
 parserOptions:
+  project: './tsconfig.test.json'
   ecmaVersion: 2018
   sourceType: module
 rules:

@@ -5,6 +5,7 @@ import {
   mkdirSync,
   readFile,
 } from 'fs';
+
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
 import { getFileNameFromPath } from '../scripts/compiler';
@@ -59,7 +60,6 @@ export const getFileContents = (
 
 export const getHistory = (
   filePath: string,
-
 ): Promise<TestResult[]> => new Promise((
   resolve,
   reject,

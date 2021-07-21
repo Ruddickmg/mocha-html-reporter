@@ -1,4 +1,7 @@
 module.exports = function (config) {
+  process.on('infrastructure_error', (error) => {
+    console.error('infrastructure_error', error);
+  });
   config.set({
     logLevel: config.LOG_ERROR,
     basePath: '.',
@@ -51,7 +54,7 @@ module.exports = function (config) {
       mocha: {
         reporter: 'html',
         require: [
-          '/var/www/root/mocha-html-reporter/test/helpers/initializeMocha.js',
+          '/var/www/root/mocha-html-reporter/test/helpers/initializeMocha.ts',
         ],
       },
     },
