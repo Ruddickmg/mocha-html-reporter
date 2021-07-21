@@ -7,4 +7,4 @@ export const HISTORY_TABLE_ROW = 'history-table-row';
 export const TEST_SUITE = 'test-suite';
 export const TEST_RESULT = 'test-result';
 export const HIDDEN = 'hidden';
-export const DATA = 'data';
+export const DATA = 'test-result-data';

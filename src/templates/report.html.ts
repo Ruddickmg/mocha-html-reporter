@@ -15,7 +15,6 @@ export const reportTemplate = `<!DOCTYPE html>
 </head>
 <body>
     <header id="report-header">
-
     </header>
     <section id="test-results">
         <ul id="test-suites">

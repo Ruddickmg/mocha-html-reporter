@@ -61,7 +61,7 @@ describe('eventHandlers', (): void => {
     });
 
   beforeEach((): void => mkdirSync(pathToMockHtml));
-  afterEach((): void => remove(pathToMockHtml));
+  afterEach((): Promise<void> => remove(pathToMockHtml));
 
   describe('delayStart', (): void => {
     it('Will set a property on the passed in test runner preventing it from auto starting the tests', (): void => {
