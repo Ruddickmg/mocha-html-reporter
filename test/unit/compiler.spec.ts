@@ -17,7 +17,7 @@ import {
   replaceVariablesInBulk,
   combineVariablesForEachFile,
 } from '../../src/compiler';
-import { NEW_LINE, PATH_TO_SCRIPTS } from '../../src/constants';
+import { NEW_LINE } from '../../src/constants';
 import { variableNameGenerator } from '../helpers/expectations';
 import { EMPTY_STRING } from '../../src/scripts/constants';
 
@@ -280,7 +280,7 @@ describe('compiler', (): void => {
         _fieldsBeingShown: 'var _fieldsBeingShown = (_fieldsBeingShown = {}, _defineProperty(_fieldsBeingShown, _constants.SHOWING_PASSED, true), _defineProperty(_fieldsBeingShown, _constants.SHOWING_FAILED, true), _fieldsBeingShown);',
       };
       const expected = {
-        '_navigation._defineProperty': 'function _navigation._defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }\n',
+        '_navigation._defineProperty': 'function _navigation._defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }',
         '_navigation._fieldsBeingShown': 'var _navigation._fieldsBeingShown = (_navigation._fieldsBeingShown = {}, _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_PASSED, true), _navigation._defineProperty(_navigation._fieldsBeingShown, _constants.SHOWING_FAILED, true), _navigation._fieldsBeingShown);',
       };
       expect(combineVariablesForEachFile({ [filePath]: variables }))
@@ -327,7 +327,10 @@ describe('compiler', (): void => {
   });
   describe('compileCode', (): void => {
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
-      expect(await compileCode(testImportFilePath, variableNameGenerator()))
+      const result = await compileCode(testImportFilePath, variableNameGenerator());
+      // const result = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+      // console.log('result', result);
+      expect(result)
         .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\n  console.log(variable2, variable3, variable1);\n};');
     });
   });

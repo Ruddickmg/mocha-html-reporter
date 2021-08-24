@@ -84,7 +84,7 @@ export const getVariableName = (line: string): string => {
     .filter(charIsNotEmptyString)[0];
 };
 
-export const getCode = (fileName: string): Promise<string> => getFileContents(fileName);
+export const getCode = async (fileName: string): Promise<string> => getFileContents(fileName);
 
 export const removeFileNameFromPath = (path: string): string => {
   const splitPath = path.split(PATH_SEPARATOR);
@@ -101,6 +101,14 @@ export const getNameWithExtensionFromFile = compose(
   addExtension,
 );
 
+export const terminateTrailingComma = (value: string): string => {
+  let isolated = value.trim();
+  if (isolated.length && isolated[isolated.length - 1] === ',') {
+    isolated = `${isolated.slice(0, -1)};`;
+  }
+  return isolated;
+};
+
 export const getCodeByPath = async (file: string): Promise<CodeStore> => {
   const importedPaths: FilesToIgnore = {};
   const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
@@ -114,7 +122,6 @@ export const getCodeByPath = async (file: string): Promise<CodeStore> => {
     while (lineIndex--) {
       const line = lines[lineIndex];
       if (line.includes(IMPORT_DECLARATION)) {
-        // const path = `${pathToFile}${PATH_SEPARATOR}${getNameWithExtensionFromFile(line)}`;
         const path = addExtension(getFilePathFromRequire(pathToFile, line));
         if (!importedPaths[path]) {
           importedPaths[path] = true;
@@ -256,7 +263,7 @@ export const combineVariablesForEachFile = (
       const variableName = variableNames[variableIndex];
       codeToVariableMappings[replacementMappings[variableName]] = replaceVariablesInBulk(
         replacementMappings,
-        codeByVariableName[variableName],
+        terminateTrailingComma(codeByVariableName[variableName]),
       );
     }
   }
