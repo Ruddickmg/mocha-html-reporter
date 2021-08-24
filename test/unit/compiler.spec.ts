@@ -17,10 +17,9 @@ import {
   replaceVariablesInBulk,
   combineVariablesForEachFile,
 } from '../../src/compiler';
-import { NEW_LINE } from '../../src/constants';
+import { NEW_LINE, PATH_TO_SCRIPTS } from '../../src/constants';
 import { variableNameGenerator } from '../helpers/expectations';
 import { EMPTY_STRING } from '../../src/scripts/constants';
-import {PATH_TO_SCRIPTS} from '../../src/constants/index';
 
 const rootPath = '/var/www/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFileName = 'main.js';
@@ -328,7 +327,7 @@ describe('compiler', (): void => {
   });
   describe('compileCode', (): void => {
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
-      expect(await compileCode(PATH_TO_SCRIPTS, variableNameGenerator()))
+      expect(await compileCode(testImportFilePath, variableNameGenerator()))
         .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\n  console.log(variable2, variable3, variable1);\n};');
     });
   });

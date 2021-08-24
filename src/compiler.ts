@@ -13,7 +13,7 @@ import {
 import { compose } from './scripts/utilities/functions';
 import { escapedRegEx } from './utilities/regEx';
 import { getFileContents } from './utilities/fileSystem';
-import {isAlpha, isArray, isString} from './scripts/utilities/typeChecks';
+import { isArray } from './scripts/utilities/typeChecks';
 import { variableDeclarationParser } from './parsers/variableDeclaration';
 import { variableNameParser, parseVariableName } from './parsers/variableName';
 import { parseCodeBlock } from './parsers/code';
@@ -53,7 +53,6 @@ export const getTextBetweenMarkers = (
 };
 
 export const addExtension = (name: string): string => `${name}${EXTENSION}`;
-
 export const getFileNameFromRequire = (
   code: string,
 ): string => getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE])
@@ -105,8 +104,8 @@ export const getNameWithExtensionFromFile = compose(
 export const getCodeByPath = async (file: string): Promise<CodeStore> => {
   const importedPaths: FilesToIgnore = {};
   const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
-    const root = removeFileNameFromPath(fileName);
     const code = await getFileContents(fileName);
+    const pathToFile = removeFileNameFromPath(fileName);
     const paths = [];
     const lines = code.split(NEW_LINE);
     let lineIndex = lines.length;
@@ -115,7 +114,8 @@ export const getCodeByPath = async (file: string): Promise<CodeStore> => {
     while (lineIndex--) {
       const line = lines[lineIndex];
       if (line.includes(IMPORT_DECLARATION)) {
-        const path = addExtension(getFilePathFromRequire(root, line));
+        // const path = `${pathToFile}${PATH_SEPARATOR}${getNameWithExtensionFromFile(line)}`;
+        const path = addExtension(getFilePathFromRequire(pathToFile, line));
         if (!importedPaths[path]) {
           importedPaths[path] = true;
           paths.push(path);
@@ -298,21 +298,15 @@ export const compileCode = async (
 ): Promise<string> => {
   const codeByPath = await getCodeByPath(fileName);
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
-  // console.log('paths to code by var name', pathsToCodeByVariableName);
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
-  // console.log('code by v', codeByVariables);
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
   const variableReplacements = Object
     .keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
     }), {});
-
-  const result = replaceVariablesInBulk(
+  return replaceVariablesInBulk(
     variableReplacements,
     code,
   );
-
-  console.log('result', result);
-  return result;
 };
