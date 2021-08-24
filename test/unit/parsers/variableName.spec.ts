@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { isAllowedInVariableName, parseVariableName } from '../../../src/parsers/variableName';
-import { EMPTY_STRING } from '../../../src/constants/constants';
+import { EMPTY_STRING } from '../../../src/scripts/constants';
 
 describe('variableName', (): void => {
   describe('isAllowedInVariableName', (): void => {

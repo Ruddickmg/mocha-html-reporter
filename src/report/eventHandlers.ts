@@ -1,40 +1,14 @@
 import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
-import {
-  cleanAndMinifyHtml,
-  convertHistoryToHtml,
-  convertSuitesToHtml,
-  minifyJs,
-} from './htmlConversion';
-import { DELAY_START_PROPERTY } from '../constants/constants';
+import { cleanAndMinifyHtml, minifyJs } from './htmlConversion';
+import { DELAY_START_PROPERTY } from '../constants/index';
 import { createTestResultFormatter } from '../formatting/testResults';
-import { formatHistory, groupTestSuitesByDate } from '../formatting/historyFormatting';
-import { addValuesToTemplate } from '../templates/all';
-
-export interface Content {
-  [name: string]: string;
-}
-
-export interface TestSuite {
-  [directory: string]: TestSuite | TestResult[] | Content | string;
-}
+import { addValuesToTemplate, reportTemplate } from '../templates';
+import { ReportData, TestResult } from '../scripts/formatting/html';
 
 export interface Data {
   data: string;
-}
-
-export interface TestResult {
-  duration: number;
-  date: number;
-  id: string;
-  image?: string;
-  path: string[];
-  class?: string;
-  suite: string;
-  state: string;
-  suiteId: string;
-  title: string;
 }
 
 export interface TestHandlers {
@@ -45,14 +19,6 @@ export type TestHandler = (
   test?: Test,
   error?: Error,
 ) => void;
-
-export interface ReportData {
-  reportTitle: string;
-  pageTitle: string;
-  styles?: string;
-  scripts?: string;
-  history?: TestResult[];
-}
 
 export const delayStart = (runner: Runner): void => {
   // eslint-disable-next-line no-param-reassign
@@ -103,20 +69,10 @@ export const createReportHandler = (
     scripts,
     ...reportData
   }: ReportData,
-  generateTestSuite: (tests: TestResult[]) => TestSuite,
 ): TestHandler => async (): Promise<void[]> => {
-  const allTests = [...tests, ...history];
-  const formattedHistory = formatHistory(allTests);
-  const htmlHistory = convertHistoryToHtml(formattedHistory);
-  const testsGroupedByDate = groupTestSuitesByDate(allTests);
-  const htmlSuites = convertSuitesToHtml(
-    reportData,
-    testsGroupedByDate
-      .map(generateTestSuite),
-  );
-  const report = addValuesToTemplate(htmlSuites, {
-    data: JSON.stringify(allTests),
-    history: htmlHistory,
+  const report = addValuesToTemplate(reportTemplate, {
+    ...reportData,
+    data: JSON.stringify([...tests, ...history]),
     scripts: minifyJs(scripts),
     styles,
   });

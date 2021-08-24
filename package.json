@@ -15,7 +15,6 @@
   "dependencies": {
     "@babel/core": "^7.14.8",
     "@fortawesome/fontawesome-free": "^5.15.3",
-    "bootstrap": "^5.0.2",
     "chalk": "^4.1.1",
     "clean-css": "^5.1.3",
     "html-minifier": "^4.0.0",
@@ -41,6 +40,7 @@
     "@types/chai": "^4.2.21",
     "@types/clean-css": "^4.2.5",
     "@types/html-minifier": "^4.0.1",
+    "@types/html2canvas": "^1.0.0",
     "@types/fs-extra": "^9.0.12",
     "@types/mocha": "^8.2.3",
     "@types/node": "^16.4.0",
@@ -66,6 +66,7 @@
     "karma-phantomjs-launcher": "^1.0.4",
     "karma-typescript": "^5.5.1",
     "lodash": "^4.17.21",
+    "nanoid": "^3.1.23",
     "node-sass": "^6.0.1",
     "nyc": "^15.1.0",
     "pretty": "^2.0.0",
@@ -73,7 +74,8 @@
     "slash": "^4.0.0",
     "source-map": "^0.7.3",
     "ts-node": "^10.1.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "tslib": "^2.3.0"
   },
   "scripts": {
     "start": "mocha -r ./test/helpers/initializeMocha.ts -O outputDir=test/reports,testDir=test/unit,fileName=testOutput,reporter=spec --reporter ./dist",

@@ -13,12 +13,12 @@ extends:
   - 'plugin:import/warnings'
   - 'airbnb-typescript/base'
 settings:
-  'import/extensions': ['.ts']
+  'import/extensions': ['.ts', '.js']
   'import/parsers':
-    '@typescript-eslint/parser': ['.ts']
+    '@typescript-eslint/parser': ['.ts', '.js']
   'import/resolver':
     node:
-      extensions: ['.ts']
+      extensions: ['.ts', '.js']
 globals:
   Atomics: readonly
   SharedArrayBuffer: readonly

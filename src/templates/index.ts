@@ -5,12 +5,13 @@ import { testSuiteTemplate } from './testSuite.html';
 import { tableHeaderTemplate } from './tableHeader.html';
 import { tableTemplate } from './table.html';
 import { tableRowTemplate } from './tableRow.html';
-import { TEMPLATE_BRACES } from '../constants/constants';
+import { TEMPLATE_BRACES } from '../constants/index';
 import {
-  Content, Data, ReportData, TestResult,
+  Data,
 } from '../report/eventHandlers';
 import { tableDataTemplate } from './tableData.html';
 import { buttonTemplate } from './button';
+import { Content, ReportData, TestResult } from '../scripts/formatting/html';
 
 export { imageTemplate } from './image.html';
 export { reportTemplate } from './report.html';

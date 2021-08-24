@@ -1,4 +1,4 @@
-import { CodeStore } from '../scripts/compiler';
+import { CodeStore } from '../compiler';
 import { buildParseTree, createParser, Symbols } from './parser';
 
 const VARIABLE_DECLARATION = 'var';

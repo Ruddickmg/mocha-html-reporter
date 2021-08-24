@@ -8,16 +8,16 @@ import {
 
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from '../scripts/compiler';
+import { getFileNameFromPath } from '../compiler';
 import { htmlDataParser } from '../parsers/history';
-import { isString } from './typeChecks';
-import { TestResult } from '../report/eventHandlers';
+import { isString } from '../scripts/utilities/typeChecks';
 import {
   END_OF_STREAM,
   STREAM_DATA,
   STREAM_ERROR,
   STREAM_FINISH,
 } from '../constants/streams';
+import { TestResult } from '../scripts/formatting/html';
 
 export const writeToFile = (
   pathToFile: string,
@@ -68,8 +68,8 @@ export const getHistory = (
     try {
       const parseDataFromHtml = htmlDataParser();
       const readStream = createReadStream(filePath);
-      let data: any = [];
-      readStream.on(STREAM_DATA, (fileContents: string): void => {
+      let data: TestResult[] = [];
+      readStream.on(STREAM_DATA, (fileContents: Buffer): void => {
         const parsedData = parseDataFromHtml(fileContents.toString());
         if (isString(parsedData)) {
           data = JSON.parse(parsedData as string);

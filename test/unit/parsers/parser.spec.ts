@@ -3,7 +3,7 @@ import {
   buildParseTree,
   createParser,
 } from '../../../src/parsers/parser';
-import { EMPTY_STRING } from '../../../src/constants/constants';
+import { EMPTY_STRING } from '../../../src/scripts/constants';
 
 describe('parser', (): void => {
   describe('buildParser', (): void => {

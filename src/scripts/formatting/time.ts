@@ -7,7 +7,7 @@ import {
   ONE_MINUTE,
   ONE_SECOND,
   SECOND_SUFFIX,
-} from '../constants/constants';
+} from '../constants';
 
 const { floor } = Math;
 

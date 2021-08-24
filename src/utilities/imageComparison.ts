@@ -1,5 +1,5 @@
 import { createWriteStream, readFile } from 'fs';
-import { PATH_SEPARATOR } from '../constants/constants';
+import { PATH_SEPARATOR } from '../constants/index';
 import { capitalizeFirstLetter } from './strings';
 
 const { PNG } = require('pngjs');
@@ -82,7 +82,7 @@ const screenShotComparison = (() => {
   const compareToPreviousImage = (
     baseline: any,
     screenShot: any,
-  ): any => {
+  ): ImageComparisons => {
     const threshold = 0.1;
     const { width, height } = baseline;
     const difference = new PNG({ width, height });
@@ -101,10 +101,10 @@ const screenShotComparison = (() => {
     };
     const differenceExists = amountOfMismatchedPixels > 0;
     const comparisonImages = Object.keys(images)
-      .reduce((comparisons: ImageComparisons, image: string) => ({
+      .reduce((comparisons, image: string): ImageComparisons => ({
         ...comparisons,
         [image]: convertPngToBase64(images[image]),
-      }), {});
+      }), {} as ImageComparisons);
 
     return differenceExists && comparisonImages;
   };

@@ -1,12 +1,12 @@
 import { expect } from 'chai';
-import { isArray, isNumber, isString } from '../utilities/typeChecks';
-import { SUITE_UUID, UUID } from '../constants/constants';
-import { TestResult, TestSuite } from '../report/eventHandlers';
+import { isArray, isNumber, isString } from '../scripts/utilities/typeChecks';
+import { SUITE_UUID, UUID } from '../constants/index';
+import { TestResult, TestSuite } from '../scripts/formatting/html';
 
 export const generateTestResultsByPath = (
   testResults: TestResult[],
 ): TestSuite => testResults
-  .reduce((testSuite, test) => {
+  .reduce((testSuite, test): TestSuite => {
     let lastDirectory = testSuite as TestSuite;
     const { suite, path } = test;
     const buildTestResults = (directory: string): void => {

@@ -9,16 +9,17 @@ import {
   getAmountOfExcess,
   millisecondsToHumanReadable,
   millisecondsToRoundedHumanReadable, buildStringOfTruthyValues, removeTimeZoneOffset,
-} from '../../../src/formatting/time';
+} from '../../../src/scripts/formatting/time';
 import {
   HOUR_SUFFIX,
   MILLISECOND_SUFFIX,
   MINUTE_SUFFIX,
-  ONE_HOUR, ONE_MILLISECOND,
+  ONE_HOUR,
+  ONE_MILLISECOND,
   ONE_MINUTE,
   ONE_SECOND,
   SECOND_SUFFIX,
-} from '../../../src/constants/constants';
+} from '../../../src/scripts/constants';
 
 describe('time', (): void => {
   const dateString = 'August 13, 1987 23:15:30';

@@ -1,5 +1,5 @@
+import { resolve } from 'path';
 import {
-  EMPTY_STRING,
   FUNCTION_DECLARATION,
   IMPORT_DECLARATION,
   NEW_LINE,
@@ -9,15 +9,16 @@ import {
   SINGLE_QUOTE,
   SPACE,
   VARIABLE_DECLARATION,
-} from '../constants/constants';
-import { compose } from '../utilities/functions';
-import { escapedRegEx } from '../utilities/regEx';
-import { getFileContents } from '../utilities/fileSystem';
-import { isArray } from '../utilities/typeChecks';
-import { variableDeclarationParser } from '../parsers/variableDeclaration';
-import { variableNameParser, parseVariableName } from '../parsers/variableName';
-import { parseCodeBlock } from '../parsers/code';
-import { Symbols } from '../parsers/parser';
+} from './constants';
+import { compose } from './scripts/utilities/functions';
+import { escapedRegEx } from './utilities/regEx';
+import { getFileContents } from './utilities/fileSystem';
+import {isAlpha, isArray, isString} from './scripts/utilities/typeChecks';
+import { variableDeclarationParser } from './parsers/variableDeclaration';
+import { variableNameParser, parseVariableName } from './parsers/variableName';
+import { parseCodeBlock } from './parsers/code';
+import { Symbols } from './parsers/parser';
+import { EMPTY_STRING } from './scripts/constants';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;
@@ -52,11 +53,17 @@ export const getTextBetweenMarkers = (
 };
 
 export const addExtension = (name: string): string => `${name}${EXTENSION}`;
+
 export const getFileNameFromRequire = (
   code: string,
 ): string => getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE])
   .split(PATH_SEPARATOR)
   .pop();
+
+export const getFilePathFromRequire = (
+  root: string,
+  code: string,
+): string => resolve(root, getTextBetweenMarkers(code, [QUOTATION_MARK, SINGLE_QUOTE]));
 
 export const getFileNameFromPath = (path: string): string => path.split(PATH_SEPARATOR).pop().split('.')[0];
 export const charIsNotEmptyString = (codeSection: string): boolean => codeSection !== EMPTY_STRING;
@@ -98,8 +105,8 @@ export const getNameWithExtensionFromFile = compose(
 export const getCodeByPath = async (file: string): Promise<CodeStore> => {
   const importedPaths: FilesToIgnore = {};
   const getFileToCodeMappings = async (fileName: string): Promise<CodeStore> => {
+    const root = removeFileNameFromPath(fileName);
     const code = await getFileContents(fileName);
-    const pathToFile = removeFileNameFromPath(fileName);
     const paths = [];
     const lines = code.split(NEW_LINE);
     let lineIndex = lines.length;
@@ -108,7 +115,7 @@ export const getCodeByPath = async (file: string): Promise<CodeStore> => {
     while (lineIndex--) {
       const line = lines[lineIndex];
       if (line.includes(IMPORT_DECLARATION)) {
-        const path = `${pathToFile}${PATH_SEPARATOR}${getNameWithExtensionFromFile(line)}`;
+        const path = addExtension(getFilePathFromRequire(root, line));
         if (!importedPaths[path]) {
           importedPaths[path] = true;
           paths.push(path);
@@ -165,7 +172,8 @@ export const removeDuplicateCodeBlocks = (
   .keys(codeObject)
   .reduce((code: string, variableName: string): string => {
     const value = codeObject[variableName];
-    const [beginning, ...end] = code.split(value);
+    const [beginning, ...end] = code
+      .split(value);
     return [
       beginning,
       value,
@@ -189,16 +197,6 @@ export const mapFilePathsToCodeBlocksByVariableName = (
   return pathsMappedToCode;
 };
 
-export const replaceVariablesInCode = (
-  variableName: string | string[],
-  replacement: string,
-  code: string,
-): string => {
-  const searchPattern = isArray(variableName) ? `(${(variableName as string[]).join('|')})` : variableName;
-  return code
-    .replace(new RegExp(`(?<=\\W(?=([^"]*"[^"]*")*[^"]*$)(?=([^']*'[^']*')*[^']*$))${searchPattern}(?=\\W)`, 'g'), replacement);
-};
-
 export const replaceVariablesInBulk = (variableReplacements: Symbols, code: string): string => {
   const { length } = code;
   const parseVariableNames = variableNameParser(variableReplacements);
@@ -212,8 +210,11 @@ export const replaceVariablesInBulk = (variableReplacements: Symbols, code: stri
     if (match) {
       if (match === true) {
         potentialCode += char;
-      } else {
+      } else if (result[result.length - 1] !== '.') {
         result += match;
+        potentialCode = EMPTY_STRING;
+      } else {
+        result += `${potentialCode}${char}`;
         potentialCode = EMPTY_STRING;
       }
     } else {
@@ -242,8 +243,9 @@ export const combineVariablesForEachFile = (
     // eslint-disable-next-line no-plusplus
     while (variableIndex--) {
       const variableName = variableNames[variableIndex];
+      const [fileName] = variableName.split('.');
       let uniqueName = variableName;
-      if (variableName.split('.')[0] === variableName) {
+      if (fileName === variableName) {
         uniqueName = `${fileNamePrefix}.${variableName}`;
         replacementMappings[variableName] = uniqueName;
       }
@@ -296,15 +298,21 @@ export const compileCode = async (
 ): Promise<string> => {
   const codeByPath = await getCodeByPath(fileName);
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
+  // console.log('paths to code by var name', pathsToCodeByVariableName);
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
+  // console.log('code by v', codeByVariables);
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
   const variableReplacements = Object
     .keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
       ...names,
       [name]: generateName(),
     }), {});
-  return replaceVariablesInBulk(
+
+  const result = replaceVariablesInBulk(
     variableReplacements,
     code,
   );
+
+  console.log('result', result);
+  return result;
 };

@@ -3,7 +3,7 @@ import { writeFileSync, mkdirSync } from 'fs';
 import {
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from '../../../src/constants/constants';
+} from '../../../src/constants';
 import {
   getFileContents,
   writeToFile,

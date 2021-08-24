@@ -1,5 +1,6 @@
-import { CLOSING_CURLY, EMPTY_STRING, OPENING_CURLY } from '../constants/constants';
+import { CLOSING_CURLY, OPENING_CURLY } from '../constants/index';
 import { Parser } from './parser';
+import { EMPTY_STRING } from '../scripts/constants';
 
 interface EndSymbol {
   [symbol: string]: boolean;

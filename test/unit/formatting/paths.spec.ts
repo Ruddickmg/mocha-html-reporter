@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { PATH_SEPARATOR } from '../../../src/constants/constants';
+import { PATH_SEPARATOR } from '../../../src/constants';
 import { formatOutputFilePath, removeFileName } from '../../../src/formatting/paths';
 
 describe('paths', (): void => {

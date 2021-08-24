@@ -1,4 +1,4 @@
-import { TestResult } from '../report/eventHandlers';
+import { TestResult } from '../formatting/html';
 
 export const sortNumbersIncrementing = (a: number, b: number): number => a - b;
 export const sortNumbersDecrementing = (a: number, b: number): number => b - a;

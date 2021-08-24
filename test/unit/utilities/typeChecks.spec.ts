@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import { capitalizeFirstLetter } from '../../../src/utilities/strings';
-import { typeChecks, isNumeric } from '../../../src/utilities/typeChecks';
+import { typeChecks, isNumeric } from '../../../src/scripts/utilities/typeChecks';
 
 describe('typeChecks', (): void => {
   const typeExamples: any = {

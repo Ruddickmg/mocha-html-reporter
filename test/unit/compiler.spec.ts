@@ -13,11 +13,14 @@ import {
   getVariableName,
   mapFilePathsToCodeBlocksByVariableName,
   getFileNameFromPath,
-  replaceVariablesInCode,
-  compileCode, replaceVariablesInBulk, combineVariablesForEachFile,
-} from '../../../src/scripts/compiler';
-import { EMPTY_STRING, NEW_LINE } from '../../../src/constants/constants';
-import { variableNameGenerator } from '../../helpers/expectations';
+  compileCode,
+  replaceVariablesInBulk,
+  combineVariablesForEachFile,
+} from '../../src/compiler';
+import { NEW_LINE } from '../../src/constants';
+import { variableNameGenerator } from '../helpers/expectations';
+import { EMPTY_STRING } from '../../src/scripts/constants';
+import {PATH_TO_SCRIPTS} from '../../src/constants/index';
 
 const rootPath = '/var/www/mocha-html-reporter/test/helpers/compileFiles/';
 const testImportFileName = 'main.js';
@@ -46,44 +49,6 @@ const assignment = `       ${assignmentWithoutLeadingSpaces}`;
 const code = `${func}\n${assignment}`;
 
 describe('compiler', (): void => {
-  describe('replaceVariablesInCode', (): void => {
-    const variable = 'hello';
-    const replacement = 'holly';
-    it('Ignores code within double quotes', (): void => {
-      const codeString = `console.log("${variable}", "hi ${variable} goodbye")`;
-      expect(replaceVariablesInCode(variable, replacement, codeString)).to.equal(codeString);
-    });
-    it('Ignores code within in single quotes', (): void => {
-      const codeString = `console.log('${variable}', 'hi ${variable} goodbye')`;
-      expect(replaceVariablesInCode(variable, replacement, codeString))
-        .to.equal(codeString);
-    });
-    it('Ignores code the the match is a substring of', (): void => {
-      const codeString = `const hi${variable} = ${variable}ending`;
-      expect(replaceVariablesInCode(variable, replacement, codeString))
-        .to.equal(codeString);
-    });
-    it('Replaces code between parentheses', (): void => {
-      const fillCode = (variableName: string): string => `console.log(${variableName});`;
-      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
-        .to.equal(fillCode(replacement));
-    });
-    it('Replaces code between brackets', (): void => {
-      const fillCode = (variableName: string): string => `arr[${variableName}] = 12`;
-      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
-        .to.equal(fillCode(replacement));
-    });
-    it('Replaces code with commas surrounding it', (): void => {
-      const fillCode = (variableName: string): string => `console.log(hi,${variableName},'go')`;
-      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
-        .to.equal(fillCode(replacement));
-    });
-    it('Replaces code with space around it', (): void => {
-      const fillCode = (variableName: string): string => `var ${variableName} = '1212'`;
-      expect(replaceVariablesInCode(variable, replacement, fillCode(variable)))
-        .to.equal(fillCode(replacement));
-    });
-  });
   describe('getVariableName', (): void => {
     ['var', 'const', 'let']
       .forEach((declaration: string): void => {
@@ -297,6 +262,16 @@ describe('compiler', (): void => {
       const expected = `const ${replacement} = function () { return document.getElementById };`;
       expect(replaceVariablesInBulk(replacements, testCode)).to.equal(expected);
     });
+    it('does not replace properties of objects that share a name with an indexed variable', (): void => {
+      const replacement = '_typeChecks.isArray';
+      const testCode = 'var isArray = typeChecks.isArray;';
+      const replacements = {
+        isArray: replacement,
+        typeChecks: '_typeChecks.typeChecks',
+      };
+      const expected = `var ${replacement} = _typeChecks.typeChecks.isArray;`;
+      expect(replaceVariablesInBulk(replacements, testCode)).to.equal(expected);
+    });
   });
   describe('combineVariablesForEachFile', (): void => {
     it('Renames variables from one to another in the same file', (): void => {
@@ -353,7 +328,7 @@ describe('compiler', (): void => {
   });
   describe('compileCode', (): void => {
     it('Will compile code from a file and it\'s imports to a single string', async (): Promise<void> => {
-      expect(await compileCode(testImportFilePath, variableNameGenerator()))
+      expect(await compileCode(PATH_TO_SCRIPTS, variableNameGenerator()))
         .to.equal('const variable1 = \'more testing\';const variable2 = \'still testing\';const variable3 = \'testing 123\';const variable4 = function variable4() {\n  console.log(variable2, variable3, variable1);\n};');
     });
   });

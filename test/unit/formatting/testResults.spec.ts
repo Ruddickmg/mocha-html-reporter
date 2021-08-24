@@ -1,9 +1,9 @@
 import { Test } from 'mocha';
 import { expect } from 'chai';
-import { FAILED, PASSED } from '../../../src/constants/constants';
 import { pathToMockTestDirectory } from '../../helpers/expectations';
-import { isString } from '../../../src/utilities/typeChecks';
+import { isString } from '../../../src/scripts/utilities/typeChecks';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
+import { FAILED, PASSED } from '../../../src/scripts/constants';
 
 describe('testResults', (): void => {
   const parentTitle = 'I am a test suite';

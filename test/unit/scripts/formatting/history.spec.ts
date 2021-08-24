@@ -6,10 +6,10 @@ import {
   removeDuplicateTestResults,
   indexTestResultsBySuite,
   TestResultsByDate, formatHistory, historyTestSuiteHeaderTitle, groupTestSuitesByDate,
-} from '../../../src/formatting/historyFormatting';
-import { TestResult } from '../../../src/report/eventHandlers';
-import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../src/formatting/time';
-import { EMPTY_STRING } from '../../../src/constants/constants';
+} from '../../../../src/scripts/formatting/history';
+import { convertDateStringToMilliseconds, millisecondsToRoundedHumanReadable } from '../../../../src/scripts/formatting/time';
+import { EMPTY_STRING } from '../../../../src/scripts/constants';
+import { TestResult } from '../../../../src/scripts/formatting/html';
 
 describe('historyTableFormatting', (): void => {
   const duplicateDateString = 'August 16, 1987 23:15:30';

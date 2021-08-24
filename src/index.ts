@@ -24,3 +24,14 @@ export function mochaHtmlReporter(runner: Runner, options: Environment): void {
 }
 
 module.exports = mochaHtmlReporter;
+export {FAILED} from "./scripts/constants";
+export {PASSED} from "./scripts/constants";
+export {ONE_HOUR} from "./scripts/constants";
+export {ONE_MINUTE} from "./scripts/constants";
+export {ONE_SECOND} from "./scripts/constants";
+export {ONE_MILLISECOND} from "./scripts/constants";
+export {HOUR_SUFFIX} from "./scripts/constants";
+export {MINUTE_SUFFIX} from "./scripts/constants";
+export {SECOND_SUFFIX} from "./scripts/constants";
+export {MILLISECOND_SUFFIX} from "./scripts/constants";
+export {EMPTY_STRING} from "./scripts/constants";

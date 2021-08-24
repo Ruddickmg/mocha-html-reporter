@@ -1,7 +1,7 @@
-import { EMPTY_STRING } from '../constants/constants';
-import { isString } from '../utilities/typeChecks';
+import { isString } from '../scripts/utilities/typeChecks';
 import { buildParseTree, createParser } from './parser';
 import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
+import { EMPTY_STRING } from '../scripts/constants';
 
 export const parseDataOpening = createParser(buildParseTree({
   [DATA_OPENING_TAGS]: DATA_OPENING_TAGS,

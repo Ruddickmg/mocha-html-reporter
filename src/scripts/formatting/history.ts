@@ -1,11 +1,11 @@
-import { TestResult } from '../report/eventHandlers';
+import { TestResult } from './html';
 import {
   convertMillisecondsToDate,
   getMonthDayYearFromDate,
   millisecondsToRoundedHumanReadable,
 } from './time';
 import { sortTestResultsByDate } from '../utilities/sorting';
-import { EMPTY_STRING } from '../constants/constants';
+import { EMPTY_STRING } from '../constants';
 import { compose, mapOverObject } from '../utilities/functions';
 
 export interface TestResultsByDate {
@@ -24,14 +24,12 @@ export const historyTestSuiteHeaderTitle = 'Test Suites';
 
 export const getEachRunDate = (history: TestResult[]): string[] => {
   const dates = history.map(({ date }: TestResult): number => date);
-  const res = Array
+  return Array
     .from(new Set(
       dates
         .sort()
-        .map(convertMillisecondsToDate)
-        .map(getMonthDayYearFromDate),
+        .map(compose(convertMillisecondsToDate, getMonthDayYearFromDate)),
     ));
-  return res;
 };
 
 export const getEachSuiteTitle = (history: TestResult[]): string[] => Array

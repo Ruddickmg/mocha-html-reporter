@@ -1,14 +1,15 @@
 module.exports = function (config) {
   config.set({
-    logLevel: config.LOG_ERROR,
+    logLevel: config.LOG_INFO,
     basePath: '.',
     concurrency: Infinity,
     singleRun: true,
     frameworks: ['mocha', 'chai', 'karma-typescript'],
     files: [
-      { pattern: 'test/scripts/**/*.spec.ts' },
+      { pattern: "test/helpers/**/*.ts" },
+      { pattern: 'test/unit/scripts/**/*.spec.ts' },
       { pattern: 'src/scripts/**/*.ts' },
-      { pattern: 'src/constants/script.ts' },
+      { pattern: 'src/constants/*' }
     ],
     preprocessors: {
       '**/*.ts': ['karma-typescript'],
@@ -19,13 +20,14 @@ module.exports = function (config) {
     ],
     karmaTypescriptConfig: {
       compilerOptions: {
+        esModuleInterop: true,
         emitDecoratorMetadata: true,
         experimentalDecorators: true,
         downlevelIteration: true,
         noEmitHelpers: true,
         importHelpers: true,
         sourceMap: true,
-        lib: ['es6', 'dom', 'ES2015', 'node'],
+        // lib: ['es6', 'dom', 'ES2015', 'node'],
         types: [
           'mocha',
           'node',
@@ -51,7 +53,7 @@ module.exports = function (config) {
       mocha: {
         reporter: 'html',
         require: [
-          '/var/www/root/mocha-html-reporter/test/helpers/initializeMocha.ts',
+            require.resolve('./test/helpers/initializeMocha.ts'),
         ],
       },
     },

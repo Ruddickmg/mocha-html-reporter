@@ -1,6 +1,6 @@
 import { expect } from 'chai';
-import { EMPTY_STRING } from '../../../src/constants/constants';
 import { parseCodeBlock } from '../../../src/parsers/code';
+import { EMPTY_STRING } from '../../../src/scripts/constants';
 
 describe('code', (): void => {
   describe('parseCodeBlock', (): void => {
