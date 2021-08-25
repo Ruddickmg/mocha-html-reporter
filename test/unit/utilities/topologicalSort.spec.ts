@@ -1,5 +1,11 @@
 import { expect } from 'chai';
-import { topologicalSort, Node, CircularDependencyError } from '../../../src/utilities/topologicalSort';
+import {
+  topologicalSort,
+  Node,
+  CircularDependencyError,
+  removeUnreachableNodes,
+  calculateInDegrees,
+} from '../../../src/utilities/topologicalSort';
 
 const a = 'a';
 const b = 'b';
@@ -43,6 +49,34 @@ const nodes: { [node: string]: Node<string> } = {
     children: [],
   },
 };
+
+describe('removeUnreachableNodes', () => {
+  it('removes all nodes that are not children of another node', () => {
+    const unreachable = {
+      ...nodes,
+      [g]: {
+        value: g,
+        name: g,
+        children: [a, b],
+      },
+    };
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    const { g: _, ...rest } = nodes;
+    expect(removeUnreachableNodes(unreachable)).to.deep.equal(rest);
+  });
+});
+
+describe('calculateInDegrees', () => {
+  it('calculates the number of times each node is listed as a child node', () => {
+    expect(calculateInDegrees(nodes)).to.deep.equal({
+      b: 1,
+      c: 1,
+      d: 1,
+      e: 2,
+      f: 2,
+    });
+  });
+});
 
 describe('topologicalSort', () => {
   it('sorts items topologically', () => {
