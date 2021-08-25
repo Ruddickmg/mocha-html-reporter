@@ -13,12 +13,13 @@ import {
 import { compose } from './scripts/utilities/functions';
 import { escapedRegEx } from './utilities/regEx';
 import { getFileContents } from './utilities/fileSystem';
-import { isArray } from './scripts/utilities/typeChecks';
+import { isArray, isString } from './scripts/utilities/typeChecks';
 import { variableDeclarationParser } from './parsers/variableDeclaration';
 import { variableNameParser, parseVariableName } from './parsers/variableName';
 import { parseCodeBlock } from './parsers/code';
 import { Symbols } from './parsers/parser';
 import { EMPTY_STRING } from './scripts/constants';
+import {topologicalSort} from './utilities/topologicalSort';
 
 export interface FilesToIgnore {
   [fileName: string]: boolean;
@@ -299,6 +300,39 @@ export const combineCodeFromFilesIntoSingleString = (codeObject: CodeStore): str
   ].join(EMPTY_STRING));
 };
 
+const ENTRY_POINT = '_main._default';
+
+export const parseDependencies = (codeByVariableName: CodeStore) => {
+  const variableNames: CodeStore = Object.keys(codeByVariableName).reduce((all, variable) => ({
+    ...all,
+    [variable]: variable,
+  }), {});
+  const parseVariableNames = variableNameParser(variableNames);
+  return (code: string): string[] => {
+    const dependencies: string[] = [];
+    const len = code.length;
+    let variable: string | boolean;
+    for (let i = 0; i < len; i += 1) {
+      variable = parseVariableNames(code[i]);
+      if (isString(variable)) dependencies.push(variable as string);
+    }
+    return dependencies;
+  };
+};
+
+export const mapDependencies = (codeByVariableName: CodeStore): Node<string>[] => {
+  const parse = parseDependencies(codeByVariableName);
+  return Object.keys(codeByVariableName)
+    .map((name: string): Node<string> => {
+      const code = codeByVariableName[name];
+      return {
+        name,
+        value: code,
+        children: parse(code),
+      };
+    });
+};
+
 export const compileCode = async (
   fileName: string,
   generateName: NameGenerator,
@@ -306,6 +340,7 @@ export const compileCode = async (
   const codeByPath = await getCodeByPath(fileName);
   const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
+  topologicalSort(codeByVariables);
   const code = combineCodeFromFilesIntoSingleString(codeByVariables);
   const variableReplacements = Object
     .keys(codeByVariables).reduce((names: CodeStore, name: string): CodeStore => ({
