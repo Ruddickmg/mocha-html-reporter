@@ -46,14 +46,14 @@ export const calculateInDegrees = <T>(graph: ValueMap<T>): InDegrees => Object.k
   }, {});
 
 export const topologicalSort = <T>(root: string, graph: ValueMap<T>): T[] => {
-  const initialNode = graph[root];
+  const node = graph[root];
   const withoutRoots = removeUnreachableNodes(graph);
   const inDegree = calculateInDegrees({
-    [root]: initialNode,
+    [root]: node,
     ...withoutRoots,
   });
   const result: T[] = [];
-  const stack: Node<T>[] = [initialNode];
+  const stack: Node<T>[] = [node];
   let current: Node<T>;
   let children: string[];
   let index: string;
