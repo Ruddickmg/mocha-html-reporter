@@ -59,7 +59,7 @@ describe('topologicalSort', () => {
       },
     };
     expect(topologicalSort.bind({}, initialNode, cyclical))
-      .to.throw((new CircularDependencyError(f)).message);
+      .to.throw((new CircularDependencyError(f, a)).message);
   });
   it('excludes values that are not children of any node', () => {
     const unreachable = {

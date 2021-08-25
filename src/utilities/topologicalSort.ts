@@ -13,8 +13,8 @@ export interface InDegrees {
 }
 
 export class CircularDependencyError extends Error {
-  constructor(name: string) {
-    super(`Circular dependency found in ${name}`);
+  constructor(from: string, to: string) {
+    super(`Circular dependency found between ${from} and ${to}`);
   }
 }
 
@@ -70,7 +70,7 @@ export const topologicalSort = <T>(root: string, graph: ValueMap<T>): T[] => {
       count = inDegree[index];
       if (count === 0) {
         stack.push(graph[index]);
-      } else if (count < 0) throw new CircularDependencyError(index);
+      } else if (count < 0) throw new CircularDependencyError(index, current.name);
     }
     result.push(current.value);
   }
