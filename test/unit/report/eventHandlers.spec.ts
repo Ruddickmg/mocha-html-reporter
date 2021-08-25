@@ -35,7 +35,7 @@ import { isString } from '../../../src/scripts/utilities/typeChecks';
 import { cleanAndMinifyHtml, minifyJs } from '../../../src/report/htmlConversion';
 import { groupTestSuitesByDate } from '../../../src/scripts/formatting/history';
 import { flattenArray } from '../../../src/utilities/arrays';
-import { compileCode } from '../../../src/compiler';
+import { compileCode } from '../../../src/compilation';
 import { getStyles } from '../../../src/report/styles';
 import {
   FAILED,

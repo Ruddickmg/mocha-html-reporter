@@ -8,7 +8,6 @@ import {
 
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from '../compiler';
 import { htmlDataParser } from '../parsers/history';
 import { isString } from '../scripts/utilities/typeChecks';
 import {
@@ -18,6 +17,7 @@ import {
   STREAM_FINISH,
 } from '../constants/streams';
 import { TestResult } from '../scripts/formatting/html';
+import { getFileNameFromPath } from '../compilation/utilities';
 
 export const writeToFile = (
   pathToFile: string,

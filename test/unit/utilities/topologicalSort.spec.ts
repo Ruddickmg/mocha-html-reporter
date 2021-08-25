@@ -20,32 +20,26 @@ const initialNode: string = a;
 const nodes: { [node: string]: Node<string> } = {
   [a]: {
     value: a,
-    name: a,
     children: [b, f],
   },
   [b]: {
     value: b,
-    name: b,
     children: [c, d],
   },
   [c]: {
     value: c,
-    name: c,
     children: [e],
   },
   [d]: {
     value: d,
-    name: d,
     children: [e],
   },
   [e]: {
     value: e,
-    name: e,
     children: [f],
   },
   [f]: {
     value: f,
-    name: f,
     children: [],
   },
 };

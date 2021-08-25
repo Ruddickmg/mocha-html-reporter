@@ -37,6 +37,8 @@ export const SINGLE_QUOTE = '\'';
 export const OPENING_CURLY = '{';
 export const CLOSING_CURLY = '}';
 export const OPEN_PARENTHESES = '(';
+export const ENTRY_POINT = '_main._default';
+export const JS_EXTENSION = '.js';
 
 export default {
   PERIOD,

@@ -1,5 +1,6 @@
 {
     "compilerOptions": {
+      "moduleResolution": "node",
       "paths": {
         "*": [
           "types/*"
@@ -11,7 +12,8 @@
       "removeComments": true,
       "preserveConstEnums": true,
       "outFile": "dist/tsc.js",
-      "sourceMap": true
+      "sourceMap": true,
+      "downlevelIteration": true
     },
     "include": [
         "src/**/*"

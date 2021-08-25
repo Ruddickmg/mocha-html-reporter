@@ -11,15 +11,15 @@ import {
   FINISHED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
-} from '../constants/index';
+} from '../constants';
 import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
-import { compileCode } from '../compiler';
+import { compileCode } from '../compilation';
 import { getHistory } from '../utilities/fileSystem';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
-import {FAILED, PASSED} from "../scripts/constants";
-import {TestResult} from "../scripts/formatting/html";
+import { FAILED, PASSED } from '../scripts/constants';
+import { TestResult } from '../scripts/formatting/html';
 
 export const reportGenerator = async (
   runner: Runner,
