@@ -1,9 +1,20 @@
 import { resolve, sep } from 'path';
 import { EOL } from 'os';
+import {
+  EMPTY_STRING,
+  FAILED,
+  HOUR_SUFFIX,
+  MILLISECOND_SUFFIX,
+  MINUTE_SUFFIX,
+  ONE_HOUR,
+  ONE_MILLISECOND,
+  ONE_MINUTE,
+  ONE_SECOND,
+  PASSED,
+  SECOND_SUFFIX,
+} from '../scripts/constants';
 
 export const PERIOD = '.';
-export const PASSED = 'passed';
-export const FAILED = 'failed';
 export const FINISHED = 'end';
 export const PACKAGE_NAME = 'mocha-html-reporter';
 export const JSON_EXTENSION = '.json';
@@ -12,19 +23,10 @@ export const PATH_SEPARATOR = sep;
 export const TEMPLATE_BRACES = /{{.*?}}/g;
 export const UUID = 'id';
 export const SUITE_UUID = 'suiteId';
-export const EMPTY_STRING = '';
 export const PATH_TO_PACKAGE = resolve(__dirname, `..${PATH_SEPARATOR}..`);
 export const TEST_DIRECTORY = 'test';
 export const PATH_TO_STYLE_SHEET = `${PATH_TO_PACKAGE}${PATH_SEPARATOR}scss${PATH_SEPARATOR}main.scss`;
 export const PATH_TO_SCRIPTS = `${PATH_TO_PACKAGE}${PATH_SEPARATOR}dist${PATH_SEPARATOR}scripts${PATH_SEPARATOR}main.js`;
-export const MILLISECOND_SUFFIX = 'ms';
-export const SECOND_SUFFIX = 's';
-export const MINUTE_SUFFIX = 'm';
-export const HOUR_SUFFIX = 'h';
-export const ONE_MILLISECOND = 1;
-export const ONE_SECOND = 1000 * ONE_MILLISECOND;
-export const ONE_MINUTE = 60 * ONE_SECOND;
-export const ONE_HOUR = 60 * ONE_MINUTE;
 export const DELAY_START_PROPERTY = '_delay';
 export const SPACE = ' ';
 export const VARIABLE_DECLARATION = 'var';
@@ -35,6 +37,9 @@ export const SINGLE_QUOTE = '\'';
 export const OPENING_CURLY = '{';
 export const CLOSING_CURLY = '}';
 export const OPEN_PARENTHESES = '(';
+export const CLOSE_PARENTHESES = ')';
+export const ENTRY_POINT = '_main._default';
+export const JS_EXTENSION = '.js';
 
 export default {
   PERIOD,

@@ -31,7 +31,7 @@ export const getCurrentPage = (): string => currentPage;
 
 export const switchToPage = (testRunId: string, testSuiteId: string): boolean => {
   [hideAllTestsOnCurrentPage, hideHistory, showTestSuit]
-    .forEach(method => method());
+    .forEach((method) => method());
   currentPage = testRunId;
   [
     [fieldsBeingShown[SHOWING_FAILED], FAILED],
@@ -44,6 +44,6 @@ export const switchToPage = (testRunId: string, testSuiteId: string): boolean =>
 
 export const moveToHistory = () => {
   [hideTestSuite, showHistory]
-    .forEach(method => method());
+    .forEach((method) => method());
   return false;
 };

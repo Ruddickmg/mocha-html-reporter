@@ -7,10 +7,9 @@ import {
   createReportHandler,
   createTestHandler,
   delayStart,
-  ReportData,
   setTestEventHandlers,
   TestHandlers,
-  TestResult,
+
 } from '../../../src/report/eventHandlers';
 import {
   pathToMockTestDirectory,
@@ -22,28 +21,32 @@ import {
   testSuiteTemplate,
   testResultTemplate,
   imageTemplate,
-} from '../../../src/templates/all';
+} from '../../../src/templates';
 import { getFileContents, getHistory } from '../../../src/utilities/fileSystem';
 import {
-  FAILED,
-  PASSED,
   PATH_TO_PACKAGE,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
   TEST_DIRECTORY,
-} from '../../../src/constants/constants';
+} from '../../../src/constants';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
 import { base64NoImageString } from '../../../src/constants/base64NoImageString';
-import { isString } from '../../../src/utilities/typeChecks';
-import { generateTestResultsByPath, generateTestResultsBySuite } from '../../../src/formatting/testSuite';
-import { cleanAndMinifyHtml, convertHistoryToHtml, minifyJs } from '../../../src/report/htmlConversion';
-import { formatHistory, groupTestSuitesByDate } from '../../../src/formatting/historyFormatting';
+import { isString } from '../../../src/scripts/utilities/typeChecks';
+import { cleanAndMinifyHtml, minifyJs } from '../../../src/report/htmlConversion';
+import { groupTestSuitesByDate } from '../../../src/scripts/formatting/history';
 import { flattenArray } from '../../../src/utilities/arrays';
-import { compileCode } from '../../../src/scripts/compiler';
+import { compileCode } from '../../../src/compilation';
 import { getStyles } from '../../../src/report/styles';
-import { TEST_RESULT, TEST_SUITE } from '../../../src/constants/cssClasses';
-import { HIDDEN } from '../../../src/scripts/constants';
-import { formatDuration } from '../../../src/formatting/time';
+import {
+  FAILED,
+  PASSED,
+  TEST_RESULT,
+  TEST_SUITE,
+  HIDDEN,
+} from '../../../src/scripts/constants';
+
+import { formatDuration } from '../../../src/scripts/formatting/time';
+import { ReportData, TestResult } from '../../../src/scripts/formatting/html';
 
 describe('eventHandlers', (): void => {
   const pathToMockHtml = `${PATH_TO_PACKAGE}/${TEST_DIRECTORY}/unit/html`;
@@ -61,7 +64,7 @@ describe('eventHandlers', (): void => {
     });
 
   beforeEach((): void => mkdirSync(pathToMockHtml));
-  afterEach((): void => remove(pathToMockHtml));
+  afterEach((): Promise<void> => remove(pathToMockHtml));
 
   describe('delayStart', (): void => {
     it('Will set a property on the passed in test runner preventing it from auto starting the tests', (): void => {
@@ -151,7 +154,6 @@ describe('eventHandlers', (): void => {
           },
         ] as TestResult[];
         it(`Parses tests correctly into html output by suite for a ${state} test`, async (): Promise<void> => {
-          const history = await getHistory(pathToMockFile);
           const styles = await getStyles(PATH_TO_STYLE_SHEET);
           const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
@@ -159,11 +161,10 @@ describe('eventHandlers', (): void => {
             pathToMockFile,
             {
               ...reportData,
-              history,
               scripts,
+              history: [],
               styles,
             },
-            generateTestResultsBySuite,
           );
           const suites = [suite]
             .reverse()
@@ -181,17 +182,13 @@ describe('eventHandlers', (): void => {
             ...reportData,
             styles: await styles,
             scripts: minifyJs(await scripts),
-            history: convertHistoryToHtml(formatHistory([
-              ...testResults,
-              ...history,
-            ])),
+            data: JSON.stringify(testResults),
           });
           await reportHandler();
 
           expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
         });
         it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
-          const history = await getHistory(pathToMockFile);
           const styles = await getStyles(PATH_TO_STYLE_SHEET);
           const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
@@ -199,11 +196,10 @@ describe('eventHandlers', (): void => {
             pathToMockFile,
             {
               ...reportData,
-              history,
+              history: [],
               styles,
               scripts,
             },
-            generateTestResultsByPath,
           );
           const suites = [...path, suite]
             .reverse()
@@ -220,11 +216,8 @@ describe('eventHandlers', (): void => {
             suites,
             ...reportData,
             styles,
+            data: JSON.stringify(testResults),
             scripts: minifyJs(scripts),
-            history: convertHistoryToHtml(formatHistory([
-              ...testResults,
-              ...history,
-            ])),
           });
           await reportHandler();
 
@@ -254,7 +247,6 @@ describe('eventHandlers', (): void => {
           scripts,
           styles,
         },
-        generateTestResultsBySuite,
       );
       const expected = flattenArray(groupTestSuitesByDate(testResults));
       await reportHandler();

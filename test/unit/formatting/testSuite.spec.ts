@@ -13,8 +13,8 @@ import {
   tests,
 } from '../../helpers/expectations';
 import { createTestResultFormatter } from '../../../src/formatting/testResults';
-import { TestResult } from '../../../src/report/eventHandlers';
-import { FAILED, PASSED } from '../../../src/constants/constants';
+import { FAILED, PASSED } from '../../../src';
+import { TestResult } from '../../../src/scripts/formatting/html';
 
 describe('testTree', (): void => {
   describe('generateTestResultsByPath', (): void => {

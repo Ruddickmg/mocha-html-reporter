@@ -1,0 +1,18 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "module": "system",
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "sourceMap": true,
+      "moduleResolution": "Node"
+    },
+    "include": [
+      "**/*.ts",
+    ],
+    "exclude": [
+        "node_modules",
+        "test/helpers"
+    ]
+}

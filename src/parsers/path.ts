@@ -1,5 +1,6 @@
 import { Suite, Test } from 'mocha';
-import { EMPTY_STRING, PATH_SEPARATOR, PERIOD } from '../constants/constants';
+import { PATH_SEPARATOR, PERIOD } from '../constants/index';
+import { EMPTY_STRING } from '../scripts/constants';
 
 export const getParentPath = (
   { parent, title }: Test | Suite,

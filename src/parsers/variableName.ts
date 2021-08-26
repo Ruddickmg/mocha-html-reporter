@@ -1,12 +1,12 @@
-import { CodeStore } from '../scripts/compiler';
+import { CodeStore } from '../compilation';
 import {
   buildParseTree,
   createParser,
   Parser,
   Symbols,
 } from './parser';
-import { EMPTY_STRING } from '../constants/constants';
-import { isNumeric } from '../utilities/typeChecks';
+import { isNumeric } from '../scripts/utilities/typeChecks';
+import { EMPTY_STRING } from '../scripts/constants';
 
 const allowedVariableNamePrefixes = ['(', '[', ',', ' ']
   .reduce((

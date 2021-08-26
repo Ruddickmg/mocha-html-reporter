@@ -7,7 +7,7 @@ import {
   ONE_MINUTE,
   ONE_SECOND,
   SECOND_SUFFIX,
-} from '../constants/constants';
+} from '../constants';
 
 const { floor } = Math;
 
@@ -83,13 +83,17 @@ export const millisecondsToRoundedHumanReadable = (input: number): string => {
 export const convertMillisecondsToDate = (milliseconds: number): Date => {
   const date = new Date(0);
   date.setMilliseconds(milliseconds);
-  date.setHours(date.getHours() + 1);
+  return date;
+};
+
+export const removeTimeZoneOffset = (date: Date): Date => {
+  date.setTime(date.getTime() - (date.getTimezoneOffset() * ONE_MINUTE));
   return date;
 };
 
 export const convertDateStringToMilliseconds = (
   dateString: string,
-): number => (new Date(dateString)).getTime();
+): number => removeTimeZoneOffset(new Date(dateString)).getTime();
 
 export const getMonthDayYearFromDate = (
   date: Date,

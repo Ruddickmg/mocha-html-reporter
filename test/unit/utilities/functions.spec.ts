@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { compose, mapOverObject } from '../../../src/utilities/functions';
+import { compose, mapOverObject } from '../../../src/scripts/utilities/functions';
 
 describe('functions', (): void => {
   describe('compose', (): void => {

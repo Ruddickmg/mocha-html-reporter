@@ -28,7 +28,7 @@ export const hideHistory = (): void => hideById(HISTORY);
 export const showHistory = (): void => showById(HISTORY);
 
 export const hideAllTestsOnCurrentPage = (): void => [PASSED, FAILED]
-  .forEach(testType => hideByClassOnCurrentPage(testType));
+  .forEach((testType) => hideByClassOnCurrentPage(testType));
 
 export const showStack = (id: string): void => activateChildAndButton(id, STACK);
 export const showImage = (id: string): void => activateChildAndButton(id, IMAGE);

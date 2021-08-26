@@ -1,15 +1,15 @@
 import { expect } from 'chai';
 import { writeFileSync, mkdirSync } from 'fs';
 import {
-  PACKAGE_NAME,
   PATH_TO_PACKAGE,
   TEST_DIRECTORY,
-} from '../../../src/constants/constants';
+} from '../../../src/constants';
 import {
   getFileContents,
   writeToFile,
 } from '../../../src/utilities/fileSystem';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { remove } = require('fs-extra');
 
 describe('fileSystem', (): void => {

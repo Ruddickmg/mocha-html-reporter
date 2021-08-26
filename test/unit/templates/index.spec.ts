@@ -7,7 +7,7 @@ import {
   addValuesToTemplate,
   clearAllTemplateValues,
   getTemplates,
-} from '../../../src/templates/all';
+} from '../../../src/templates';
 
 describe('templates', () => {
   const firstTemplateLabel = 'test1';

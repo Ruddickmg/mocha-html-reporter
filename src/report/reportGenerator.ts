@@ -5,22 +5,20 @@ import {
   createTestHandler,
   setTestEventHandlers,
   TestHandlers,
-  TestResult,
 } from './eventHandlers';
 import {
-  FAILED,
   FINISHED,
-  PASSED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
-} from '../constants/constants';
+} from '../constants';
 import { Environment, getCommandLineOptions } from '../parsers/commandLineOptions';
-import { generateTestResultsBySuite } from '../formatting/testSuite';
-import { compileCode } from '../scripts/compiler';
+import { compileCode } from '../compilation';
 import { getHistory } from '../utilities/fileSystem';
 import { variableNameGenerator } from '../../test/helpers/expectations';
 import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
+import { FAILED, PASSED } from '../scripts/constants';
+import { TestResult } from '../scripts/formatting/html';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -68,7 +66,6 @@ export const reportGenerator = async (
       tests,
       pathToOutputFile,
       reportData,
-      generateTestResultsBySuite,
     ),
   };
 

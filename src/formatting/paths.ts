@@ -1,5 +1,6 @@
 import { resolve } from 'path';
-import { EMPTY_STRING, PATH_SEPARATOR } from '../constants/constants';
+import { PATH_SEPARATOR } from '../constants/index';
+import { EMPTY_STRING } from '../scripts/constants';
 
 export const formatOutputPath = (
   outputDir: string,

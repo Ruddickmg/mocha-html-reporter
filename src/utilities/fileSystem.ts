@@ -5,18 +5,19 @@ import {
   mkdirSync,
   readFile,
 } from 'fs';
+
 import { removeFileName } from '../formatting/paths';
 import { logError, logMessage } from './logging';
-import { getFileNameFromPath } from '../scripts/compiler';
-import { parseDataFromHtml } from '../parsers/history';
-import { isString } from './typeChecks';
-import { TestResult } from '../report/eventHandlers';
+import { htmlDataParser } from '../parsers/history';
+import { isString } from '../scripts/utilities/typeChecks';
 import {
   END_OF_STREAM,
   STREAM_DATA,
   STREAM_ERROR,
   STREAM_FINISH,
 } from '../constants/streams';
+import { TestResult } from '../scripts/formatting/html';
+import { getFileNameFromPath } from '../compilation/utilities';
 
 export const writeToFile = (
   pathToFile: string,
@@ -59,17 +60,17 @@ export const getFileContents = (
 
 export const getHistory = (
   filePath: string,
-
 ): Promise<TestResult[]> => new Promise((
   resolve,
   reject,
 ): void => {
   if (existsSync(filePath)) {
     try {
+      const parseDataFromHtml = htmlDataParser();
       const readStream = createReadStream(filePath);
-      let data: any = [];
-      readStream.on(STREAM_DATA, (fileContents: string): void => {
-        const parsedData = parseDataFromHtml(fileContents);
+      let data: TestResult[] = [];
+      readStream.on(STREAM_DATA, (fileContents: Buffer): void => {
+        const parsedData = parseDataFromHtml(fileContents.toString());
         if (isString(parsedData)) {
           data = JSON.parse(parsedData as string);
           readStream.destroy();

@@ -1,7 +1,7 @@
-import { EMPTY_STRING } from '../constants/constants';
-import { isString } from '../utilities/typeChecks';
+import { isString } from '../scripts/utilities/typeChecks';
 import { buildParseTree, createParser } from './parser';
 import { DATA_CLOSING_TAGS, DATA_OPENING_TAGS } from '../constants/html';
+import { EMPTY_STRING } from '../scripts/constants';
 
 export const parseDataOpening = createParser(buildParseTree({
   [DATA_OPENING_TAGS]: DATA_OPENING_TAGS,
@@ -11,7 +11,7 @@ export const parseDataClosing = createParser(buildParseTree({
   [DATA_CLOSING_TAGS]: DATA_CLOSING_TAGS,
 }));
 
-export const parseDataFromHtml = ((): any => {
+export const htmlDataParser = ((): any => {
   let parsedData = EMPTY_STRING;
   let potentialData: string = EMPTY_STRING;
   let readData: boolean;
@@ -42,10 +42,11 @@ export const parseDataFromHtml = ((): any => {
           potentialData = EMPTY_STRING;
         }
       }
-      if (isString(parseDataOpening(char))) {
+      const parsed = parseDataOpening(char);
+      if (isString(parsed)) {
         readData = true;
       }
     }
     return false;
   };
-})();
+});

@@ -25,6 +25,24 @@ export const moveToElementById = (id: string): void => {
   );
 };
 
+export enum TagName {
+  li = 'li',
+  ul = 'ul',
+  div = 'div',
+  h1 = 'h1',
+  h2 = 'h2',
+  h3 = 'h3',
+  h4 = 'h4',
+  image = 'img',
+  tableRow = 'tr',
+  tableData = 'td',
+  button = 'button',
+  table = 'table',
+}
+
+export const createElement = (tag: TagName, options?: ElementCreationOptions): Element => document
+  .createElement(tag, options);
+
 export const getChildOfElement = (id: string, childClass: string): Element => {
   const element = getElementById(id);
   return element

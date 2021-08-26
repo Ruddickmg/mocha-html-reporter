@@ -1,23 +1,26 @@
 {
     "compilerOptions": {
+      "moduleResolution": "node",
       "paths": {
         "*": [
           "types/*"
         ]
       },
-        "baseUrl": ".",
-        "module": "system",
-        "noImplicitAny": true,
-        "removeComments": true,
-        "preserveConstEnums": true,
-        "outFile": "dist/tsc.js",
-        "sourceMap": true
+      "baseUrl": ".",
+      "module": "system",
+      "noImplicitAny": true,
+      "removeComments": true,
+      "preserveConstEnums": true,
+      "outFile": "dist/tsc.js",
+      "sourceMap": true,
+      "downlevelIteration": true
     },
     "include": [
         "src/**/*"
     ],
     "exclude": [
         "node_modules",
-        "**/*.spec.ts"
+        "**/*.spec.ts",
+        "test"
     ]
 }
