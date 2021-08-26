@@ -12,10 +12,9 @@ import {
   TEST_SUITE,
   TEST_SUITE_CONTENT,
   TEST_SUITE_TITLE,
-  TEST_SUITES,
 } from '../constants';
 import { History, historyTestSuiteHeaderTitle } from './history';
-import { createElement, getElementById, TagName } from '../elements';
+import { createElement, TagName } from '../elements';
 import { formatTestResult } from './results';
 
 export interface Content {
@@ -172,10 +171,6 @@ export const convertHistoryToHtml = (history: History): Element => {
   return historyTable;
 };
 
-export const convertSuitesToHtml = (testSuites: TestSuite[]): Element => {
-  const testSuiteElements = getElementById(TEST_SUITES);
-  testSuites
-    .map(convertTestSuiteToHtml)
-    .forEach((element) => testSuiteElements.appendChild(element));
-  return testSuiteElements;
-};
+export const convertSuitesToHtml = (testSuites: History): Element => convertHistoryToHtml(
+  testSuites,
+);

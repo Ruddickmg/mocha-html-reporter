@@ -5,7 +5,6 @@ import {
   createTestHandler,
   setTestEventHandlers,
   TestHandlers,
-
 } from './eventHandlers';
 import {
   FINISHED,
@@ -38,7 +37,6 @@ export const reportGenerator = async (
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
   const history = await getHistory(pathToOutputFile);
   const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
-  console.log(scripts);
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
     reportTitle: 'test title',

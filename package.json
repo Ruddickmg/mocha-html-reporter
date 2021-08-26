@@ -67,6 +67,7 @@
     "karma-typescript": "^5.5.1",
     "lodash": "^4.17.21",
     "nanoid": "^3.1.23",
+    "nodemon": "^2.0.12",
     "node-sass": "^6.0.1",
     "nyc": "^15.1.0",
     "pretty": "^2.0.0",
@@ -83,6 +84,11 @@
     "build-and-run": "npm run build && npm run start",
     "lint": "eslint .",
     "test:unit": "mocha -r ./test/helpers/initializeMocha.ts",
-    "test:browser": "karma start karma.conf.js"
+    "test:browser": "karma start karma.conf.js",
+    "dev": "nodemon"
+  },
+  "nodemonConfig": {
+    "ignore": ["test/**/*", "dist/**/*"],
+    "exec": "npm run build-and-run"
   }
 }

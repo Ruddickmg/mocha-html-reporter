@@ -26,7 +26,7 @@ export const TEST_SUITE_CONTENT = 'test-suite-content';
 export const TEST_RESULT = 'test-result';
 export const DATA = 'test-result-data';
 export const TEST_RESULTS = 'test-results';
-export const TEST_SUITES = 'test=suites';
+export const TEST_SUITES = 'test-suites';
 export const STATISTICS = 'statistics';
 export const REPORT_FOOTER = 'report-footer';
 export const REPORT_HEADER = 'report-header';
