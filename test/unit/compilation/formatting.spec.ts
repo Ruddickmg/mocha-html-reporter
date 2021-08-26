@@ -22,11 +22,12 @@ const func = `var ${firstVariableName} = ${functionCodeBlock}`;
 const assignmentWithoutLeadingSpaces = `var ${secondVariableName} = 'some other thing';`;
 const assignment = `       ${assignmentWithoutLeadingSpaces}`;
 const code = `${func}\n${assignment}`;
+const nameGenerator = () => 'hello';
 
 describe('formatting', () => {
   describe('mapCodeBlocksToVariableNames', (): void => {
     it('Maps variable names to their corresponding code', (): void => {
-      expect(mapCodeBlocksToVariableNames(code)).to.eql({
+      expect(mapCodeBlocksToVariableNames(code, nameGenerator)).to.eql({
         [firstVariableName]: func,
         [secondVariableName]: assignmentWithoutLeadingSpaces,
       });
@@ -37,7 +38,7 @@ describe('formatting', () => {
       expect(mapFilePathsToCodeBlocksByVariableName({
         [testImportFilePath]: `${firstCodeBlock}\n${secondCodeBlock}`,
         [duplicateImportTestFile]: thirdCodeBlock,
-      }))
+      }, nameGenerator))
         .to.eql({
           [testImportFilePath]: {
             [firstVariableName]: firstCodeBlock,

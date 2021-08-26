@@ -1,9 +1,12 @@
 import { variableDeclarationParser } from '../parsers/variableDeclaration';
-import { parseCodeBlock } from '../parsers/code';
+import { parseFunctionCodeBlock, parseImmediatelyInvokedFunctionCodeBlock } from '../parsers/code';
 import { parseVariableName } from '../parsers/variableName';
-import { CodeStore, FileCodeMappings } from './index';
+import { CodeStore, FileCodeMappings, NameGenerator } from './index';
 
-export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
+export const mapCodeBlocksToVariableNames = (
+  code: string,
+  generateName: NameGenerator,
+): CodeStore => {
   const { length } = code;
   const store: CodeStore = {};
   let char: string;
@@ -14,11 +17,15 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
   for (let c = 0; c < length; c += 1) {
     char = code[c];
     foundDeclaration = variableDeclarationParser(char);
+    const immediatelyInvokedFunction = parseImmediatelyInvokedFunctionCodeBlock(char);
+    if (immediatelyInvokedFunction) {
+      store[generateName()] = immediatelyInvokedFunction as string;
+    }
     if (foundDeclaration && foundDeclaration !== true && !declaration) {
       declaration = foundDeclaration as string;
     }
     if (declaration) {
-      parsedCode = parseCodeBlock(char) as string;
+      parsedCode = parseFunctionCodeBlock(char) as string;
       variableName = (variableName || parseVariableName(char)) as string;
       if (parsedCode) {
         if (!/require/.test(parsedCode)) {
@@ -34,6 +41,7 @@ export const mapCodeBlocksToVariableNames = (code: string): CodeStore => {
 
 export const mapFilePathsToCodeBlocksByVariableName = (
   codeByFilePath: CodeStore,
+  nameGenerator: NameGenerator,
 ): FileCodeMappings => {
   const paths = Object.keys(codeByFilePath);
   const pathsMappedToCode: FileCodeMappings = {};
@@ -41,7 +49,7 @@ export const mapFilePathsToCodeBlocksByVariableName = (
   // eslint-disable-next-line no-plusplus
   while (pathIndex--) {
     const path = paths[pathIndex];
-    pathsMappedToCode[path] = mapCodeBlocksToVariableNames(codeByFilePath[path]);
+    pathsMappedToCode[path] = mapCodeBlocksToVariableNames(codeByFilePath[path], nameGenerator);
   }
   return pathsMappedToCode;
 };

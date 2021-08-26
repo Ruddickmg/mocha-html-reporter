@@ -3,8 +3,11 @@ import { variableNameParser } from '../parsers/variableName';
 import { isString } from '../scripts/utilities/typeChecks';
 import { CodeStore } from '.';
 import { ENTRY_POINT } from '../constants';
+import { immediatelyInvokedFunction } from '../parsers/code';
 
-export const parseDependencies = (codeByVariableName: CodeStore) => {
+type DependencyParser = (parent: string, code: string) => string[];
+
+export const parseDependencies = (codeByVariableName: CodeStore): DependencyParser => {
   const variableNames: CodeStore = Object.keys(codeByVariableName).reduce((all, variable) => ({
     ...all,
     [variable]: variable,
@@ -28,11 +31,13 @@ export const parseDependencies = (codeByVariableName: CodeStore) => {
   };
 };
 
-export const mapDependencies = (codeByVariableName: CodeStore): ValueMap<string> => {
+export const mapDependencies = (codeByVariableName: CodeStore, root: string): ValueMap<string> => {
+  const immediatelyInvokedFunctions: string[] = [];
   const parse = parseDependencies(codeByVariableName);
-  return Object.keys(codeByVariableName)
+  const { [root]: node, ...nodes } = Object.keys(codeByVariableName)
     .reduce((mapped: ValueMap<string>, name: string): ValueMap<string> => {
       const code = codeByVariableName[name];
+      if (immediatelyInvokedFunction.test(code)) immediatelyInvokedFunctions.push(name);
       return {
         ...mapped,
         [name]: {
@@ -41,12 +46,22 @@ export const mapDependencies = (codeByVariableName: CodeStore): ValueMap<string>
         },
       };
     }, {});
+  return {
+    ...nodes,
+    [root]: {
+      ...node,
+      children: [
+        ...node.children,
+        ...immediatelyInvokedFunctions,
+      ],
+    },
+  };
 };
 
 export const sortCodeInTopologicalOrder = (
   codeByVariableName: CodeStore,
-  root?: string,
+  root: string = ENTRY_POINT,
 ): string[] => {
-  const dependencyMap = mapDependencies(codeByVariableName);
-  return topologicalSort(root || ENTRY_POINT, dependencyMap);
+  const dependencyMap = mapDependencies(codeByVariableName, root);
+  return topologicalSort(root, dependencyMap);
 };

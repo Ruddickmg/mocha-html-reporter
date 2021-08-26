@@ -40,7 +40,8 @@ export enum TagName {
   table = 'table',
 }
 
-export const createElement = (tagName: TagName, options?: ElementCreationOptions): Element => document.createElement(tagName, options);
+export const createElement = (tag: TagName, options?: ElementCreationOptions): Element => document
+  .createElement(tag, options);
 
 export const getChildOfElement = (id: string, childClass: string): Element => {
   const element = getElementById(id);

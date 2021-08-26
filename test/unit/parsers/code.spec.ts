@@ -1,16 +1,42 @@
 import { expect } from 'chai';
-import { parseCodeBlock } from '../../../src/parsers/code';
+import { parseCodeBlock, immediatelyInvokedFunction } from '../../../src/parsers/code';
 import { EMPTY_STRING } from '../../../src/scripts/constants';
+
+const firstVariableName = 'someFunk';
+const secondVariableName = 'someVariable';
+const functionCodeBlock = `function () {
+          console.log('hello, I am a code block!');
+      var ${secondVariableName} = function () {};      };`;
+const func = `var ${firstVariableName} = ${functionCodeBlock}`;
+const assignment = `       var ${secondVariableName} = 'some other thing';`;
+const immediatelyInvokedFunctionString = `(function (TagName) {
+        TagName["li"] = "li";
+        TagName["ul"] = "ul";
+        TagName["div"] = "div";
+        TagName["h1"] = "h1";
+        TagName["h2"] = "h2";
+        TagName["h3"] = "h3";
+        TagName["h4"] = "h4";
+        TagName["image"] = "img";
+        TagName["tableRow"] = "tr";
+        TagName["tableData"] = "td";
+        TagName["button"] = "button";
+        TagName["table"] = "table";
+      })(TagName || (exports.TagName = TagName = {}));`;
 
 describe('code', (): void => {
   describe('parseCodeBlock', (): void => {
-    const firstVariableName = 'someFunk';
-    const secondVariableName = 'someVariable';
-    const functionCodeBlock = `function () {
-          console.log('hello, I am a code block!');
-      var ${secondVariableName} = function () {};      };`;
-    const func = `var ${firstVariableName} = ${functionCodeBlock}`;
-    const assignment = `       var ${secondVariableName} = 'some other thing';`;
+    it('tests immediately invoked function with regex', () => {
+      expect(immediatelyInvokedFunction.test(immediatelyInvokedFunctionString)).to.equal(true);
+    });
+    it('Will parse immediately invoked functions', () => {
+      expect(immediatelyInvokedFunctionString.split(EMPTY_STRING)
+        .reduce((
+          _: string,
+          char: string,
+        ): string | boolean => parseCodeBlock(char), EMPTY_STRING))
+        .to.equal('(function (TagName) {\n        TagName["li"] = "li";\n        TagName["ul"] = "ul";\n        TagName["div"] = "div";\n        TagName["h1"] = "h1";\n        TagName["h2"] = "h2";\n        TagName["h3"] = "h3";\n        TagName["h4"] = "h4";\n        TagName["image"] = "img";\n        TagName["tableRow"] = "tr";\n        TagName["tableData"] = "td";\n        TagName["button"] = "button";\n        TagName["table"] = "table";\n      })(TagName || (exports.TagName = TagName = {}));');
+    });
     it('Will parse a function to extract it from a code file', (): void => {
       expect(
         func

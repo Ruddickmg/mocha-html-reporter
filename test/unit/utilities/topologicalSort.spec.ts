@@ -56,7 +56,7 @@ describe('removeUnreachableNodes', () => {
     };
     // eslint-disable-next-line @typescript-eslint/naming-convention
     const { g: _, ...rest } = nodes;
-    expect(removeUnreachableNodes(unreachable)).to.deep.equal(rest);
+    expect(removeUnreachableNodes(a, unreachable)).to.deep.equal(rest);
   });
 });
 

@@ -66,7 +66,10 @@ export const compileCode = async (
   root?: string,
 ): Promise<string> => {
   const codeByPath = await getCodeByPath(fileName);
-  const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(codeByPath);
+  const pathsToCodeByVariableName = mapFilePathsToCodeBlocksByVariableName(
+    codeByPath,
+    generateName,
+  );
   const codeByVariables = combineVariablesForEachFile(pathsToCodeByVariableName);
   const sortedCode = sortCodeInTopologicalOrder(codeByVariables, root);
   const code = sortedCode.reverse().join(EMPTY_STRING);
