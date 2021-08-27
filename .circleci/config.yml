@@ -44,8 +44,11 @@ jobs:
       - checkout
       - node/install-packages
       - run:
+          name: Build
+          command: npm run build
+      - run:
           name: Run unit tests
-          command: yarn test:unit
+          command: npm run test:unit
 
   #-----------------------------------------------------------------------------------------------------------------------------
 
@@ -57,5 +60,8 @@ jobs:
       - checkout
       - node/install-packages
       - run:
+          name: Build
+          command: npm run build
+      - run:
           name: Run browser tests
-          command: yarn test:browser
+          command: npm run test:browser
