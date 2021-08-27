@@ -75,6 +75,7 @@ export const parseImmediatelyInvokedFunctionCodeBlock = ((): Parser => {
         return result.replace(exportsRegex, '');
       }
     }
+    return null;
   };
 })();
 

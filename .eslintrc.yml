@@ -1,12 +1,14 @@
 env:
-  browser: true
   es6: true
   node: true
   mocha: true
+  browser: true
 parser: '@typescript-eslint/parser'
 ignorePatterns:
   - 'test/helpers/compileFiles/*'
+  - 'test/helpers/initializeMocha.ts'
   - 'dist/*'
+  - 'karma.conf.js'
 plugins:
   - 'import'
   - '@typescript-eslint'
