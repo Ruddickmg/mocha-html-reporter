@@ -32,7 +32,6 @@ parserOptions:
   ecmaVersion: 2018
   sourceType: module
 rules:
-  linebreak-style:  ['error', 'windows']
   # turn off indentation for eslint, apparently conflicts with typescript linter (which will also lint javascript)
   indent: 'off'
   # set indentation rules for 2 spaces to combat conflict between airbnb and typscript settings
