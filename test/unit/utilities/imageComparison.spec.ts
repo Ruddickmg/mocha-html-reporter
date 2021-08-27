@@ -1,9 +1,10 @@
 import { expect } from 'chai';
 import { unlinkSync, existsSync } from 'fs';
+import { resolve } from 'path';
 import { compareImageToBaseline, setScreenShotDirectory } from '../../../src/utilities/imageComparison';
 import { base64ImageOne, base64ImageTwo } from '../../helpers/base64Images';
 
-const screenShotDirectory = './test/reports';
+const screenShotDirectory = resolve(__dirname, '../../reports');
 const createTestFileName = (name: string): string => `${screenShotDirectory}/${name}.png`;
 const removeTestFile = (name: string): void => existsSync(name) && unlinkSync(name);
 const TIME_TO_COMPLETE = 10000;

@@ -12,8 +12,12 @@ import {
 
 import {
   convertTestSuiteToHtml,
-  convertTestResultsToHtml, createImageElement,
-  TestResult, TestSuite, convertArrayToTableRow, convertArrayToTableHeader, convertHistoryToHtml,
+  convertTestResultsToHtml,
+  createImageElement,
+  TestResult,
+  TestSuite,
+  convertArrayToTableRow,
+  convertArrayToTableHeader,
 // convertHistoryToHtml,
 // convertSuitesToHtml,
 // convertTestResultsToHtml,
@@ -21,7 +25,7 @@ import {
 } from '../../../../src/scripts/formatting/html';
 import { TagName } from '../../../../src/scripts/elements';
 import { formatTestResult } from '../../../../src/scripts/formatting/results';
-import { convertDateStringToMilliseconds } from '../../../../src/scripts/formatting/time';
+// import { convertDateStringToMilliseconds } from '../../../../src/scripts/formatting/time';
 
 describe('testResult', () => {
   const first = 0;
@@ -214,51 +218,52 @@ describe('testResult', () => {
       });
     });
   });
-  describe('convertHistoryToHtml', (): void => {
-    const firstSuiteName = 'suite #1';
-    const secondSuiteName = 'suite #2';
-    const suiteName = 'testSuiteHistory';
-    const testResults = [
-      'August 13, 1987 23:15:30',
-      'August 14, 1987 23:15:30',
-      'August 15, 1987 23:15:30',
-      'August 16, 1987 23:15:30',
-    ].map((dateString: string): TestResult => ({
-      title: dateString,
-      date: convertDateStringToMilliseconds(dateString),
-    } as TestResult))
-      .reduce((results: TestResult[], test: TestResult): TestResult[] => [
-        ...results,
-        { ...test, suite: firstSuiteName },
-        { ...test, suite: secondSuiteName },
-      ], []);
-    // it('Converts history data into a table displaying test results over time', (): void => {
-    //   expect(convertHistoryToHtml({ [suiteName]: testResults }).innerHTML).to.equal(false);
-    // });
-  });
-  describe('convertSuitesToHtml', (): void => {
-    [PASSED, FAILED]
-      .forEach((state: string): void => {
-        const firstSuiteName = 'suite #1';
-        const secondSuiteName = 'suite #2';
-        const suiteName = 'testSuiteHistory';
-        const testResults = [
-          'August 13, 1987 23:15:30',
-          'August 14, 1987 23:15:30',
-          'August 15, 1987 23:15:30',
-          'August 16, 1987 23:15:30',
-        ].map((dateString: string): TestResult => ({
-          title: dateString,
-          date: convertDateStringToMilliseconds(dateString),
-        } as TestResult))
-          .reduce((results: TestResult[], test: TestResult): TestResult[] => [
-            ...results,
-            { ...test, suite: firstSuiteName },
-            { ...test, suite: secondSuiteName },
-          ], []);
-        it(`Will convert a test suite into an html report for ${state} tests`, async (): Promise<void> => {
-          expect(true).to.equal(true);
-        });
-      });
-  });
+  // describe('convertHistoryToHtml', (): void => {
+  //   const firstSuiteName = 'suite #1';
+  //   const secondSuiteName = 'suite #2';
+  //   const suiteName = 'testSuiteHistory';
+  //   const testResults = [
+  //     'August 13, 1987 23:15:30',
+  //     'August 14, 1987 23:15:30',
+  //     'August 15, 1987 23:15:30',
+  //     'August 16, 1987 23:15:30',
+  //   ].map((dateString: string): TestResult => ({
+  //     title: dateString,
+  //     date: convertDateStringToMilliseconds(dateString),
+  //   } as TestResult))
+  //     .reduce((results: TestResult[], test: TestResult): TestResult[] => [
+  //       ...results,
+  //       { ...test, suite: firstSuiteName },
+  //       { ...test, suite: secondSuiteName },
+  //     ], []);
+  //   // it('Converts history data into a table displaying test results over time', (): void => {
+  //   //   expect(convertHistoryToHtml({ [suiteName]: testResults }).innerHTML).to.equal(false);
+  //   // });
+  // });
+  // describe('convertSuitesToHtml', (): void => {
+  //   [PASSED, FAILED]
+  //     .forEach((state: string): void => {
+  //       const firstSuiteName = 'suite #1';
+  //       const secondSuiteName = 'suite #2';
+  //       const suiteName = 'testSuiteHistory';
+  //       const testResults = [
+  //         'August 13, 1987 23:15:30',
+  //         'August 14, 1987 23:15:30',
+  //         'August 15, 1987 23:15:30',
+  //         'August 16, 1987 23:15:30',
+  //       ].map((dateString: string): TestResult => ({
+  //         title: dateString,
+  //         date: convertDateStringToMilliseconds(dateString),
+  //       } as TestResult))
+  //         .reduce((results: TestResult[], test: TestResult): TestResult[] => [
+  //           ...results,
+  //           { ...test, suite: firstSuiteName },
+  //           { ...test, suite: secondSuiteName },
+  //         ], []);
+  //       it(`Will convert a test suite into an html report for ${state} tests`,
+  //       async (): Promise<void> => {
+  //         expect(true).to.equal(true);
+  //       });
+  //     });
+  // });
 });

@@ -2,7 +2,9 @@ import { createWriteStream, readFile } from 'fs';
 import { PATH_SEPARATOR } from '../constants/index';
 import { capitalizeFirstLetter } from './strings';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const { PNG } = require('pngjs');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const pixelmatch = require('pixelmatch');
 
 export interface Coordinates {

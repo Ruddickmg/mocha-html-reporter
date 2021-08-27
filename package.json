@@ -79,13 +79,13 @@
     "tslib": "^2.3.0"
   },
   "scripts": {
+    "dev": "nodemon",
     "start": "mocha -r ./test/helpers/initializeMocha.ts -O outputDir=test/reports,testDir=test/unit,fileName=testOutput,reporter=spec --reporter ./dist",
+    "lint": "eslint .",
     "build": "babel src --extensions \".ts\"  --out-dir dist",
     "build-and-run": "npm run build && npm run start",
-    "lint": "eslint .",
     "test:unit": "mocha -r ./test/helpers/initializeMocha.ts",
-    "test:browser": "karma start karma.conf.js",
-    "dev": "nodemon"
+    "test:browser": "karma start karma.conf.js"
   },
   "nodemonConfig": {
     "ignore": ["test/**/*", "dist/**/*"],

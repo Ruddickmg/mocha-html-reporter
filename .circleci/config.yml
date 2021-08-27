@@ -1,0 +1,70 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@4.7.0
+  browser-tools: circleci/browser-tools@1.2.1
+
+#-----------------------------------------------------------------------------------------------------------------------------
+
+workflows:
+  ci-cd:
+    jobs:
+      - lint
+      - build
+      - unit_tests
+      - browser_tests
+
+#-----------------------------------------------------------------------------------------------------------------------------
+
+jobs:
+  build:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Stable Build
+          command: npm run build
+
+  #-----------------------------------------------------------------------------------------------------------------------------
+
+  lint:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Check formatting
+          command: yarn lint
+
+  #-----------------------------------------------------------------------------------------------------------------------------
+
+  unit_tests:
+    executor: node/default
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Run unit tests
+          command: npm run test:unit
+
+  #-----------------------------------------------------------------------------------------------------------------------------
+
+  browser_tests:
+    executor: node/default
+    environment:
+      CHROME_BIN: /usr/bin/google-chrome
+      FIREFOX_BIN: /usr/local/bin/firefox
+    steps:
+      - checkout
+      - node/install-packages
+      - browser-tools/install-browser-tools
+      - run:
+          name: Build
+          command: npm run build
+      - run:
+          name: Run browser tests
+          command: npm run test:browser

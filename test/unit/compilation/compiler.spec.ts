@@ -1,13 +1,14 @@
 import { expect } from 'chai';
+import { resolve } from 'path';
 import {
   compileCode,
   combineVariablesForEachFile,
 } from '../../../src/compilation';
 import { variableNameGenerator } from '../../helpers/expectations';
 
-const rootPath = '/var/www/mocha-html-reporter/test/helpers/compileFiles/';
+const rootPath = resolve(__dirname, '../../helpers/compileFiles/');
 const testImportFileName = 'main.js';
-const testImportFilePath = `${rootPath}${testImportFileName}`;
+const testImportFilePath = `${rootPath}/${testImportFileName}`;
 const testEntryPoint = '_main.testingCompiler';
 
 describe('compiler', (): void => {

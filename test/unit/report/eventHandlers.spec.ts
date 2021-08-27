@@ -44,7 +44,6 @@ import {
   TEST_SUITE,
   HIDDEN,
 } from '../../../src/scripts/constants';
-
 import { formatDuration } from '../../../src/scripts/formatting/time';
 import { ReportData, TestResult } from '../../../src/scripts/formatting/html';
 
@@ -187,7 +186,7 @@ describe('eventHandlers', (): void => {
           await reportHandler();
 
           expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
-        });
+        }).timeout(2500);
         it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
           const styles = await getStyles(PATH_TO_STYLE_SHEET);
           const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());

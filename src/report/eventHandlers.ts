@@ -2,7 +2,7 @@ import { Runner, Test } from 'mocha';
 import { handleFailedScreenShot, takeScreenShot } from '../utilities/screenshots';
 import { writeToFile } from '../utilities/fileSystem';
 import { cleanAndMinifyHtml, minifyJs } from './htmlConversion';
-import { DELAY_START_PROPERTY } from '../constants/index';
+import { DELAY_START_PROPERTY } from '../constants';
 import { createTestResultFormatter } from '../formatting/testResults';
 import { addValuesToTemplate, reportTemplate } from '../templates';
 import { ReportData, TestResult } from '../scripts/formatting/html';
@@ -52,8 +52,8 @@ export const createTestHandler = (
     if (captureScreen) {
       takeScreenShot()
         .then(updateTests)
-        .catch((): Promise<void> => handleFailedScreenShot()
-          .then(updateTests));
+        .catch(handleFailedScreenShot)
+        .then(updateTests);
     } else {
       updateTests();
     }
