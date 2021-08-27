@@ -51,6 +51,8 @@ jobs:
 
   browser_tests:
     executor: node/default
+    environment:
+      CHROME_BIN: /usr/bin/google-chrome
     steps:
       - checkout
       - node/install-packages

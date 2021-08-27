@@ -44,7 +44,6 @@ import {
   TEST_SUITE,
   HIDDEN,
 } from '../../../src/scripts/constants';
-
 import { formatDuration } from '../../../src/scripts/formatting/time';
 import { ReportData, TestResult } from '../../../src/scripts/formatting/html';
 

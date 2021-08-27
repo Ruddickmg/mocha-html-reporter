@@ -4,6 +4,9 @@ env:
   node: true
   mocha: true
 parser: '@typescript-eslint/parser'
+ignorePatterns:
+  - 'test/helpers/compileFiles/*'
+  - 'dist/*'
 plugins:
   - 'import'
   - '@typescript-eslint'
