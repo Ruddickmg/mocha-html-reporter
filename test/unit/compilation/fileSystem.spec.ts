@@ -1,17 +1,18 @@
 import { expect } from 'chai';
+import { resolve } from 'path';
 import { getCodeByPath } from '../../../src/compilation/fileSystem';
 import { getCode } from '../../../src/compilation/utilities';
 
-const rootPath = '/var/www/mocha-html-reporter/test/helpers/compileFiles/';
+const rootPath = resolve(__dirname, '../../helpers/compileFiles/');
 const testImportFileName = 'main.js';
-const testImportFilePath = `${rootPath}${testImportFileName}`;
-const testImportFilePathOne = `${rootPath}testFileOne.js`;
-const testImportFilePathTwo = `${rootPath}testFileTwo.js`;
-const testImportFilePathThree = `${rootPath}testFileThree.js`;
-const recursiveImportTestFile = `${rootPath}recursiveImportTestFile.js`;
-const duplicateImportTestFile = `${rootPath}duplicateImportTestFile.js`;
-const circularImportTestFile = `${rootPath}circularImport.js`;
-const secondCircularImportFile = `${rootPath}secondCircularImport.js`;
+const testImportFilePath = `${rootPath}/${testImportFileName}`;
+const testImportFilePathOne = `${rootPath}/testFileOne.js`;
+const testImportFilePathTwo = `${rootPath}/testFileTwo.js`;
+const testImportFilePathThree = `${rootPath}/testFileThree.js`;
+const recursiveImportTestFile = `${rootPath}/recursiveImportTestFile.js`;
+const duplicateImportTestFile = `${rootPath}/duplicateImportTestFile.js`;
+const circularImportTestFile = `${rootPath}/circularImport.js`;
+const secondCircularImportFile = `${rootPath}/secondCircularImport.js`;
 
 describe('fileSystem', () => {
   describe('getCodeByPath', (): void => {
