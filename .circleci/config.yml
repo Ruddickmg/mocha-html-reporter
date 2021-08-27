@@ -54,6 +54,6 @@ jobs:
     steps:
       - checkout
       - node/install-packages
-    run:
-        name: Run unit tests
-        command: yarn test:browser
+      - run:
+          name: Run unit tests
+          command: yarn test:browser
