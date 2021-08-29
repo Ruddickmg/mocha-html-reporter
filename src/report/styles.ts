@@ -1,19 +1,15 @@
-import { render } from 'node-sass';
+import { render, Result } from 'node-sass';
 import { minifyCss } from './htmlConversion';
-
-interface CssResults {
-  css: string;
-}
 
 export const getStyles = (
   pathToFile: string,
-): Promise<string> => new Promise((resolve, reject): string => render({
+): Promise<string> => new Promise((resolve, reject): void => render({
   file: pathToFile,
   includePaths: [
     'scss',
     'node_modules',
   ],
-}, async (error: Error, result: CssResults): Promise<void> => {
+}, async (error: Error, result: Result): Promise<void> => {
   try {
     const css = await minifyCss(result.css.toString());
     return error
