@@ -139,6 +139,16 @@ describe('eventHandlers', (): void => {
       reportTitle: 'hello',
       pageTitle: 'world',
     };
+    let styles: string;
+    let scripts: string;
+    let history: TestResult[];
+
+    before(async () => {
+      history = await getHistory(pathToMockFile);
+      styles = await getStyles(PATH_TO_STYLE_SHEET);
+      scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
+    });
+
     [PASSED, FAILED]
       .forEach((state: string): void => {
         const testResults: TestResult[] = [
@@ -153,8 +163,6 @@ describe('eventHandlers', (): void => {
           },
         ] as TestResult[];
         it(`Parses tests correctly into html output by suite for a ${state} test`, async (): Promise<void> => {
-          const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -179,17 +187,15 @@ describe('eventHandlers', (): void => {
           const expected = addValuesToTemplate(reportTemplate, {
             suites,
             ...reportData,
-            styles: await styles,
-            scripts: minifyJs(await scripts),
+            styles,
+            scripts: minifyJs(scripts),
             data: JSON.stringify(testResults),
           });
           await reportHandler();
 
           expect(await getFileContents(pathToMockFile)).to.equal(cleanAndMinifyHtml(expected));
-        }).timeout(2500);
+        });
         it(`Parses tests correctly into html output by path for ${state} tests`, async (): Promise<void> => {
-          const styles = await getStyles(PATH_TO_STYLE_SHEET);
-          const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
           const reportHandler = createReportHandler(
             testResults,
             pathToMockFile,
@@ -234,9 +240,6 @@ describe('eventHandlers', (): void => {
           path,
         },
       ] as TestResult[];
-      const history = await getHistory(pathToMockFile);
-      const styles = await getStyles(PATH_TO_STYLE_SHEET);
-      const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
       const reportHandler = createReportHandler(
         testResults,
         pathToMockFile,
