@@ -34,12 +34,12 @@ development will generate a new report after each code change
 ## Testing
 There are two portions of the app, the `reporter` which is tested via unit tests, and the `report`, which is tested via "browser" tests
 
-### to run unit tests
+### unit tests
 ```shell
 $ npm run test:unit
 ```
 
-### to run browser tests
+### browser tests
 ```shell
 $ npm run test:browser
 ```
