@@ -5,7 +5,7 @@ The html document itself acts as storage, any test results generated while an ex
 
 Since the entire history of daily test runs is stored within a single html file, eventually the file size may grow to a size that is larger than desired. The goal of this project is to minimize this as much as possible, while recognizing that unbounded growth will always become very large at some point.
 
-##Usage
+## Usage
 
 ```shell
 $ mocha -O outputFile=pathToSomeDirectory/report.html --reporter mocha-html-reporter
