@@ -23,6 +23,17 @@ export const getFilePath = (
   return splitPath;
 };
 
+export const getCommonRoot = ([first, ...files]: string[]): string => files
+  .reduce((root: string, current: string): string => {
+    let commonRoot = '';
+    let i = 0;
+    while (root[i] === current[i]) {
+      commonRoot += root[i];
+      i += 1;
+    }
+    return commonRoot;
+  }, first);
+
 export default {
   getParentPath,
   getFilePath,

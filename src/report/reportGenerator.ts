@@ -7,6 +7,7 @@ import {
   TestHandlers,
 } from './eventHandlers';
 import {
+  DEFAULT_OUTPUT_FILE,
   FINISHED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
@@ -23,6 +24,8 @@ export const reportGenerator = async (
   runner: Runner,
   environment: Environment,
 ): Promise<void> => {
+  console.log('environment', environment);
+  console.log('runner', runner);
   const tests: TestResult[] = [];
   const {
     screenShotEachTest,
@@ -31,8 +34,9 @@ export const reportGenerator = async (
     outputFile,
   } = getCommandLineOptions(environment);
   const timeOfTest = Date.now();
+  const pathToOutputFile = outputFile || DEFAULT_OUTPUT_FILE;
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const history = await getHistory(outputFile);
+  const history = await getHistory(pathToOutputFile);
   const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
@@ -61,7 +65,7 @@ export const reportGenerator = async (
     // TODO pass statistic/suite data through report handler, counts etc from test handler
     [FINISHED]: createReportHandler(
       tests,
-      outputFile,
+      pathToOutputFile,
       reportData,
     ),
   };
