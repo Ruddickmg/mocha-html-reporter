@@ -1,7 +1,5 @@
 export interface ExpectedOptions {
   reporter?: string;
-  // TODO remove testDir, should be detectable
-  testDir?: string;
   outputFile?: string;
   screenShotEachTest?: boolean;
   screenShotOnFailure?: boolean;
@@ -9,6 +7,7 @@ export interface ExpectedOptions {
 
 export interface Environment {
   reporterOptions: ExpectedOptions;
+  files: string[];
 }
 
 export const getCommandLineOptions = (

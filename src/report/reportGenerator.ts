@@ -19,20 +19,19 @@ import { variableNameGenerator } from '../../test/helpers/expectations';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
 import { FAILED, PASSED } from '../scripts/constants';
 import { TestResult } from '../scripts/formatting/html';
+import { getCommonRoot } from '../parsers/path';
 
 export const reportGenerator = async (
   runner: Runner,
   environment: Environment,
 ): Promise<void> => {
-  console.log('environment', environment);
-  console.log('runner', runner);
   const tests: TestResult[] = [];
   const {
     screenShotEachTest,
     screenShotOnFailure,
-    testDir,
     outputFile,
   } = getCommandLineOptions(environment);
+  const testDir = getCommonRoot(environment.files);
   const timeOfTest = Date.now();
   const pathToOutputFile = outputFile || DEFAULT_OUTPUT_FILE;
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
