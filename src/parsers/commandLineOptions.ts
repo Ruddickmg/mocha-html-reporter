@@ -2,9 +2,7 @@ export interface ExpectedOptions {
   reporter?: string;
   // TODO remove testDir, should be detectable
   testDir?: string;
-  // TODO combine fileName and outputDir
-  fileName?: string;
-  outputDir?: string;
+  outputFile?: string;
   screenShotEachTest?: boolean;
   screenShotOnFailure?: boolean;
 }

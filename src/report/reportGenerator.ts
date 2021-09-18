@@ -15,7 +15,6 @@ import { Environment, getCommandLineOptions } from '../parsers/commandLineOption
 import { compileCode } from '../compilation';
 import { getHistory } from '../utilities/fileSystem';
 import { variableNameGenerator } from '../../test/helpers/expectations';
-import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
 import { FAILED, PASSED } from '../scripts/constants';
 import { TestResult } from '../scripts/formatting/html';
@@ -29,13 +28,11 @@ export const reportGenerator = async (
     screenShotEachTest,
     screenShotOnFailure,
     testDir,
-    outputDir,
-    fileName,
+    outputFile,
   } = getCommandLineOptions(environment);
   const timeOfTest = Date.now();
-  const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
-  const history = await getHistory(pathToOutputFile);
+  const history = await getHistory(outputFile);
   const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());
   const takeScreenShotOnFailure = screenShotOnFailure || screenShotEachTest;
   const reportData = {
@@ -64,7 +61,7 @@ export const reportGenerator = async (
     // TODO pass statistic/suite data through report handler, counts etc from test handler
     [FINISHED]: createReportHandler(
       tests,
-      pathToOutputFile,
+      outputFile,
       reportData,
     ),
   };
