@@ -128,7 +128,8 @@ describe('eventHandlers', (): void => {
         });
       });
   });
-  describe('createReportHandler', (): void => {
+  describe('createReportHandler', function testReportHandler() {
+    this.timeout(3000);
     const title = 'best test';
     const suite = 'a suite';
     const path = ['some', 'cool', 'directory'];

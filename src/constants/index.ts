@@ -16,6 +16,7 @@ import {
 
 export const PERIOD = '.';
 export const FINISHED = 'end';
+export const DEFAULT_OUTPUT_FILE = 'report.html';
 export const PACKAGE_NAME = 'mocha-html-reporter';
 export const JSON_EXTENSION = '.json';
 export const NEW_LINE = EOL;

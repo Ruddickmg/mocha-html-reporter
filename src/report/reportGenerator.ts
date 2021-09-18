@@ -7,6 +7,7 @@ import {
   TestHandlers,
 } from './eventHandlers';
 import {
+  DEFAULT_OUTPUT_FILE,
   FINISHED,
   PATH_TO_SCRIPTS,
   PATH_TO_STYLE_SHEET,
@@ -15,10 +16,10 @@ import { Environment, getCommandLineOptions } from '../parsers/commandLineOption
 import { compileCode } from '../compilation';
 import { getHistory } from '../utilities/fileSystem';
 import { variableNameGenerator } from '../../test/helpers/expectations';
-import { formatOutputFilePath } from '../formatting/paths';
 import { TEST_FAILED, TEST_PASSED } from '../constants/mocha';
 import { FAILED, PASSED } from '../scripts/constants';
 import { TestResult } from '../scripts/formatting/html';
+import { getCommonRoot } from '../parsers/path';
 
 export const reportGenerator = async (
   runner: Runner,
@@ -28,12 +29,11 @@ export const reportGenerator = async (
   const {
     screenShotEachTest,
     screenShotOnFailure,
-    testDir,
-    outputDir,
-    fileName,
+    outputFile,
   } = getCommandLineOptions(environment);
+  const testDir = getCommonRoot(environment.files);
   const timeOfTest = Date.now();
-  const pathToOutputFile = formatOutputFilePath(outputDir, fileName);
+  const pathToOutputFile = outputFile || DEFAULT_OUTPUT_FILE;
   const styles = await getStyles(PATH_TO_STYLE_SHEET);
   const history = await getHistory(pathToOutputFile);
   const scripts = await compileCode(PATH_TO_SCRIPTS, variableNameGenerator());

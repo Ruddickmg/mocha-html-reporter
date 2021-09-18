@@ -1,15 +1,13 @@
 export interface ExpectedOptions {
   reporter?: string;
-  historyDir?: string;
-  outputDir?: string;
-  testDir?: string;
-  fileName?: string;
+  outputFile?: string;
   screenShotEachTest?: boolean;
   screenShotOnFailure?: boolean;
 }
 
 export interface Environment {
   reporterOptions: ExpectedOptions;
+  files: string[];
 }
 
 export const getCommandLineOptions = (
